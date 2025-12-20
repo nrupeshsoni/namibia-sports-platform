@@ -145,38 +145,61 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm">
+      {/* Header - Glass */}
+      <header 
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        style={{
+          background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        }}
+      >
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <button 
             onClick={() => setShowSearch(!showSearch)}
-            className="text-white hover:text-gray-300 transition-colors"
+            className="p-2 rounded-xl text-white hover:bg-white/10 transition-all duration-300"
+            style={{
+              backdropFilter: 'blur(10px)',
+            }}
           >
             {showSearch ? <X className="w-6 h-6" /> : <Search className="w-6 h-6" />}
           </button>
           <h1 className="text-white text-2xl font-serif tracking-[0.3em]">NAMIBIA</h1>
-          <button className="text-white hover:text-gray-300 transition-colors">
+          <button 
+            className="p-2 rounded-xl text-white hover:bg-white/10 transition-all duration-300"
+            style={{
+              backdropFilter: 'blur(10px)',
+            }}
+          >
             <Menu className="w-6 h-6" />
           </button>
         </div>
         
-        {/* Search Bar - Expandable */}
+        {/* Search Bar - Glass Expandable */}
         {showSearch && (
           <div className="container mx-auto px-4 pb-4">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <div 
+              className="relative rounded-2xl overflow-hidden"
+              style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+              }}
+            >
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search federations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-red-500"
+                className="w-full pl-14 pr-14 py-4 bg-transparent text-white placeholder:text-gray-400 focus:outline-none"
                 autoFocus
               />
               {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-all"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -220,11 +243,23 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={scrollToFederations}
-              className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-medium rounded transition-colors"
+              className="px-8 py-4 text-white font-medium rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              style={{
+                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 10px 40px -10px rgba(239, 68, 68, 0.5)',
+              }}
             >
               Explore Federations
             </button>
-            <button className="px-8 py-4 bg-transparent border-2 border-white hover:bg-white hover:text-black text-white font-medium rounded transition-colors">
+            <button 
+              className="px-8 py-4 text-white font-medium rounded-xl transition-all duration-300 hover:scale-105 hover:bg-white/20"
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+              }}
+            >
               Upcoming Events
             </button>
           </div>
@@ -268,58 +303,36 @@ export default function Home() {
             )}
           </div>
 
-          {/* Category Filters */}
+          {/* Category Filters - Glass Pills */}
           <div className="flex flex-wrap justify-center gap-3 mb-8">
-            <button
-              onClick={() => setSelectedCategory('all')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                selectedCategory === 'all'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              All ({federations.length})
-            </button>
-            <button
-              onClick={() => setSelectedCategory('ministry')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                selectedCategory === 'ministry'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              Government
-            </button>
-            <button
-              onClick={() => setSelectedCategory('commission')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                selectedCategory === 'commission'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              Commission
-            </button>
-            <button
-              onClick={() => setSelectedCategory('umbrella')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                selectedCategory === 'umbrella'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              Umbrella Bodies
-            </button>
-            <button
-              onClick={() => setSelectedCategory('federation')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                selectedCategory === 'federation'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              Federations
-            </button>
+            {[
+              { key: 'all', label: `All (${federations.length})` },
+              { key: 'ministry', label: 'Government' },
+              { key: 'commission', label: 'Commission' },
+              { key: 'umbrella', label: 'Umbrella Bodies' },
+              { key: 'federation', label: 'Federations' },
+            ].map((filter) => (
+              <button
+                key={filter.key}
+                onClick={() => setSelectedCategory(filter.key)}
+                className="px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 hover:scale-105"
+                style={{
+                  background: selectedCategory === filter.key 
+                    ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))'
+                    : 'rgba(255, 255, 255, 0.08)',
+                  backdropFilter: 'blur(10px)',
+                  border: selectedCategory === filter.key 
+                    ? '1px solid rgba(239, 68, 68, 0.5)'
+                    : '1px solid rgba(255, 255, 255, 0.15)',
+                  color: 'white',
+                  boxShadow: selectedCategory === filter.key 
+                    ? '0 8px 32px -8px rgba(239, 68, 68, 0.4)'
+                    : 'none',
+                }}
+              >
+                {filter.label}
+              </button>
+            ))}
           </div>
           
           {/* Search Results Info */}
@@ -397,11 +410,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Regions Preview */}
-      <section className="py-16 bg-gray-900">
-        <div className="container mx-auto px-4">
+      {/* Regions Preview - Glass Cards */}
+      <section className="py-20 bg-black relative overflow-hidden">
+        {/* Ambient glow */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[300px] bg-gradient-to-t from-red-500/10 to-transparent rounded-full blur-[100px]" />
+        
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-12">
-            <p className="text-sm tracking-[0.3em] text-gray-400 mb-4">ACROSS</p>
+            <p className="text-sm tracking-[0.3em] text-red-400 mb-4">ACROSS</p>
             <h2 className="text-3xl md:text-5xl font-serif text-white mb-4">
               14 REGIONS
             </h2>
@@ -409,11 +425,26 @@ export default function Home() {
               Sports development spanning all of Namibia's administrative regions
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
             {['Khomas', 'Erongo', 'Oshana', 'Omusati', 'Ohangwena', 'Oshikoto', 'Kavango East', 
-              'Kavango West', 'Zambezi', 'Kunene', 'Otjozondjupa', 'Omaheke', 'Hardap', 'Karas'].map((region) => (
-              <div key={region} className="bg-gray-800/50 rounded-lg p-4 text-center hover:bg-gray-800 transition-colors cursor-pointer">
-                <MapPin className="w-6 h-6 mx-auto mb-2 text-red-500" />
+              'Kavango West', 'Zambezi', 'Kunene', 'Otjozondjupa', 'Omaheke', 'Hardap', 'Karas'].map((region, index) => (
+              <div 
+                key={region} 
+                className="p-4 text-center transition-all duration-300 hover:scale-105 cursor-pointer rounded-2xl group"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                }}
+              >
+                <div 
+                  className="w-10 h-10 mx-auto mb-3 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                  style={{
+                    background: `linear-gradient(135deg, rgba(${index % 2 === 0 ? '239, 68, 68' : '59, 130, 246'}, 0.3), rgba(${index % 2 === 0 ? '220, 38, 38' : '37, 99, 235'}, 0.3))`,
+                  }}
+                >
+                  <MapPin className={`w-5 h-5 ${index % 2 === 0 ? 'text-red-400' : 'text-blue-400'}`} />
+                </div>
                 <p className="text-white text-sm font-medium">{region}</p>
               </div>
             ))}
@@ -421,35 +452,49 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-b from-black to-gray-900">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <p className="text-5xl md:text-6xl font-serif text-white mb-2">67</p>
-              <p className="text-sm tracking-[0.2em] text-gray-400">SPORTING BODIES</p>
-            </div>
-            <div>
-              <p className="text-5xl md:text-6xl font-serif text-white mb-2">500+</p>
-              <p className="text-sm tracking-[0.2em] text-gray-400">CLUBS</p>
-            </div>
-            <div>
-              <p className="text-5xl md:text-6xl font-serif text-white mb-2">50K+</p>
-              <p className="text-sm tracking-[0.2em] text-gray-400">ATHLETES</p>
-            </div>
-            <div>
-              <p className="text-5xl md:text-6xl font-serif text-white mb-2">14</p>
-              <p className="text-sm tracking-[0.2em] text-gray-400">REGIONS</p>
-            </div>
+      {/* Stats Section - Glass Cards */}
+      <section className="py-20 bg-gradient-to-b from-black to-gray-900 relative overflow-hidden">
+        {/* Background glow effects */}
+        <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-red-500/20 rounded-full blur-[120px]" />
+        <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px]" />
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { value: '67', label: 'SPORTING BODIES', color: 'from-red-500/30 to-orange-500/30' },
+              { value: '500+', label: 'CLUBS', color: 'from-blue-500/30 to-cyan-500/30' },
+              { value: '50K+', label: 'ATHLETES', color: 'from-green-500/30 to-emerald-500/30' },
+              { value: '14', label: 'REGIONS', color: 'from-purple-500/30 to-pink-500/30' },
+            ].map((stat, index) => (
+              <div
+                key={stat.label}
+                className="text-center p-8 rounded-3xl transition-all duration-500 hover:scale-105 hover:-translate-y-2"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                }}
+              >
+                <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
+                  <span className="text-2xl font-bold text-white">{stat.value.charAt(0)}</span>
+                </div>
+                <p className="text-4xl md:text-5xl font-serif text-white mb-2">{stat.value}</p>
+                <p className="text-xs tracking-[0.2em] text-gray-400">{stat.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Sports Venues Section */}
-      <section id="venues" className="py-20 px-4 bg-black">
-        <div className="container mx-auto">
+      {/* Sports Venues Section - Glass Design */}
+      <section id="venues" className="py-20 px-4 bg-black relative overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-red-500/10 rounded-full blur-[150px]" />
+        
+        <div className="container mx-auto relative z-10">
           <div className="text-center mb-16">
-            <p className="text-sm tracking-[0.3em] text-gray-400 mb-4">WORLD-CLASS</p>
+            <p className="text-sm tracking-[0.3em] text-red-400 mb-4">WORLD-CLASS</p>
             <h2 className="text-4xl md:text-6xl font-serif text-white mb-4">
               SPORTS VENUES
             </h2>
@@ -458,62 +503,119 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Featured Venues - The Dome and Cricket Ground */}
+          {/* Featured Venues - Glass Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {/* The Dome Swakopmund */}
-            <div className="relative aspect-[16/9] overflow-hidden rounded-lg group cursor-pointer">
+            <div 
+              className="relative aspect-[16/9] overflow-hidden rounded-3xl group cursor-pointer transition-all duration-500 hover:scale-[1.02]"
+              style={{
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              }}
+            >
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                 style={{ backgroundImage: `url('https://images.unsplash.com/photo-1519315901367-f34ff9154487?w=800&q=80')` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-              <div className="absolute inset-0 flex flex-col items-start justify-end p-8">
-                <p className="text-xs tracking-[0.2em] text-red-400 mb-2">FEATURED VENUE</p>
-                <h3 className="text-3xl md:text-4xl font-serif text-white mb-2">THE DOME</h3>
-                <p className="text-gray-300 mb-2">Swakopmund, Erongo</p>
-                <div className="flex items-center gap-4 text-sm text-gray-400">
-                  <span className="flex items-center gap-1"><Users className="w-4 h-4" /> 5,000 capacity</span>
-                  <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> Swakopmund</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+              
+              {/* Glass info card at bottom */}
+              <div 
+                className="absolute bottom-0 left-0 right-0 p-6 m-4 rounded-2xl"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.4)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                }}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span 
+                    className="px-3 py-1 rounded-full text-xs font-medium text-white"
+                    style={{ background: 'rgba(239, 68, 68, 0.5)' }}
+                  >
+                    FEATURED
+                  </span>
                 </div>
-                <p className="text-gray-400 mt-3 text-sm max-w-md">
-                  Multi-purpose indoor sports facility featuring an Olympic-sized swimming pool, gymnasium, and various courts.
-                </p>
+                <h3 className="text-2xl md:text-3xl font-serif text-white mb-1">THE DOME</h3>
+                <p className="text-gray-300 text-sm mb-3">Swakopmund, Erongo</p>
+                <div className="flex items-center gap-4 text-sm text-gray-400">
+                  <span className="flex items-center gap-1 px-3 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                    <Users className="w-4 h-4" /> 5,000
+                  </span>
+                  <span className="flex items-center gap-1 px-3 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                    <MapPin className="w-4 h-4" /> Swakopmund
+                  </span>
+                </div>
               </div>
             </div>
 
             {/* Namibia Cricket Ground */}
-            <div className="relative aspect-[16/9] overflow-hidden rounded-lg group cursor-pointer">
+            <div 
+              className="relative aspect-[16/9] overflow-hidden rounded-3xl group cursor-pointer transition-all duration-500 hover:scale-[1.02]"
+              style={{
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              }}
+            >
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                 style={{ backgroundImage: `url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800&q=80')` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-              <div className="absolute inset-0 flex flex-col items-start justify-end p-8">
-                <p className="text-xs tracking-[0.2em] text-red-400 mb-2">FEATURED VENUE</p>
-                <h3 className="text-3xl md:text-4xl font-serif text-white mb-2">CRICKET GROUND</h3>
-                <p className="text-gray-300 mb-2">Windhoek, Khomas</p>
-                <div className="flex items-center gap-4 text-sm text-gray-400">
-                  <span className="flex items-center gap-1"><Users className="w-4 h-4" /> 8,000 capacity</span>
-                  <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> Olympia</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+              
+              {/* Glass info card at bottom */}
+              <div 
+                className="absolute bottom-0 left-0 right-0 p-6 m-4 rounded-2xl"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.4)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                }}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span 
+                    className="px-3 py-1 rounded-full text-xs font-medium text-white"
+                    style={{ background: 'rgba(59, 130, 246, 0.5)' }}
+                  >
+                    FEATURED
+                  </span>
                 </div>
-                <p className="text-gray-400 mt-3 text-sm max-w-md">
-                  The home of Cricket Namibia, hosting international matches and domestic competitions.
-                </p>
+                <h3 className="text-2xl md:text-3xl font-serif text-white mb-1">CRICKET GROUND</h3>
+                <p className="text-gray-300 text-sm mb-3">Windhoek, Khomas</p>
+                <div className="flex items-center gap-4 text-sm text-gray-400">
+                  <span className="flex items-center gap-1 px-3 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                    <Users className="w-4 h-4" /> 8,000
+                  </span>
+                  <span className="flex items-center gap-1 px-3 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                    <MapPin className="w-4 h-4" /> Olympia
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Other Venues Grid */}
+          {/* Other Venues Grid - Glass Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {venues.filter(v => !v.name.includes('Dome') && !v.name.includes('Cricket')).slice(0, 4).map((venue) => (
-              <div key={venue.id} className="relative aspect-square overflow-hidden rounded-lg group cursor-pointer">
+              <div 
+                key={venue.id} 
+                className="relative aspect-square overflow-hidden rounded-2xl group cursor-pointer transition-all duration-500 hover:scale-105"
+                style={{
+                  boxShadow: '0 15px 30px -10px rgba(0, 0, 0, 0.3)',
+                }}
+              >
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                   style={{ backgroundImage: `url('https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=400&q=80')` }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                <div className="absolute inset-0 flex flex-col items-start justify-end p-4">
-                  <h4 className="text-lg font-serif text-white">{venue.name.replace('Namibia ', '').replace(' Stadium', '')}</h4>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                <div 
+                  className="absolute bottom-0 left-0 right-0 p-4 m-2 rounded-xl"
+                  style={{
+                    background: 'rgba(0, 0, 0, 0.3)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}
+                >
+                  <h4 className="text-base font-serif text-white">{venue.name.replace('Namibia ', '').replace(' Stadium', '')}</h4>
                   <p className="text-xs text-gray-400">{venue.city}</p>
                 </div>
               </div>
@@ -522,102 +624,232 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Sports Excellence Blocks */}
-      <section className="py-20 bg-gray-900">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Sports Excellence Blocks - Glass Cards */}
+      <section className="py-20 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
+        {/* Ambient lighting */}
+        <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-red-500/10 rounded-full blur-[150px]" />
+        <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[150px]" />
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* High Performance */}
-            <div className="bg-gradient-to-br from-red-900/50 to-black p-8 rounded-lg border border-red-900/30">
-              <Trophy className="w-12 h-12 text-red-500 mb-6" />
+            <div 
+              className="p-8 rounded-3xl transition-all duration-500 hover:scale-105 hover:-translate-y-2 group"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              }}
+            >
+              <div 
+                className="w-16 h-16 rounded-2xl mb-6 flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(220, 38, 38, 0.3))',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                }}
+              >
+                <Trophy className="w-8 h-8 text-red-400" />
+              </div>
               <h3 className="text-2xl font-serif text-white mb-4">HIGH PERFORMANCE</h3>
-              <p className="text-gray-400 mb-6">
+              <p className="text-gray-400 mb-6 leading-relaxed">
                 Elite athlete development programs nurturing Namibia's next generation of champions across all sporting disciplines.
               </p>
-              <a href="#" className="text-red-400 hover:text-red-300 text-sm tracking-wider">LEARN MORE →</a>
+              <a 
+                href="#" 
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm text-white transition-all duration-300 hover:gap-4"
+                style={{
+                  background: 'rgba(239, 68, 68, 0.2)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                }}
+              >
+                LEARN MORE <span>→</span>
+              </a>
             </div>
 
-            {/* Upcoming Events */}
-            <div className="bg-gradient-to-br from-blue-900/50 to-black p-8 rounded-lg border border-blue-900/30">
-              <Calendar className="w-12 h-12 text-blue-500 mb-6" />
+            {/* Events Calendar */}
+            <div 
+              className="p-8 rounded-3xl transition-all duration-500 hover:scale-105 hover:-translate-y-2 group"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              }}
+            >
+              <div 
+                className="w-16 h-16 rounded-2xl mb-6 flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.3))',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                }}
+              >
+                <Calendar className="w-8 h-8 text-blue-400" />
+              </div>
               <h3 className="text-2xl font-serif text-white mb-4">EVENTS CALENDAR</h3>
-              <p className="text-gray-400 mb-6">
+              <p className="text-gray-400 mb-6 leading-relaxed">
                 Stay updated with national championships, international competitions, and community sports events across Namibia.
               </p>
-              <a href="/events" className="text-blue-400 hover:text-blue-300 text-sm tracking-wider">VIEW EVENTS →</a>
+              <a 
+                href="/events" 
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm text-white transition-all duration-300 hover:gap-4"
+                style={{
+                  background: 'rgba(59, 130, 246, 0.2)',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                }}
+              >
+                VIEW EVENTS <span>→</span>
+              </a>
             </div>
 
-            {/* Athlete Development */}
-            <div className="bg-gradient-to-br from-green-900/50 to-black p-8 rounded-lg border border-green-900/30">
-              <Users className="w-12 h-12 text-green-500 mb-6" />
+            {/* Athlete Registration */}
+            <div 
+              className="p-8 rounded-3xl transition-all duration-500 hover:scale-105 hover:-translate-y-2 group"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              }}
+            >
+              <div 
+                className="w-16 h-16 rounded-2xl mb-6 flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(22, 163, 74, 0.3))',
+                  border: '1px solid rgba(34, 197, 94, 0.3)',
+                }}
+              >
+                <Users className="w-8 h-8 text-green-400" />
+              </div>
               <h3 className="text-2xl font-serif text-white mb-4">ATHLETE REGISTRATION</h3>
-              <p className="text-gray-400 mb-6">
+              <p className="text-gray-400 mb-6 leading-relaxed">
                 Register as an athlete, coach, or official. Join Namibia's sporting community and access development programs.
               </p>
-              <a href="#" className="text-green-400 hover:text-green-300 text-sm tracking-wider">REGISTER NOW →</a>
+              <a 
+                href="#" 
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm text-white transition-all duration-300 hover:gap-4"
+                style={{
+                  background: 'rgba(34, 197, 94, 0.2)',
+                  border: '1px solid rgba(34, 197, 94, 0.3)',
+                }}
+              >
+                REGISTER NOW <span>→</span>
+              </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Partners & Sponsors */}
-      <section className="py-16 bg-black border-t border-gray-800">
+      {/* Partners & Sponsors - Glass Section */}
+      <section 
+        className="py-16 relative"
+        style={{
+          background: 'rgba(255, 255, 255, 0.02)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+        }}
+      >
         <div className="container mx-auto px-4">
-          <p className="text-center text-sm tracking-[0.3em] text-gray-500 mb-8">PARTNERS & SPONSORS</p>
-          <div className="flex flex-wrap justify-center items-center gap-12 opacity-60">
-            <span className="text-2xl font-serif text-gray-400">FNB</span>
-            <span className="text-2xl font-serif text-gray-400">MTC</span>
-            <span className="text-2xl font-serif text-gray-400">DEBMARINE</span>
-            <span className="text-2xl font-serif text-gray-400">BANK WINDHOEK</span>
-            <span className="text-2xl font-serif text-gray-400">NAMPOWER</span>
+          <p className="text-center text-sm tracking-[0.3em] text-gray-500 mb-10">PARTNERS & SPONSORS</p>
+          <div className="flex flex-wrap justify-center items-center gap-8">
+            {['FNB', 'MTC', 'DEBMARINE', 'BANK WINDHOEK', 'NAMPOWER'].map((partner) => (
+              <div 
+                key={partner}
+                className="px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105 cursor-pointer"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                }}
+              >
+                <span className="text-xl font-serif text-gray-400 hover:text-white transition-colors">{partner}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-black text-white py-12 border-t border-gray-800">
-        <div className="container mx-auto px-4">
+      {/* Footer - Glass Design */}
+      <footer 
+        className="text-white py-16 relative"
+        style={{
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,1))',
+          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+        }}
+      >
+        {/* Subtle glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
+        
+        <div className="container mx-auto px-4 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             <div>
-              <h3 className="text-2xl font-serif mb-4">NAMIBIA SPORTS</h3>
+              <h3 className="text-2xl font-serif mb-4 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">NAMIBIA SPORTS</h3>
               <p className="text-gray-400 text-sm">Excellence in Athletics, Unity in Sport</p>
             </div>
             <div>
               <h4 className="text-sm tracking-wider text-gray-300 mb-4">QUICK LINKS</h4>
-              <ul className="space-y-2 text-sm text-gray-500">
-                <li><a href="#federations" className="hover:text-white transition-colors">Federations</a></li>
-                <li><a href="#venues" className="hover:text-white transition-colors">Venues</a></li>
-                <li><a href="/events" className="hover:text-white transition-colors">Events</a></li>
-                <li><a href="/admin" className="hover:text-white transition-colors">Admin Portal</a></li>
+              <ul className="space-y-3 text-sm">
+                {[
+                  { label: 'Federations', href: '#federations' },
+                  { label: 'Venues', href: '#venues' },
+                  { label: 'Events', href: '/events' },
+                  { label: 'Admin Portal', href: '/admin' },
+                ].map((link) => (
+                  <li key={link.label}>
+                    <a 
+                      href={link.href} 
+                      className="text-gray-500 hover:text-white transition-all duration-300 hover:pl-2 inline-block"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
             <div>
               <h4 className="text-sm tracking-wider text-gray-300 mb-4">CONTACT</h4>
-              <ul className="space-y-2 text-sm text-gray-500">
+              <ul className="space-y-3 text-sm text-gray-500">
                 <li>Namibia Sports Commission</li>
                 <li>Windhoek, Namibia</li>
-                <li>info@namibiasport.org</li>
-                <li>+264 61 246105</li>
+                <li className="hover:text-red-400 transition-colors cursor-pointer">info@namibiasport.org</li>
+                <li className="hover:text-red-400 transition-colors cursor-pointer">+264 61 246105</li>
               </ul>
             </div>
             <div>
               <h4 className="text-sm tracking-wider text-gray-300 mb-4">FOLLOW US</h4>
-              <div className="flex gap-4">
-                <a href="#" className="text-gray-500 hover:text-white transition-colors">Facebook</a>
-                <a href="#" className="text-gray-500 hover:text-white transition-colors">Twitter</a>
-                <a href="#" className="text-gray-500 hover:text-white transition-colors">Instagram</a>
+              <div className="flex gap-3">
+                {['Facebook', 'Twitter', 'Instagram'].map((social) => (
+                  <a 
+                    key={social}
+                    href="#" 
+                    className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white transition-all duration-300"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                    }}
+                  >
+                    {social}
+                  </a>
+                ))}
               </div>
             </div>
           </div>
           
-          <div className="border-t border-gray-800 pt-8 text-center">
-            <p className="text-sm text-gray-500 mb-2">
+          <div 
+            className="pt-8 text-center rounded-2xl p-6"
+            style={{
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+            }}
+          >
+            <p className="text-sm text-gray-500 mb-3">
               © {new Date().getFullYear()} Namibia Sports Platform. All rights reserved.
             </p>
             <p className="text-xs text-gray-600">
               Website Designed and Developed by{' '}
-              <a href="https://thedome.com.na" className="text-red-500 hover:text-red-400">The Dome Technologies</a>
+              <a href="https://thedome.com.na" className="text-red-500 hover:text-red-400 transition-colors">The Dome Technologies</a>
               {' '}&{' '}
-              <a href="https://facilit8.com.na" className="text-red-500 hover:text-red-400">Facilit8 Namibia</a>
+              <a href="https://facilit8.com.na" className="text-red-500 hover:text-red-400 transition-colors">Facilit8 Namibia</a>
             </p>
           </div>
         </div>
