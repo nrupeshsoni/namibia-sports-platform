@@ -67,26 +67,29 @@ export const federations = pgTable("namibia_na_26_federations", {
 // ===== CLUBS/TEAMS =====
 export const clubs = pgTable("namibia_na_26_clubs", {
   id: serial("id").primaryKey(),
-  federationId: integer("federation_id").notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   slug: varchar("slug", { length: 255 }).notNull().unique(),
   description: text("description"),
   logoUrl: text("logo_url"),
-  
-  // Location
-  location: varchar("location", { length: 255 }),
-  region: varchar("region", { length: 100 }), // One of 14 Namibian regions
+  federationId: integer("federation_id").notNull(),
   
   // Contact
   contactEmail: varchar("contact_email", { length: 320 }),
   contactPhone: varchar("contact_phone", { length: 50 }),
   website: text("website"),
+  address: text("address"),
+  
+  // Location
+  region: varchar("region", { length: 100 }), // One of 14 Namibian regions
+  city: varchar("city", { length: 100 }),
+  
+  // Leadership
+  presidentName: varchar("president_name", { length: 255 }),
+  coachName: varchar("coach_name", { length: 255 }),
   
   // Metadata
   establishedYear: integer("established_year"),
   memberCount: integer("member_count"),
-  achievements: text("achievements"),
-  facilities: text("facilities"),
   isActive: boolean("is_active").default(true).notNull(),
   
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -97,17 +100,15 @@ export const clubs = pgTable("namibia_na_26_clubs", {
 export const schools = pgTable("namibia_na_26_schools", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
-  slug: varchar("slug", { length: 255 }).notNull().unique(),
-  location: varchar("location", { length: 255 }),
   region: varchar("region", { length: 100 }),
+  city: varchar("city", { length: 100 }),
   
   contactEmail: varchar("contact_email", { length: 320 }),
   contactPhone: varchar("contact_phone", { length: 50 }),
   
-  // Sports offered (JSON array of federation IDs)
-  sportsOffered: json("sports_offered").$type<number[]>(),
+  // Sports offered as text array
+  sportsOffered: text("sports_offered").array(),
   
-  isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -115,20 +116,20 @@ export const schools = pgTable("namibia_na_26_schools", {
 // ===== ATHLETES =====
 export const athletes = pgTable("namibia_na_26_athletes", {
   id: serial("id").primaryKey(),
-  federationId: integer("federation_id").notNull(),
-  clubId: integer("club_id"),
-  
-  name: varchar("name", { length: 255 }).notNull(),
-  slug: varchar("slug", { length: 255 }).notNull().unique(),
-  biography: text("biography"),
-  profilePhotoUrl: text("profile_photo_url"),
-  
+  firstName: varchar("first_name", { length: 255 }).notNull(),
+  lastName: varchar("last_name", { length: 255 }).notNull(),
   dateOfBirth: timestamp("date_of_birth"),
   gender: genderEnum("gender"),
-  nationality: varchar("nationality", { length: 100 }).default("Namibian"),
+  photoUrl: text("photo_url"),
+  
+  federationId: integer("federation_id"),
+  clubId: integer("club_id"),
+  
+  email: varchar("email", { length: 320 }),
+  phone: varchar("phone", { length: 50 }),
   
   achievements: text("achievements"),
-  currentRanking: varchar("current_ranking", { length: 255 }),
+  currentRanking: integer("current_ranking"),
   
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -138,20 +139,19 @@ export const athletes = pgTable("namibia_na_26_athletes", {
 // ===== COACHES =====
 export const coaches = pgTable("namibia_na_26_coaches", {
   id: serial("id").primaryKey(),
-  federationId: integer("federation_id").notNull(),
+  firstName: varchar("first_name", { length: 255 }).notNull(),
+  lastName: varchar("last_name", { length: 255 }).notNull(),
+  photoUrl: text("photo_url"),
+  
+  federationId: integer("federation_id"),
   clubId: integer("club_id"),
   
-  name: varchar("name", { length: 255 }).notNull(),
-  slug: varchar("slug", { length: 255 }).notNull().unique(),
-  biography: text("biography"),
-  profilePhotoUrl: text("profile_photo_url"),
+  email: varchar("email", { length: 320 }),
+  phone: varchar("phone", { length: 50 }),
   
   certifications: text("certifications"),
   specialization: varchar("specialization", { length: 255 }),
-  yearsOfExperience: integer("years_of_experience"),
-  
-  contactEmail: varchar("contact_email", { length: 320 }),
-  contactPhone: varchar("contact_phone", { length: 50 }),
+  yearsExperience: integer("years_experience"),
   
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -161,27 +161,27 @@ export const coaches = pgTable("namibia_na_26_coaches", {
 // ===== EVENTS/COMPETITIONS =====
 export const events = pgTable("namibia_na_26_events", {
   id: serial("id").primaryKey(),
-  federationId: integer("federation_id").notNull(),
-  
   name: varchar("name", { length: 255 }).notNull(),
   slug: varchar("slug", { length: 255 }).notNull().unique(),
   description: text("description"),
-  eventType: eventTypeEnum("event_type").default("competition").notNull(),
+  posterUrl: text("poster_url"),
+  
+  federationId: integer("federation_id"),
+  venueId: integer("venue_id"),
+  
+  type: eventTypeEnum("type").default("competition").notNull(),
   
   startDate: timestamp("start_date").notNull(),
-  endDate: timestamp("end_date").notNull(),
+  endDate: timestamp("end_date"),
+  registrationDeadline: timestamp("registration_deadline"),
   
-  venue: varchar("venue", { length: 255 }),
   location: varchar("location", { length: 255 }),
   region: varchar("region", { length: 100 }),
   
-  registrationDeadline: timestamp("registration_deadline"),
-  registrationUrl: text("registration_url"),
-  resultsUrl: text("results_url"),
+  maxParticipants: integer("max_participants"),
+  currentParticipants: integer("current_participants").default(0),
   
-  posterUrl: text("poster_url"),
-  
-  isActive: boolean("is_active").default(true).notNull(),
+  isPublished: boolean("is_published").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -189,24 +189,20 @@ export const events = pgTable("namibia_na_26_events", {
 // ===== VENUES/FACILITIES =====
 export const venues = pgTable("namibia_na_26_venues", {
   id: serial("id").primaryKey(),
-  
   name: varchar("name", { length: 255 }).notNull(),
   slug: varchar("slug", { length: 255 }).notNull().unique(),
   description: text("description"),
+  photoUrl: text("photo_url"),
   
-  location: varchar("location", { length: 255 }),
-  region: varchar("region", { length: 100 }),
   address: text("address"),
-  
-  capacity: integer("capacity"),
-  sportsSupported: json("sports_supported").$type<number[]>(), // Array of federation IDs
-  facilities: text("facilities"), // Description of facilities
+  city: varchar("city", { length: 100 }),
+  region: varchar("region", { length: 100 }),
   
   contactEmail: varchar("contact_email", { length: 320 }),
   contactPhone: varchar("contact_phone", { length: 50 }),
-  bookingUrl: text("booking_url"),
   
-  imageUrl: text("image_url"),
+  capacity: integer("capacity"),
+  facilities: text("facilities").array(),
   
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -216,11 +212,11 @@ export const venues = pgTable("namibia_na_26_venues", {
 // ===== MEDIA =====
 export const media = pgTable("namibia_na_26_media", {
   id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }),
+  fileUrl: text("file_url").notNull(),
+  thumbnailUrl: text("thumbnail_url"),
   
-  url: text("url").notNull(),
   type: mediaTypeEnum("type").default("image").notNull(),
-  altText: varchar("alt_text", { length: 255 }),
-  caption: text("caption"),
   
   // Polymorphic relationship
   entityType: entityTypeEnum("entity_type").notNull(),

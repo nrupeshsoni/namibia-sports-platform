@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { federations as staticFederations } from '../data/federations';
 import FederationModal from '../components/FederationModal';
 import type { Federation as StaticFederation } from '../data/federations';
-import { ChevronDown, Search, Menu, Loader2, MapPin, Users, Calendar, Trophy } from 'lucide-react';
+import { ChevronDown, Search, Menu, Loader2, MapPin, Users, Calendar, Trophy, X, Filter } from 'lucide-react';
 import { fetchFederations, supabase, type DbFederation } from '../lib/supabase';
 
 // Venue type
@@ -56,6 +56,22 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   
+  // Search and filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [showSearch, setShowSearch] = useState(false);
+  
+  // Filter federations based on search and category
+  const filteredFederations = useMemo(() => {
+    return federations.filter((fed) => {
+      const matchesSearch = searchQuery === '' || 
+        fed.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        fed.shortName.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === 'all' || fed.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [federations, searchQuery, selectedCategory]);
+  
   // Fetch federations and venues from Supabase
   useEffect(() => {
     async function loadData() {
@@ -89,9 +105,30 @@ export default function Home() {
   }, []);
 
   const heroImages = [
-    { url: '/hero/stadium.jpg', title: 'NAMIBIA', subtitle: 'SPORTS', tagline: 'Excellence in Athletics, Unity in Sport' },
-    { url: '/hero/athletics.jpg', title: 'NAMIBIA', subtitle: 'SPORTS', tagline: 'Building Champions, Inspiring Nations' },
-    { url: '/hero/sports-equipment.jpg', title: 'NAMIBIA', subtitle: 'SPORTS', tagline: 'Where Passion Meets Performance' },
+    { 
+      url: 'https://images.unsplash.com/photo-1519315901367-f34ff9154487?w=1920&q=80', 
+      title: 'THE DOME', 
+      subtitle: 'SWAKOPMUND', 
+      tagline: 'Namibia\'s Premier Multi-Sport Indoor Facility' 
+    },
+    { 
+      url: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=1920&q=80', 
+      title: 'NAMIBIA', 
+      subtitle: 'CRICKET GROUND', 
+      tagline: 'Home of International Cricket in Namibia' 
+    },
+    { 
+      url: 'https://images.unsplash.com/photo-1461896836934- voices-that-matter?w=1920&q=80', 
+      title: 'NAMIBIA', 
+      subtitle: 'SPORTS', 
+      tagline: 'Excellence in Athletics, Unity in Sport' 
+    },
+    { 
+      url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1920&q=80', 
+      title: 'NAMIBIA', 
+      subtitle: 'ATHLETICS', 
+      tagline: 'Building Champions, Inspiring Nations' 
+    },
   ];
 
   // Auto-rotate hero images
@@ -111,14 +148,42 @@ export default function Home() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <button className="text-white hover:text-gray-300 transition-colors">
-            <Search className="w-6 h-6" />
+          <button 
+            onClick={() => setShowSearch(!showSearch)}
+            className="text-white hover:text-gray-300 transition-colors"
+          >
+            {showSearch ? <X className="w-6 h-6" /> : <Search className="w-6 h-6" />}
           </button>
           <h1 className="text-white text-2xl font-serif tracking-[0.3em]">NAMIBIA</h1>
           <button className="text-white hover:text-gray-300 transition-colors">
             <Menu className="w-6 h-6" />
           </button>
         </div>
+        
+        {/* Search Bar - Expandable */}
+        {showSearch && (
+          <div className="container mx-auto px-4 pb-4">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search federations..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-red-500"
+                autoFocus
+              />
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
@@ -188,7 +253,7 @@ export default function Home() {
       {/* Federations Grid */}
       <section id="federations" className="py-20 px-4 bg-black">
         <div className="container mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <p className="text-sm tracking-[0.3em] text-gray-400 mb-4">DISCOVER</p>
             <h2 className="text-4xl md:text-6xl font-serif text-white mb-4">
               SPORTING FEDERATIONS
@@ -203,6 +268,68 @@ export default function Home() {
             )}
           </div>
 
+          {/* Category Filters */}
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            <button
+              onClick={() => setSelectedCategory('all')}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                selectedCategory === 'all'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              All ({federations.length})
+            </button>
+            <button
+              onClick={() => setSelectedCategory('ministry')}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                selectedCategory === 'ministry'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              Government
+            </button>
+            <button
+              onClick={() => setSelectedCategory('commission')}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                selectedCategory === 'commission'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              Commission
+            </button>
+            <button
+              onClick={() => setSelectedCategory('umbrella')}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                selectedCategory === 'umbrella'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              Umbrella Bodies
+            </button>
+            <button
+              onClick={() => setSelectedCategory('federation')}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                selectedCategory === 'federation'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              Federations
+            </button>
+          </div>
+          
+          {/* Search Results Info */}
+          {(searchQuery || selectedCategory !== 'all') && (
+            <p className="text-center text-gray-400 mb-6">
+              Showing {filteredFederations.length} of {federations.length} federations
+              {searchQuery && <span> matching "<span className="text-white">{searchQuery}</span>"</span>}
+            </p>
+          )}
+
           {/* Loading State */}
           {isLoading && (
             <div className="flex items-center justify-center py-20">
@@ -210,9 +337,24 @@ export default function Home() {
             </div>
           )}
 
+          {/* Empty State */}
+          {!isLoading && filteredFederations.length === 0 && (
+            <div className="text-center py-20">
+              <Filter className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+              <h3 className="text-2xl font-serif text-gray-400 mb-2">No Federations Found</h3>
+              <p className="text-gray-500 mb-4">Try adjusting your search or filters</p>
+              <button
+                onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
+                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors"
+              >
+                Clear Filters
+              </button>
+            </div>
+          )}
+
           {/* Grid - 3 columns desktop, 2 columns mobile */}
-          {!isLoading && <div className="grid grid-cols-2 lg:grid-cols-3 gap-0">
-            {federations.map((federation) => (
+          {!isLoading && filteredFederations.length > 0 && <div className="grid grid-cols-2 lg:grid-cols-3 gap-0">
+            {filteredFederations.map((federation) => (
               <button
                 key={federation.id}
                 onClick={() => setSelectedFederation(federation)}
@@ -252,6 +394,30 @@ export default function Home() {
               </button>
             ))}
           </div>}
+        </div>
+      </section>
+
+      {/* Regions Preview */}
+      <section className="py-16 bg-gray-900">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <p className="text-sm tracking-[0.3em] text-gray-400 mb-4">ACROSS</p>
+            <h2 className="text-3xl md:text-5xl font-serif text-white mb-4">
+              14 REGIONS
+            </h2>
+            <p className="text-gray-300">
+              Sports development spanning all of Namibia's administrative regions
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            {['Khomas', 'Erongo', 'Oshana', 'Omusati', 'Ohangwena', 'Oshikoto', 'Kavango East', 
+              'Kavango West', 'Zambezi', 'Kunene', 'Otjozondjupa', 'Omaheke', 'Hardap', 'Karas'].map((region) => (
+              <div key={region} className="bg-gray-800/50 rounded-lg p-4 text-center hover:bg-gray-800 transition-colors cursor-pointer">
+                <MapPin className="w-6 h-6 mx-auto mb-2 text-red-500" />
+                <p className="text-white text-sm font-medium">{region}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
