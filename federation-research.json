@@ -1,0 +1,49 @@
+{
+  "federations": [
+    {
+      "name": "Football Association of Namibia",
+      "website": "https://nfa.org.na",
+      "facebook": "https://www.facebook.com/namibiafootballassociation",
+      "instagram": "https://www.instagram.com/namibiafootballassociation",
+      "twitter": "https://x.com/Official_NFA",
+      "email": "info@nfa.org.na",
+      "phone": "+264 61 223 818",
+      "address": "Independence Stadium, Windhoek, Namibia"
+    },
+    {
+      "name": "Athletics Namibia",
+      "website": "https://athletics-namibia.com.na",
+      "facebook": "https://www.facebook.com/NamibiaAthletics",
+      "instagram": "https://www.instagram.com/athleticsnamibia",
+      "phone": "+264 81 861 3146",
+      "address": "Independence Stadium, Rugby Street, Windhoek, Namibia"
+    },
+    {
+      "name": "Namibia Rugby Union",
+      "website": "https://nru.com.na",
+      "facebook": "https://www.facebook.com/NamibiaRugby",
+      "email": "theogrunewald@hotmail.com",
+      "address": "Lichtenstein Street, Windhoek, 9000"
+    },
+    {
+      "name": "Cricket Namibia",
+      "website": "https://cricketnamibia.com",
+      "facebook": "https://www.facebook.com/CricketNamibia",
+      "instagram": "https://www.instagram.com/official_cricketnamibia",
+      "twitter": "https://twitter.com/CricketNamibia",
+      "youtube": "https://www.youtube.com/cricketnamibia",
+      "phone": "+264 61 223 818",
+      "email": "info@cricketnamibia.com",
+      "address": "Wanderers Cricket Ground, Windhoek, Namibia"
+    },
+    {
+      "name": "Netball Namibia",
+      "facebook": "https://www.facebook.com/p/Namibian-Netball-Association-100045540826585",
+      "instagram": "https://www.instagram.com/netballnamibia"
+    },
+    {
+      "name": "Boxing Namibia",
+      "facebook": "https://www.facebook.com/namibiaboxingfederation"
+    }
+  ]
+}

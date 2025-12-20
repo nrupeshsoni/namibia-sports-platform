@@ -1,0 +1,550 @@
+[
+  {
+    "name": "Athletics Namibia",
+    "slug": "athletics-namibia",
+    "type": "federation",
+    "contactEmail": "nam@mf.worldathletics.org",
+    "contactPhone": "0811243550",
+    "secretaryGeneralName": "Madeleine Kotze"
+  },
+  {
+    "name": "Namibia Freshwater Angling",
+    "slug": "freshwater-angling",
+    "type": "federation",
+    "contactEmail": "hjpdp@afol.com.na",
+    "contactPhone": "264 81-228 0100",
+    "presidentName": "Henry Du Plessis",
+    "secretaryGeneralName": "Carol Stinton"
+  },
+  {
+    "name": "Sea Water Angling",
+    "slug": "seawater-angling",
+    "type": "federation",
+    "contactEmail": "simena@iway.na",
+    "contactPhone": "+264813684860",
+    "presidentName": "Sinen Andresen"
+  },
+  {
+    "name": "Archery of Namibia Association",
+    "slug": "archery",
+    "type": "federation",
+    "contactEmail": "secretarygeneral.aan@gmail.com",
+    "contactPhone": "+264 81 205 3715",
+    "secretaryGeneralName": "Jacqueline Coetzee",
+    "presidentName": "Jannie Meuwesen"
+  },
+  {
+    "name": "Namibia Badminton Federation",
+    "slug": "badminton",
+    "type": "federation",
+    "contactEmail": "bfnamibia@gmail.com",
+    "contactPhone": "063 - 234306",
+    "presidentName": "Lynn du Preez"
+  },
+  {
+    "name": "Namibia Basketball Federation",
+    "slug": "basketball",
+    "type": "federation",
+    "contactEmail": "namibianbasketball@gmail.com",
+    "contactPhone": "0813813749",
+    "secretaryGeneralName": "Titus MWAHAFA",
+    "presidentName": "Nigel MUBITA"
+  },
+  {
+    "name": "Namibia Bowling Association",
+    "slug": "bowling",
+    "type": "federation",
+    "contactEmail": "namibiabowls@gmail.com",
+    "contactPhone": "0811293931",
+    "secretaryGeneralName": "Derek Brune",
+    "presidentName": "Anjuleen Viljoen"
+  },
+  {
+    "name": "Namibia Boxing Federation",
+    "slug": "boxing",
+    "type": "federation",
+    "contactEmail": "namibiaboxing_federation@yahoo.com",
+    "contactPhone": "0812885831",
+    "presidentName": "Petrus n Kashango"
+  },
+  {
+    "name": "Namibia Canoe & Rowing Federation",
+    "slug": "canoe-rowing",
+    "type": "federation",
+    "contactEmail": "secretarygeneralnamcanrowing@gmail.com",
+    "contactPhone": "+264 81 854 0882",
+    "secretaryGeneralName": "Theo Tjiueza",
+    "presidentName": "Mike Haibondi"
+  },
+  {
+    "name": "Namibia Chess Federation",
+    "slug": "chess",
+    "type": "federation",
+    "contactEmail": "secretary@namibiachessfederation.com",
+    "contactPhone": "(+264)81 338 2087",
+    "secretaryGeneralName": "Lloyd Diën"
+  },
+  {
+    "name": "Cricket Namibia",
+    "slug": "cricket",
+    "type": "federation",
+    "contactEmail": "operations@cricketnamibia.com",
+    "contactPhone": "+264 85 129 5930",
+    "secretaryGeneralName": "Johan MULLER",
+    "presidentName": "Harald Fülle"
+  },
+  {
+    "name": "Namibia Cycling Federation",
+    "slug": "cycling",
+    "type": "federation",
+    "contactEmail": "info@namcf.org",
+    "website": "www.namcf.org",
+    "contactPhone": "+264 81 293 1460",
+    "secretaryGeneralName": "Elanor Grassow",
+    "presidentName": "Tauko Shilongo"
+  },
+  {
+    "name": "Dance Sport Namibia",
+    "slug": "dancesport",
+    "type": "federation",
+    "contactEmail": "dancesportnam@gmail.com",
+    "contactPhone": "0816686881",
+    "presidentName": "Edmund Van Neel",
+    "secretaryGeneralName": "Alta Hill"
+  },
+  {
+    "name": "Namibia Darts Federation",
+    "slug": "darts",
+    "type": "federation",
+    "contactEmail": "buksie1962@icloud.com",
+    "contactPhone": "0812147484",
+    "secretaryGeneralName": "Ludwig Ralph"
+  },
+  {
+    "name": "Namibia Fist Ball Federation",
+    "slug": "fistball",
+    "type": "federation",
+    "contactEmail": "secretary@fistballnamibia.com"
+  },
+  {
+    "name": "Namibian Electronic Sport Association",
+    "slug": "esports",
+    "type": "federation",
+    "contactEmail": "salome@esportsnamibia.org",
+    "contactPhone": "0818085332",
+    "secretaryGeneralName": "Salome De Bryun",
+    "presidentName": "Flip de Bryun"
+  },
+  {
+    "name": "Namibia Equestrian Federation",
+    "slug": "equestrian",
+    "type": "federation",
+    "contactEmail": "secretary@namef.org.na",
+    "contactPhone": "+264 81 829 0260",
+    "secretaryGeneralName": "Bruce Lourens",
+    "presidentName": "Richard Frankle"
+  },
+  {
+    "name": "Namibia Fencing Federation",
+    "slug": "fencing",
+    "type": "federation",
+    "contactEmail": "secretary@namibianfencing.com",
+    "contactPhone": "081 674 6508",
+    "presidentName": "Rainer Visser",
+    "secretaryGeneralName": "Janine Briedenhann"
+  },
+  {
+    "name": "Namibia Football Association",
+    "slug": "football",
+    "type": "federation",
+    "contactEmail": "csiyauya@nfa.org.na",
+    "contactPhone": "0811488640",
+    "secretaryGeneralName": "Charles Siyauya",
+    "presidentName": "Robert Shimooshili"
+  },
+  {
+    "name": "Namibia Golf Federation",
+    "slug": "golf",
+    "type": "federation",
+    "contactEmail": "brenda@iway.na",
+    "contactPhone": "+264 81 155 8888",
+    "secretaryGeneralName": "Brenda Lens",
+    "presidentName": "Marc Swartz"
+  },
+  {
+    "name": "Namibia Gymnastic Federation",
+    "slug": "gymnastics",
+    "type": "federation",
+    "contactEmail": "sg@gymnasticsnamibia.org",
+    "contactPhone": "0811482548",
+    "secretaryGeneralName": "Mariette Van Zyl",
+    "presidentName": "Sharifa Wentworth"
+  },
+  {
+    "name": "Namibia Hockey Union",
+    "slug": "hockey",
+    "type": "federation",
+    "contactEmail": "secretary@namibiahockey.org",
+    "contactPhone": "0811298085",
+    "presidentName": "Cari Slabbert"
+  },
+  {
+    "name": "Namibia Horse Racing Association",
+    "slug": "horse-racing",
+    "type": "federation",
+    "contactEmail": "namibiahorseraicingassociation@gmail.com",
+    "contactPhone": "0714830003",
+    "presidentName": "Gottfried Mootu",
+    "secretaryGeneralName": "John Wellmann"
+  },
+  {
+    "name": "Icestock Namibia Association",
+    "slug": "icestock",
+    "type": "federation",
+    "contactEmail": "detlef.pfeifer@goethe.de",
+    "presidentName": "Detlef Pfeifer"
+  },
+  {
+    "name": "Namibia Ice & Inline Hockey Association",
+    "slug": "ice-inline-hockey",
+    "type": "federation",
+    "contactEmail": "secretary@niiha.com",
+    "contactPhone": "+264 (0)81 124 7603",
+    "secretaryGeneralName": "Lucille Coetzee"
+  },
+  {
+    "name": "Namibia Judo Federation",
+    "slug": "judo",
+    "type": "federation",
+    "contactEmail": "keith.bock17@gmail.com",
+    "contactPhone": "0812888123",
+    "presidentName": "Keith BOCK"
+  },
+  {
+    "name": "Namibia JUKSKEI Federation",
+    "slug": "jukskei",
+    "type": "federation",
+    "contactEmail": "pro@jukskei-nam.com",
+    "contactPhone": "0811222743",
+    "presidentName": "Erick Straus"
+  },
+  {
+    "name": "Namibia Karate Federation",
+    "slug": "karate",
+    "type": "federation",
+    "contactEmail": "secretarynkf@gmail.com",
+    "contactPhone": "0814009050",
+    "secretaryGeneralName": "Marchelle De Jager",
+    "presidentName": "De Wet Moolman"
+  },
+  {
+    "name": "Namibia Kendo Association",
+    "slug": "kendo",
+    "type": "federation",
+    "contactEmail": "pineuest@africaonline.com.na",
+    "contactPhone": "0811278899",
+    "presidentName": "Andre PIENAAR"
+  },
+  {
+    "name": "Namibia Kickboxing Federation",
+    "slug": "kickboxing",
+    "type": "federation",
+    "contactEmail": "kickfederation@gmail.com",
+    "contactPhone": "0811481322",
+    "secretaryGeneralName": "Ankia Rentzke",
+    "presidentName": "Anita DE KLERK"
+  },
+  {
+    "name": "Namibia Motor Sport Federation",
+    "slug": "motorsport",
+    "type": "federation",
+    "contactEmail": "info@motorsportnamibia.org",
+    "contactPhone": "0814116442",
+    "secretaryGeneralName": "Derek Jacobs",
+    "presidentName": "Daniel Tjongarero"
+  },
+  {
+    "name": "Netball Namibia",
+    "slug": "netball",
+    "type": "federation",
+    "contactEmail": "netballnamibia@gmail.com",
+    "contactPhone": "0816982299",
+    "presidentName": "Simon Sofia"
+  },
+  {
+    "name": "Namibia Power & Weight Lifting Association",
+    "slug": "powerlifting-weightlifting",
+    "type": "federation",
+    "contactEmail": "viadante.johannes@gmail.com",
+    "contactPhone": "0816951214",
+    "presidentName": "Dr. Marius Johannes"
+  },
+  {
+    "name": "Namibia Practical Shooting Association",
+    "slug": "practical-shooting",
+    "type": "federation",
+    "contactEmail": "napsa.chairman@gmail.com",
+    "contactPhone": "+264 81 272 3009",
+    "presidentName": "Gustaf Bauer"
+  },
+  {
+    "name": "Namibia Rugby Union",
+    "slug": "rugby",
+    "type": "federation",
+    "contactEmail": "ceo@nru.com.na",
+    "website": "www.nru.com.na",
+    "contactPhone": "0811228390",
+    "secretaryGeneralName": "John Heynes",
+    "presidentName": "William Steenkamp"
+  },
+  {
+    "name": "Namibia Swimming Union",
+    "slug": "swimming",
+    "type": "federation",
+    "contactEmail": "secgen@swimmingnamibia.com",
+    "contactPhone": "081 124 4065",
+    "secretaryGeneralName": "Agata Mason",
+    "presidentName": "Riaan Steyn"
+  },
+  {
+    "name": "Namibia Saddle Seat Equestrian Federation",
+    "slug": "saddle-seat-equestrian",
+    "type": "federation",
+    "contactEmail": "nico@namibbeton.com",
+    "contactPhone": "0811491002",
+    "presidentName": "Nico Badenhorst"
+  },
+  {
+    "name": "Namibia Sailing Association",
+    "slug": "sailing",
+    "type": "federation",
+    "contactEmail": "jaimeemilyg@gmail.com",
+    "contactPhone": "+264 81 209 0871",
+    "secretaryGeneralName": "Jaime Grobler",
+    "presidentName": "William Graham"
+  },
+  {
+    "name": "Namibia Squash Association",
+    "slug": "squash",
+    "type": "federation",
+    "contactEmail": "RiaanS@tgh.na",
+    "contactPhone": "081 140 7350",
+    "presidentName": "Riaan Steyn"
+  },
+  {
+    "name": "Namibia Speed Hiking Association",
+    "slug": "speed-hiking",
+    "type": "federation",
+    "contactEmail": "namibianhikers@gmail.com",
+    "contactPhone": "0817147555",
+    "secretaryGeneralName": "Mercia Diana Goliath",
+    "presidentName": "Eino J I Mbango"
+  },
+  {
+    "name": "Namibia Sport Shooting Federation",
+    "slug": "sport-shooting",
+    "type": "federation",
+    "contactEmail": "namsportshooting@gmail.com",
+    "contactPhone": "0812483227",
+    "presidentName": "Karola Marais"
+  },
+  {
+    "name": "Namibia Tennis Association",
+    "slug": "tennis",
+    "type": "federation",
+    "contactEmail": "nta@iway.na",
+    "contactPhone": "0816586383",
+    "secretaryGeneralName": "Natalia NANGOLO",
+    "presidentName": "Samson KAULINGE"
+  },
+  {
+    "name": "Namibia Triathlon Association",
+    "slug": "triathlon",
+    "type": "federation",
+    "contactEmail": "sg@ntf.go.na",
+    "contactPhone": "0812462204",
+    "secretaryGeneralName": "Adele De La REY"
+  },
+  {
+    "name": "Namibia Volleyball Federation",
+    "slug": "volleyball",
+    "type": "federation",
+    "contactEmail": "ceo@namibiavolleyball.org",
+    "contactPhone": "+264 81 747 0995",
+    "secretaryGeneralName": "Festus Shituliipo Hamukwaya",
+    "presidentName": "Tobias Eden Mwatelulo"
+  },
+  {
+    "name": "Namibia Waterski Association",
+    "slug": "waterski",
+    "type": "federation",
+    "contactEmail": "namwaterski@gmail.com",
+    "contactPhone": "0811701644",
+    "presidentName": "Gesche Hannam"
+  },
+  {
+    "name": "Namibia Wrestling Federation",
+    "slug": "wrestling",
+    "type": "federation",
+    "contactEmail": "nam@uww.org",
+    "contactPhone": "0814389884",
+    "secretaryGeneralName": "Anke Erasmus"
+  },
+  {
+    "name": "Namibia Premier League",
+    "slug": "premier-league",
+    "type": "federation",
+    "contactEmail": "kauta@wkh-law.com",
+    "contactPhone": "0811447777",
+    "presidentName": "Patrick Kauta"
+  },
+  {
+    "name": "Namibia Table Tennis Association",
+    "slug": "table-tennis",
+    "type": "federation",
+    "contactEmail": "rudisaunderson@gmail.com",
+    "contactPhone": "+264811611070",
+    "presidentName": "Rudi Saunderson"
+  },
+  {
+    "name": "Namibia Teq Ball Federation",
+    "slug": "teqball",
+    "type": "federation",
+    "contactEmail": "ramahmumba@yahoo.com",
+    "contactPhone": "0811284638",
+    "presidentName": "Ramah Mumba"
+  },
+  {
+    "name": "Namibia Taekwondo Federation",
+    "slug": "taekwondo",
+    "type": "federation",
+    "contactEmail": "taekwondonnamibia@gmail.com",
+    "contactPhone": "+264 812613641",
+    "secretaryGeneralName": "Jatjinda Kambatuku Kavezemburuka",
+    "presidentName": "Sieggie Veii Mujoro"
+  },
+  {
+    "name": "Indigenous Combat Sport Federation",
+    "slug": "indigenous-combat-sport",
+    "type": "federation",
+    "contactEmail": "icsfnam@gmail.com",
+    "contactPhone": "+264 85 127 9065",
+    "presidentName": "Hidipo Nangolo"
+  },
+  {
+    "name": "Namibia Full-Contact Martial-Arts",
+    "slug": "full-contact-martial-arts",
+    "type": "federation",
+    "contactEmail": "getfitdivine@gmail.com",
+    "contactPhone": "0817068305",
+    "presidentName": "Simba Mangaba"
+  },
+  {
+    "name": "Namibia Pool and Billiard Federation",
+    "slug": "pool-billiard",
+    "type": "federation",
+    "contactEmail": "namibiapool@outlook.com",
+    "contactPhone": "0813335422",
+    "secretaryGeneralName": "Louw Cyril Moller",
+    "presidentName": "Cyril Moller"
+  },
+  {
+    "name": "Namibia Muaythai Federation",
+    "slug": "muaythai",
+    "type": "federation",
+    "contactEmail": "namibianmuaythaifederation@gmail.com",
+    "presidentName": "Sheila Martins"
+  },
+  {
+    "name": "Mixed Martial Arts Namibia",
+    "slug": "mixed-martial-arts",
+    "type": "federation",
+    "contactEmail": "mixedmartialartsnamibia@gmail.com",
+    "presidentName": "Natascha De Sousa"
+  },
+  {
+    "name": "Namibia Traditional Sport and Games Federation",
+    "slug": "traditional-sport-games",
+    "type": "federation",
+    "contactEmail": "jwmarais2013@gmail.com",
+    "contactPhone": "0818657971",
+    "presidentName": "Jan Marais"
+  },
+  {
+    "name": "Namibia Endurance Riding Federation",
+    "slug": "endurance-riding",
+    "type": "federation",
+    "contactEmail": "secretary@nerf.org.na",
+    "contactPhone": "0817584552",
+    "secretaryGeneralName": "Michelle Kotze"
+  },
+  {
+    "name": "Disability Sport Namibia",
+    "slug": "disability-sport",
+    "type": "umbrella_body",
+    "contactEmail": "admin@namparalympics.org.na",
+    "presidentName": "Abner Sheya",
+    "secretaryGeneralName": "Michael Hamukwaya"
+  },
+  {
+    "name": "Namibia Women in Sport Association (NAWISA)",
+    "slug": "nawisa",
+    "type": "umbrella_body",
+    "contactEmail": "elizabethngulungu@gmail.com",
+    "contactPhone": "0814140744",
+    "presidentName": "Elizabeth Ngulungu",
+    "secretaryGeneralName": "Karen Mubonenwa"
+  },
+  {
+    "name": "Namibia National Students Sports Union (NNSU)",
+    "slug": "nnsu",
+    "type": "umbrella_body",
+    "contactEmail": "Info.NSSU@msyns.gov.na",
+    "contactPhone": "0812516760",
+    "presidentName": "Rogerdeltry Kambatuku",
+    "secretaryGeneralName": "Allan Kake"
+  },
+  {
+    "name": "Namibia National Olympic Committee (NNOC)",
+    "slug": "nnoc",
+    "type": "umbrella_body",
+    "contactEmail": "info@olympic.org.na",
+    "contactPhone": "0811226060",
+    "secretaryGeneralName": "Joan SMITH",
+    "presidentName": "Ndeulipulwa Hamutumwa"
+  },
+  {
+    "name": "TISAN",
+    "slug": "tisan",
+    "type": "umbrella_body",
+    "contactEmail": "tisan_a@yahoo.com",
+    "contactPhone": "0812865849",
+    "secretaryGeneralName": "Roline DIERGAARD",
+    "presidentName": "John-Graftt Ndungaua"
+  },
+  {
+    "name": "Namibia Uniformed Forces/Services Sport Association",
+    "slug": "uniformed-forces-sport",
+    "type": "umbrella_body",
+    "contactEmail": "kevinlubinda@gmail.com",
+    "contactPhone": "0818537766",
+    "presidentName": "Ali Nuumbembe",
+    "secretaryGeneralName": "Chief Kenneth MWATARA"
+  },
+  {
+    "name": "Namibia Local Authority Sports and Recreation Association",
+    "slug": "local-authority-sport",
+    "type": "umbrella_body",
+    "contactEmail": "Gert.VanWyk@windhoekcc.org.na",
+    "contactPhone": "0811296322",
+    "presidentName": "Mr. Mouton"
+  },
+  {
+    "name": "Martial Arts Namibia",
+    "slug": "martial-arts-namibia",
+    "type": "umbrella_body",
+    "contactEmail": "martialartsnamibia@gmail.com",
+    "presidentName": "Ingo Oosthuizen",
+    "secretaryGeneralName": "Adel Oosthuizen"
+  }
+]
