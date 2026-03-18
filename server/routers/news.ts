@@ -18,6 +18,8 @@ export const newsRouter = router({
           federationId: z.number().optional(),
           category: z.string().optional(),
           limit: z.number().optional(),
+          /** When true, returns unpublished articles as well (used by admin/federation admin views) */
+          includeUnpublished: z.boolean().optional(),
         })
         .optional()
     )
@@ -25,7 +27,10 @@ export const newsRouter = router({
       const db = await getDb();
       if (!db) return [];
 
-      const conditions = [eq(newsArticles.isPublished, true)];
+      const conditions = [];
+      if (!input?.includeUnpublished) {
+        conditions.push(eq(newsArticles.isPublished, true));
+      }
       if (input?.federationId) {
         conditions.push(eq(newsArticles.federationId, input.federationId));
       }
@@ -36,7 +41,7 @@ export const newsRouter = router({
       const result = await db
         .select()
         .from(newsArticles)
-        .where(and(...conditions))
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(desc(newsArticles.publishedAt))
         .limit(input?.limit ?? 50);
 

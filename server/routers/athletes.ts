@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { getDb } from "../db";
 import { athletes } from "../../drizzle/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, like, or } from "drizzle-orm";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 
 export const athletesRouter = router({
@@ -11,6 +11,7 @@ export const athletesRouter = router({
         .object({
           federationId: z.number().optional(),
           clubId: z.number().optional(),
+          nationality: z.string().optional(),
           search: z.string().optional(),
         })
         .optional()
@@ -25,6 +26,17 @@ export const athletesRouter = router({
       }
       if (input?.clubId) {
         conditions.push(eq(athletes.clubId, input.clubId));
+      }
+      if (input?.nationality) {
+        conditions.push(eq(athletes.nationality, input.nationality));
+      }
+      if (input?.search) {
+        conditions.push(
+          or(
+            like(athletes.firstName, `%${input.search}%`),
+            like(athletes.lastName, `%${input.search}%`)
+          )
+        );
       }
 
       const result = await db
@@ -60,6 +72,7 @@ export const athletesRouter = router({
         clubId: z.number().optional(),
         dateOfBirth: z.date().optional(),
         gender: z.enum(["male", "female", "other"]).optional(),
+        nationality: z.string().optional(),
         photoUrl: z.string().optional(),
         email: z.string().optional(),
         phone: z.string().optional(),
@@ -85,6 +98,7 @@ export const athletesRouter = router({
         clubId: z.number().optional(),
         dateOfBirth: z.date().optional(),
         gender: z.enum(["male", "female", "other"]).optional(),
+        nationality: z.string().optional(),
         photoUrl: z.string().optional(),
         email: z.string().optional(),
         phone: z.string().optional(),

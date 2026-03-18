@@ -126,6 +126,7 @@ export const athletes = pgTable("sportsplatform_athletes", {
   lastName: varchar("last_name", { length: 255 }).notNull(),
   dateOfBirth: timestamp("date_of_birth"),
   gender: genderEnum("gender"),
+  nationality: varchar("nationality", { length: 100 }),
   photoUrl: text("photo_url"),
   
   federationId: integer("federation_id"),
