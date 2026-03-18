@@ -11,7 +11,6 @@ export const athletesRouter = router({
         .object({
           federationId: z.number().optional(),
           clubId: z.number().optional(),
-          nationality: z.string().optional(),
           search: z.string().optional(),
         })
         .optional()
@@ -26,9 +25,6 @@ export const athletesRouter = router({
       }
       if (input?.clubId) {
         conditions.push(eq(athletes.clubId, input.clubId));
-      }
-      if (input?.nationality) {
-        conditions.push(eq(athletes.nationality, input.nationality));
       }
       if (input?.search) {
         conditions.push(
@@ -72,7 +68,6 @@ export const athletesRouter = router({
         clubId: z.number().optional(),
         dateOfBirth: z.date().optional(),
         gender: z.enum(["male", "female", "other"]).optional(),
-        nationality: z.string().optional(),
         photoUrl: z.string().optional(),
         email: z.string().optional(),
         phone: z.string().optional(),
@@ -98,7 +93,6 @@ export const athletesRouter = router({
         clubId: z.number().optional(),
         dateOfBirth: z.date().optional(),
         gender: z.enum(["male", "female", "other"]).optional(),
-        nationality: z.string().optional(),
         photoUrl: z.string().optional(),
         email: z.string().optional(),
         phone: z.string().optional(),
