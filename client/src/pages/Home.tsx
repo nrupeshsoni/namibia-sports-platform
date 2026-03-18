@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'wouter';
 import { federations as staticFederations } from '../data/federations';
 import FederationModal from '../components/FederationModal';
+import NavDrawer from '../components/NavDrawer';
 import type { Federation as StaticFederation } from '../data/federations';
 import { ChevronDown, Search, Menu, Loader2, MapPin, Users, Calendar, Trophy, X, Filter } from 'lucide-react';
 import { fetchFederations, supabase, type DbFederation } from '../lib/supabase';
@@ -54,7 +56,8 @@ export default function Home() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  
+  const [navDrawerOpen, setNavDrawerOpen] = useState(false);
+
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -158,18 +161,40 @@ export default function Home() {
           <button 
             onClick={() => setShowSearch(!showSearch)}
             className="p-2 rounded-xl text-white hover:bg-white/10 transition-all duration-300"
-            style={{
-              backdropFilter: 'blur(10px)',
-            }}
+            style={{ backdropFilter: 'blur(10px)' }}
           >
             {showSearch ? <X className="w-6 h-6" /> : <Search className="w-6 h-6" />}
           </button>
-          <h1 className="text-white text-2xl font-serif tracking-[0.3em]">NAMIBIA</h1>
-          <button 
+
+          <div className="flex items-center gap-6">
+            <h1 className="text-white text-2xl font-serif tracking-[0.3em]">NAMIBIA</h1>
+            {/* Desktop nav pills */}
+            <nav className="hidden md:flex items-center gap-1">
+              {[
+                { label: 'Events', href: '/events' },
+                { label: 'News', href: '/news' },
+                { label: 'Live', href: '/live' },
+              ].map((link) => (
+                <Link key={link.href} href={link.href}>
+                  <span
+                    className="px-4 py-1.5 rounded-full text-sm text-gray-300 hover:text-white cursor-pointer transition-all duration-200"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.06)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                    }}
+                  >
+                    {link.label}
+                  </span>
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <button
+            onClick={() => setNavDrawerOpen(true)}
             className="p-2 rounded-xl text-white hover:bg-white/10 transition-all duration-300"
-            style={{
-              backdropFilter: 'blur(10px)',
-            }}
+            style={{ backdropFilter: 'blur(10px)' }}
+            aria-label="Open menu"
           >
             <Menu className="w-6 h-6" />
           </button>
@@ -251,16 +276,18 @@ export default function Home() {
             >
               Explore Federations
             </button>
-            <button 
-              className="px-8 py-4 text-white font-medium rounded-xl transition-all duration-300 hover:scale-105 hover:bg-white/20"
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-              }}
-            >
-              Upcoming Events
-            </button>
+            <Link href="/events">
+              <span
+                className="inline-block px-8 py-4 text-white font-medium rounded-xl transition-all duration-300 hover:scale-105 hover:bg-white/20 cursor-pointer"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                }}
+              >
+                Upcoming Events
+              </span>
+            </Link>
           </div>
 
           <div className="absolute bottom-12 flex flex-col items-center gap-2 animate-bounce">
@@ -853,6 +880,9 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Navigation Drawer */}
+      <NavDrawer isOpen={navDrawerOpen} onClose={() => setNavDrawerOpen(false)} />
 
       {/* Federation Modal */}
       {selectedFederation && (
