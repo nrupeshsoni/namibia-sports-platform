@@ -1,0 +1,105 @@
+{
+  "federations": [
+    {
+      "name": "Ministry of Sport, Youth and National Service",
+      "abbreviation": "MSYNS",
+      "website": "https://msyns.gov.na/",
+      "facebook": "https://www.facebook.com/officialmeiysac/",
+      "twitter": null,
+      "instagram": null,
+      "email": "ED.Secretary@msyns.gov.na",
+      "emailAlternative": "PRO@msyns.gov.na",
+      "phone": "+264 61 270 6000",
+      "phoneAlternative": "+264 61 270 6020",
+      "address": "NIDA Building, 4th Floor, Goethe Street, Private Bag 13391, Windhoek, Namibia",
+      "notes": "Ministry/umbrella body. Facebook page may be under 'MEIYSAC-Youth & Sports Republic of Namibia'. Twitter/Instagram not confirmed."
+    },
+    {
+      "name": "Namibia National Olympic Committee",
+      "abbreviation": "NNOC",
+      "website": "https://olympic.org.na/",
+      "facebook": "https://www.facebook.com/NamOlympic",
+      "twitter": "https://twitter.com/NamOlympic",
+      "instagram": "https://www.instagram.com/namibianoc/",
+      "email": "info@olympic.org.na",
+      "phone": "+264 837071211",
+      "phoneAlternative": "+264 61 229 285",
+      "address": "Cricket Oval, Olympia, Windhoek. P.O. Box 21163, Windhoek, Namibia",
+      "notes": "Office hours: Mon–Fri 8AM–5PM"
+    },
+    {
+      "name": "Namibia Football Association",
+      "abbreviation": "NFA",
+      "website": "https://www.nfa.org.na/",
+      "facebook": "https://www.facebook.com/namibiafootballassociation/",
+      "twitter": "https://twitter.com/Official_NFA",
+      "instagram": "https://www.instagram.com/namibiafootballassociation/",
+      "email": "info@nfa.org.na",
+      "emailAlternative": "media@nfa.org.na",
+      "phone": "+264 61 265 691",
+      "address": "Football House, ERF 339, Richard Kamuhuka Street, Katutura, Windhoek, Namibia",
+      "notes": "NFA website shows +261 265 691 – likely typo; Namibia country code is +264"
+    },
+    {
+      "name": "Archery Association of Namibia",
+      "abbreviation": "AAN",
+      "website": "https://archerynamibia.org/",
+      "facebook": null,
+      "twitter": null,
+      "instagram": null,
+      "email": null,
+      "phone": null,
+      "address": null,
+      "notes": "NNOC-affiliated member. Website may be intermittent. World Archery member. No official contact found; try NNOC or World Archery."
+    },
+    {
+      "name": "Namibian Equestrian Federation",
+      "abbreviation": "NAMEF",
+      "website": "https://www.namef.org.na/",
+      "facebook": "https://www.facebook.com/www.namef.org.na/",
+      "twitter": null,
+      "instagram": null,
+      "email": "chairperson@namef.org.na",
+      "emailAlternative": "secretary@namef.org.na",
+      "phone": "+264 81 128 3991",
+      "address": null,
+      "notes": "President Richard Frankle +264 81 128 3991; Secretary Alida Reimer-Cline +264 81 683 5171. Discipline emails: dressage@namef.org.na"
+    },
+    {
+      "name": "Namibia Sailing Association",
+      "abbreviation": "NSA",
+      "website": null,
+      "facebook": "https://www.facebook.com/windynamib/",
+      "twitter": null,
+      "instagram": null,
+      "email": null,
+      "phone": null,
+      "address": "Walvis Bay Yacht Club area (events); exact office address not confirmed",
+      "notes": "NNOC-affiliated. Primary web presence is Facebook. Hosts Laser & Junior Nationals at Walvis Bay."
+    },
+    {
+      "name": "Namibia Motorsport Federation",
+      "abbreviation": "NMSF",
+      "website": "https://www.motorsportnamibia.org/",
+      "facebook": "https://www.facebook.com/motorsportnamibia/",
+      "twitter": null,
+      "instagram": null,
+      "email": "info@motorsportnamibia.org",
+      "phone": "+264 81 763 1237",
+      "address": "Commercial Block, Auas Hills Retirement Village, 28 Montreux Street, Auasblick, Windhoek, Namibia",
+      "notes": "President: president@motorsportnamibia.org. Office hours: Mon–Fri 8:30AM–5PM"
+    }
+  ],
+  "researchDate": "2025-03-18",
+  "sources": [
+    "MSYNS official website (msyns.gov.na)",
+    "NNOC official website (olympic.org.na)",
+    "NNOC members list (olympic.org.na/members)",
+    "NFA official website (nfa.org.na)",
+    "NAMEF official website (namef.org.na)",
+    "NMSF official website (motorsportnamibia.org)",
+    "World Archery",
+    "ANOC directory",
+    "Namibian news sources"
+  ]
+}

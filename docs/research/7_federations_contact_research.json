@@ -1,0 +1,104 @@
+{
+  "research_date": "2025-03-18",
+  "sources": [
+    "Official federation websites",
+    "FIBA about.fiba.basketball",
+    "NNOC affiliated members (olympic.org.na)",
+    "Namibia Volleyball Federation (namibiavolleyball.org)",
+    "Namibia Ice and Inline Hockey Association / Worldskate (niiha.com, worldskate.org)",
+    "Namibia Karate Union (naku.com.na)",
+    "JKA Shotokan Karate Namibia (namjkakarate.com)",
+    "Okinawa Goju-Ryu Karate Namibia",
+    "Namibian Sun, New Era, Republikein, Allgemeine Zeitung"
+  ],
+  "federations": [
+    {
+      "name": "Namibia Basketball Federation",
+      "abbreviation": "NBF",
+      "website": "https://www.fiba.basketball/federation/Namibia",
+      "website_alt": "https://www.nbbfline.com/",
+      "facebook": "https://www.facebook.com/namibianbasketball/",
+      "twitter": null,
+      "instagram": null,
+      "email": "namibianbasketball@gmail.com",
+      "phone": "+264 61 2706556",
+      "address": "5th Floor NDC Building, Goethe Street, Windhoek, Namibia. P.O. Box 6203, Windhoek",
+      "notes": "FIBA official directory; President Nigel Mubita; NNOC affiliated; nbbfline.com may be alternate site"
+    },
+    {
+      "name": "Namibia Volleyball Federation",
+      "abbreviation": "NVF",
+      "website": "https://www.namibiavolleyball.org/",
+      "facebook": "Integrated with website (specific URL not published)",
+      "twitter": "Integrated with website (specific handle not published)",
+      "instagram": null,
+      "email": null,
+      "phone": null,
+      "address": null,
+      "notes": "NNOC affiliated; Virtual office on website for contact; President Hillary Imbuwa, Secretary General Donald Doesed; contact via website"
+    },
+    {
+      "name": "Namibia Darts Association",
+      "abbreviation": "NDF",
+      "website": null,
+      "facebook": "https://www.facebook.com/ndfpdarts/",
+      "twitter": null,
+      "instagram": null,
+      "email": null,
+      "phone": "081 277 8222",
+      "address": null,
+      "notes": "Phone is Khomas Darts (regional); President Ralph Ludwig; NDF not on NNOC list; no official website found; contact via Namibia Sports Commission or regional darts"
+    },
+    {
+      "name": "Namibia Handball Federation",
+      "abbreviation": "NHF",
+      "website": null,
+      "facebook": "https://www.facebook.com/profile.php?id=100066592937124",
+      "twitter": null,
+      "instagram": null,
+      "email": null,
+      "phone": null,
+      "address": null,
+      "notes": "NNOC affiliated; IHF/CAHB member; Facebook is primary web presence per NNOC"
+    },
+    {
+      "name": "Karate Namibia",
+      "abbreviation": "NAKU",
+      "website": "https://www.naku.com.na/",
+      "website_alt": "https://www.namjkakarate.com/",
+      "facebook": null,
+      "twitter": null,
+      "instagram": null,
+      "email": "pro@naku.com.na",
+      "email_alt": "nsibeso@gmail.com",
+      "phone": "+264 81 283 9270",
+      "address": null,
+      "notes": "NNOC lists 'Namibia Karate Union' at naku.com.na; PRO Nichol Sibeso; namjkakarate.com is JKA Shotokan (email namjka@afol.com.na, +264 81 257 0309); Okinawa Goju-Ryu: admin@goju-ryu-karate-namibia.com, +264 81 124 2879"
+    },
+    {
+      "name": "Billiards & Snooker Namibia (NCSF)",
+      "abbreviation": "NCSF",
+      "website": null,
+      "facebook": null,
+      "twitter": null,
+      "instagram": null,
+      "email": null,
+      "phone": null,
+      "address": null,
+      "notes": "Namibia Cue Sports Federation; President Jannie/Cyril Möller, VP Izaan Möller, Secretary General Laurenzo Louw; no public contact found; contact via Namibia Sports Commission"
+    },
+    {
+      "name": "Skateboarding Namibia",
+      "abbreviation": "NIIHA",
+      "website": "https://niiha.com/",
+      "facebook": "https://www.facebook.com/NamibiaIceandInlineHockeyAssociation/",
+      "twitter": null,
+      "instagram": "https://www.instagram.com/official_namibian_inlinehockey/",
+      "email": "president@niiha.com",
+      "email_alt": "secretary@niiha.com",
+      "phone": "+264 81 122 1284",
+      "address": "P.O. Box 90464, Windhoek 10012, Namibia",
+      "notes": "Worldskate lists Namibia Ice and Inline Hockey Association (NIIHA) as national roller sports federation; President Matthew Jackman, Secretary Wiebke La Barrè; skateboarding may fall under NIIHA; no separate Skateboarding Namibia federation found"
+    }
+  ]
+}

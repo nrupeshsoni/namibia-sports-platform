@@ -1,0 +1,107 @@
+{
+  "federations": [
+    {
+      "name": "Namibia Futsal",
+      "officialName": "Futsal Namibia (under Namibia Football Association)",
+      "website": "https://www.futsal-namibia.com/",
+      "facebook": "https://www.facebook.com/futsalnamibia",
+      "twitter": null,
+      "instagram": null,
+      "email": "info@nfa.org.na",
+      "emailMedia": "media@nfa.org.na",
+      "phone": "+264 61 265 691",
+      "phoneNote": "NFA website lists +261 265 691; likely typo — Namibia is +264",
+      "address": "Football House, ERF 339, Richard Kamuhuka Street, Katutura, Windhoek, Namibia",
+      "notes": "Administered by NFA. NFA social: @Official_NFA (Twitter), namibiafootballassociation (Instagram)"
+    },
+    {
+      "name": "Namibia Beach Volleyball",
+      "officialName": "Namibia Volleyball Federation (NVF) — Beach Volleyball",
+      "website": "https://www.namibiavolleyball.org/",
+      "facebook": "https://www.facebook.com/namibiavolleyballfederation",
+      "twitter": "https://twitter.com/namibiavolleyball",
+      "instagram": "https://www.instagram.com/namibiavolleyballfederation",
+      "email": null,
+      "phone": "+264 81 607 0674",
+      "phoneNote": "Beach Volleyball Director Conrad Johannes",
+      "phoneAlt": "+264 81 234 7879",
+      "phoneAltNote": "Secretary General/CEO Donald Doeseb",
+      "address": null,
+      "notes": "NVF governs indoor and beach volleyball. President: Hillary Imbuwa"
+    },
+    {
+      "name": "Bowls Namibia",
+      "officialName": "Namibia Bowling Association (NBA)",
+      "website": "https://sites.google.com/site/bowlsnamibia/",
+      "facebook": null,
+      "twitter": null,
+      "instagram": null,
+      "email": null,
+      "phone": null,
+      "address": null,
+      "notes": "NNOC affiliated. Officials: Colin Peake (Competition Secretary), Lesley Vermeulen (Press Officer). Google Site may require login for contact info."
+    },
+    {
+      "name": "Namibia Aquatics",
+      "officialName": "Namibia Aquatic Sports Federation (NASFED)",
+      "website": "https://swimmingnamibia.com/",
+      "facebook": "https://www.facebook.com/Namibia.Aquatic.Sports.Federation",
+      "twitter": null,
+      "instagram": null,
+      "email": null,
+      "phone": "+264 81 491 2939",
+      "address": "Erf 2, Corner General Murtala Muhammed Avenue & Khan Street, Eros, Windhoek, Namibia",
+      "notes": "Governs swimming, water polo, masters, open water. President: Riaan Steyn. NNOC lists as Namibia Swimming Federation. Hours: Mon–Sat 8:00–17:00"
+    },
+    {
+      "name": "Namibia Cycling Federation",
+      "officialName": "Namibian Cycling Federation (NCF)",
+      "website": "https://namibian-cycling-federation.org/",
+      "websiteAlt": "https://namcf.org/",
+      "facebook": "https://www.facebook.com/namibiancyclingfederation",
+      "twitter": null,
+      "instagram": null,
+      "email": "president@namcf.org",
+      "phone": null,
+      "address": null,
+      "notes": "President: Axel Theissen. NNOC affiliated. Contact form on website"
+    },
+    {
+      "name": "Squash Rackets Namibia",
+      "officialName": "Namibian Squash Association (NSA)",
+      "website": "https://namsquash.org/",
+      "facebook": "https://www.facebook.com/namsquash",
+      "twitter": null,
+      "instagram": null,
+      "email": null,
+      "emailAlt": "wandererssquash@yahoo.com",
+      "emailAltNote": "Affiliate Wanderers Squash Club",
+      "phone": null,
+      "phoneAlt": "+264 61 242 069",
+      "phoneAltNote": "Wanderers Squash Club (affiliate)",
+      "address": "Windhoek (headquarters)",
+      "notes": "President: Tiego Rabasha. Chairperson: Adri Lambert. No federation-level contact published; use affiliate club for enquiries"
+    },
+    {
+      "name": "Namibia Triathlon Federation",
+      "officialName": "Namibian Triathlon Federation (NTF)",
+      "website": "https://ntf.go.na/",
+      "facebook": "https://www.facebook.com/ntfnam",
+      "twitter": null,
+      "instagram": null,
+      "email": "SG@ntf.go.na",
+      "emailAlt": "office@ntf.go.na",
+      "emailEvent": "office@ntfnam.com",
+      "phone": null,
+      "address": null,
+      "notes": "Governs triathlon, duathlon, aquathlon. SG@ntf.go.na for athletes competing outside Namibia. Coach contacts on website"
+    }
+  ],
+  "sources": [
+    "NNOC affiliated members (olympic.org.na/members)",
+    "Official federation websites",
+    "Namibian news (Namibian Sun, The Namibian, Republikein)",
+    "World Triathlon, Namibia Paralympics, Bank Windhoek"
+  ],
+  "lastUpdated": "2025-03-18"
+}
