@@ -1,6 +1,7 @@
 export interface Federation {
   id: number;
   name: string;
+  slug?: string;
   category: 'ministry' | 'commission' | 'umbrella' | 'federation';
   shortName: string;
   description?: string;

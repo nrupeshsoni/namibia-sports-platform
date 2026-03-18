@@ -19,25 +19,24 @@ interface Venue {
 
 // Convert DB federation to display format
 function toDisplayFederation(fed: DbFederation): StaticFederation {
-  // Generate short name from full name
-  const shortName = fed.name
+  const shortName = (fed.abbreviation || fed.name
     .replace('Namibia ', '')
     .replace('Ministry of ', '')
     .replace('Association', '')
     .replace('Federation', '')
     .replace('Union', '')
-    .trim()
-    .toUpperCase();
+    .trim()).toUpperCase();
 
   return {
     id: fed.id,
     name: fed.name,
+    slug: fed.slug || fed.abbreviation?.toLowerCase().replace(/\s+/g, '-') || `fed-${fed.id}`,
     category: fed.type,
     shortName: shortName || fed.name.toUpperCase(),
     description: fed.description || undefined,
-    image: fed.backgroundImage || fed.logo || '/hero/stadium.jpg',
+    image: fed.background_image || fed.logo || '/hero/stadium.jpg',
     president: fed.president || undefined,
-    secretary: fed.secretaryGeneral || undefined,
+    secretary: fed.secretary_general || undefined,
     email: fed.email || undefined,
     phone: fed.phone || undefined,
     website: fed.website || undefined,
@@ -86,7 +85,7 @@ export default function Home() {
         
         // Fetch venues
         const { data: venuesData } = await supabase
-          .from('namibia_na_26_venues')
+          .from('sportsplatform_venues')
           .select('*')
           .order('capacity', { ascending: false });
         if (venuesData) {

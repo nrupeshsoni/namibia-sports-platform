@@ -11,10 +11,11 @@ export interface DbFederation {
   id: number;
   name: string;
   abbreviation: string | null;
+  slug: string | null;
   type: 'ministry' | 'commission' | 'umbrella' | 'federation';
   description: string | null;
   president: string | null;
-  secretaryGeneral: string | null;
+  secretary_general: string | null;
   email: string | null;
   phone: string | null;
   website: string | null;
@@ -23,9 +24,9 @@ export interface DbFederation {
   twitter: string | null;
   youtube: string | null;
   logo: string | null;
-  backgroundImage: string | null;
-  createdAt: string;
-  updatedAt: string;
+  background_image: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 // Fetch all federations from Supabase

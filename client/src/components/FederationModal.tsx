@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Mail, Phone, MapPin, Calendar, Users, Trophy, Globe, Facebook, Instagram, Twitter, Youtube, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { X, Mail, Phone, MapPin, Users, Globe, Facebook, Instagram, Twitter, Youtube, ExternalLink, ArrowRight } from "lucide-react";
+import { useLocation } from "wouter";
 import type { Federation } from "../data/federations";
 
 interface FederationModalProps {
@@ -9,7 +9,10 @@ interface FederationModalProps {
 }
 
 export default function FederationModal({ federation, onClose }: FederationModalProps) {
+  const [, navigate] = useLocation();
   if (!federation) return null;
+
+  const federationSlug = federation.slug || `fed-${federation.id}`;
 
   const getCategoryLabel = (category: string) => {
     switch (category) {
@@ -147,36 +150,23 @@ export default function FederationModal({ federation, onClose }: FederationModal
                 )}
               </motion.div>
 
-              {/* Stats Grid - Glass Cards */}
+              {/* Category Badge */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+                className="mb-8"
               >
-                {[
-                  { icon: Calendar, value: '1990', label: 'ESTABLISHED' },
-                  { icon: Users, value: '500+', label: 'MEMBERS' },
-                  { icon: Trophy, value: '12', label: 'CLUBS' },
-                  { icon: MapPin, value: '5', label: 'REGIONS' },
-                ].map((stat, index) => (
-                  <motion.div
-                    key={stat.label}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 + index * 0.05 }}
-                    className="text-center p-6 rounded-2xl transition-all duration-300 hover:scale-105"
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                    }}
-                  >
-                    <stat.icon className="h-6 w-6 mx-auto mb-3 text-red-400" />
-                    <p className="text-2xl font-serif text-white mb-1">{stat.value}</p>
-                    <p className="text-xs text-gray-400 tracking-wider">{stat.label}</p>
-                  </motion.div>
-                ))}
+                <span
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium tracking-widest text-white"
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                  }}
+                >
+                  <MapPin className="h-3 w-3" />
+                  NAMIBIA · {federation.category.toUpperCase()}
+                </span>
               </motion.div>
 
               {/* Social Media - Glass Pills */}
@@ -380,7 +370,7 @@ export default function FederationModal({ federation, onClose }: FederationModal
                 </motion.div>
               </div>
 
-              {/* Action Buttons - Glass */}
+              {/* Action Buttons - Navigate to full sub-site */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -390,17 +380,19 @@ export default function FederationModal({ federation, onClose }: FederationModal
                 <motion.button
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-8 py-4 rounded-xl font-medium text-white transition-all"
+                  onClick={() => { onClose(); navigate(`/federation/${federationSlug}`); }}
+                  className="flex items-center gap-2 px-8 py-4 rounded-xl font-medium text-white transition-all"
                   style={{
                     background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.8), rgba(220, 38, 38, 0.8))',
                     boxShadow: '0 10px 30px -10px rgba(239, 68, 68, 0.5)',
                   }}
                 >
-                  View Full Profile
+                  View Full Profile <ArrowRight className="h-4 w-4" />
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => { onClose(); navigate(`/federation/${federationSlug}/clubs`); }}
                   className="px-8 py-4 rounded-xl font-medium text-white transition-all"
                   style={{
                     background: 'rgba(255, 255, 255, 0.1)',
@@ -413,6 +405,7 @@ export default function FederationModal({ federation, onClose }: FederationModal
                 <motion.button
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => { onClose(); navigate(`/federation/${federationSlug}/events`); }}
                   className="px-8 py-4 rounded-xl font-medium text-white transition-all"
                   style={{
                     background: 'rgba(255, 255, 255, 0.1)',
