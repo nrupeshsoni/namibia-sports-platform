@@ -1,0 +1,43 @@
+---
+description: Pre-launch/beta readiness audit checklist. Invoke with @audit
+globs:
+alwaysApply: false
+---
+
+# PRE-LAUNCH AUDIT CHECKLIST — Namibia Sports Platform
+
+## Database
+- [ ] RLS enabled on all Supabase tables
+- [ ] Foreign keys with ON DELETE specified
+- [ ] Indexes on FKs and frequent WHERE/ORDER BY columns
+- [ ] Migrations reversible
+- [ ] Connection pooling configured
+
+## Auth
+- [ ] Signup → email confirmation → login works
+- [ ] Protected routes redirect unauthenticated users
+- [ ] RBAC enforced at tRPC level
+- [ ] Logout clears session
+
+## API (tRPC)
+- [ ] Every procedure has input validation
+- [ ] Every procedure has error handling
+- [ ] Federation admin scope enforced
+- [ ] No secrets in responses
+
+## Security
+- [ ] No secrets in codebase
+- [ ] .env.example documents all vars
+- [ ] CORS restrictive
+- [ ] File upload validation
+
+## Performance
+- [ ] List queries paginated
+- [ ] No N+1 patterns
+- [ ] Bundle size reasonable
+
+## Documentation
+- [ ] docs/02_database_schema.md current
+- [ ] docs/03_api_and_integrations.md current
+- [ ] CHANGELOG.md up to date
+- [ ] README has working setup instructions

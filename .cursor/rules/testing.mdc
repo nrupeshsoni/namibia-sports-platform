@@ -1,0 +1,30 @@
+---
+description: Testing requirements for code changes
+globs: ["**/*.ts", "**/*.tsx", "**/*.test.*", "**/*.spec.*"]
+alwaysApply: false
+---
+
+# TESTING IS MANDATORY
+
+## Test-First Protocol
+1. Write a failing test that defines expected behavior
+2. Implement minimum code to make it pass
+3. Refactor while keeping tests green
+4. If ANY pre-existing test fails: STOP and report. DO NOT modify the failing test.
+
+## Coverage Requirements
+- Unit tests for exported functions and components
+- Integration tests for tRPC procedures (success + error paths)
+- E2E tests for user-facing flows
+- Minimum 80% coverage on new code
+- 100% coverage on auth and data mutation logic
+
+## Test Structure (AAA)
+- Arrange — set up test data and mocks
+- Act — execute the function/component
+- Assert — verify the outcome
+
+## What to Test
+- Happy path and error path
+- Auth boundaries (unauthenticated, wrong role)
+- Database constraints (unique violations, FK violations)

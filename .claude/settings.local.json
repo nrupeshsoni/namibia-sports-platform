@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/Nrupesh/Documents/Projects/namibia-sports-platform/client/public -name manifest* -o -name *.json -o -name *.webmanifest)",
+      "Bash(python -c \":*)",
+      "Bash(where python3:*)",
+      "Bash(where py:*)",
+      "Bash(python3 -c \"import pdfplumber; print\\(''''ok''''\\)\")",
+      "Bash(python3 -m pip install pdfplumber)",
+      "Bash(ls /c/Python*/python.exe)",
+      "Read(//c/Users/Nrupesh/AppData/Local/Programs/**)",
+      "Bash(node -e \":*)",
+      "Bash(pip install:*)",
+      "Bash(where python:*)",
+      "Bash(where pip:*)",
+      "Bash(python -m pip install pdfplumber)",
+      "Bash(where node:*)",
+      "Bash(npx pdf-parse:*)",
+      "Bash(npm install:*)"
+    ]
+  }
+}

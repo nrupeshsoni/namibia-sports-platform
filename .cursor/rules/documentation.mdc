@@ -1,0 +1,26 @@
+---
+description: Documentation creation and maintenance requirements
+globs:
+alwaysApply: true
+---
+
+# DOCUMENTATION IS PART OF THE DELIVERABLE
+
+## Mandatory Files (docs/)
+- docs/01_project_rules.md — coding standards, tech stack
+- docs/02_database_schema.md — schema, tables, relationships
+- docs/03_api_and_integrations.md — tRPC procedures, external APIs
+- docs/04_features_audit.md — feature matrix with status
+- docs/05_dependency_graph.md — component/utility dependencies
+- docs/06_tasks.md — master checklist for fixes
+- docs/engineering/SCALE_CONSIDERATIONS.md — prototype-to-production bridge
+- CHANGELOG.md — Added, Changed, Fixed, Security
+
+## Documentation Standards
+- JSDoc/TSDoc on exported functions and types
+- Database migrations: comment block explaining WHY
+- tRPC procedures: auth requirement, input/output types
+
+## After Every Change
+- Update CHANGELOG.md under [Unreleased]
+- Update docs/06_tasks.md if fixing an audit item

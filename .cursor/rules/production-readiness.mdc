@@ -1,0 +1,55 @@
+---
+description: Enforces production-readiness checks before merge or deploy. Catches localhost-only patterns and prototype shortcuts.
+globs: ["**/*.ts", "**/*.tsx"]
+alwaysApply: false
+---
+
+# Production Readiness Gate — Namibia Sports Platform
+
+## RULE 1: No In-Memory State for Persistent Data
+- Use Supabase/Drizzle for any data that must survive function invocations
+- Session management must use Supabase Auth
+- Netlify Functions are stateless — no module-level caches without TTL
+
+## RULE 2: No Synchronous Long-Running Operations in Handlers
+- tRPC procedures must return quickly; offload heavy work to background jobs
+- Use Supabase Edge Functions or queued workflows for file processing, emails
+- External API calls: set explicit timeouts (e.g. AbortSignal.timeout(5000))
+
+## RULE 3: Every External Call: Error Handling, Retry, Timeout
+- All fetch/axios/Supabase calls must have try/catch
+- Include retry logic for transient failures (429, 503)
+- Timeout configuration required
+
+## RULE 4: Rate Limiting on Public Endpoints
+- Auth endpoints: 5 attempts/minute per IP
+- General tRPC procedures: consider rate limiting for public mutations
+- Webhook endpoints: verify signatures before processing
+
+## RULE 5: Database Queries Must Be Bounded
+- Every list query MUST have .limit() or .range() — default 25, max 100
+- Use cursor-based pagination for large datasets
+- No N+1 patterns
+
+## RULE 6: Connection Pooling
+- Use Drizzle with postgres-js; configure for serverless
+- Supabase connection pooler (port 6543) for serverless
+- Singleton DB client at module level
+
+## RULE 7: Environment-Specific Configuration Explicit
+- All env vars in .env, referenced via process.env
+- .env.example must document every required variable
+- Fail fast at startup if required vars missing
+
+## RULE 8: Error Boundaries and Graceful Degradation
+- React components: ErrorBoundary at page level
+- tRPC: structured error responses, never expose raw errors to client
+- Fallback UI for data-dependent components
+
+## RULE 9: Real-Time Must Handle Disconnection
+- Supabase Realtime: handle CHANNEL_ERROR, TIMED_OUT
+- Reconnection logic with exponential backoff
+- Show connection status to users
+
+## RULE 10: Pre-Deploy Scale Sanity Check
+Document in PR: expected concurrent users, DB tables that grow, external API limits, cost at 10x scale.

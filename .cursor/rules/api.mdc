@@ -1,0 +1,30 @@
+---
+description: tRPC API endpoint design standards
+globs: ["**/server/routers/**", "**/server/_core/**"]
+alwaysApply: false
+---
+
+# API GOVERNANCE — tRPC
+
+## Procedure Template
+Every tRPC procedure MUST include:
+1. Auth check (publicProcedure vs protectedProcedure vs federationAdminProcedure vs adminProcedure)
+2. Input validation with Zod
+3. Error handling (try/catch, TRPCError)
+4. Consistent response shape
+
+## Procedure Types
+- publicProcedure — no auth
+- protectedProcedure — any authenticated user
+- federationAdminProcedure — federation_admin + input.federationId matches ctx.user.federationId
+- adminProcedure — admin role only
+
+## CRUD Coverage
+For every resource: list, getById (or getBySlug), create, update, delete
+- List: pagination, filtering
+- Create/Update: federation scope for federation_admin
+
+## External API Patterns
+- Timeout on all fetch calls
+- Retry for transient failures
+- Verify webhook signatures (WhatsApp, Stripe)

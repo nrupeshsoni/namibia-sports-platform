@@ -4,37 +4,48 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import Home from "./pages/Home";
 import Events from "./pages/Events";
+import News from "./pages/News";
+import Live from "./pages/Live";
 import Admin from "./pages/Admin";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import FederationRoute from "./pages/federation/FederationRoute";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path="/events" component={Events} />
+      <Route path="/news" component={News} />
+      <Route path="/live" component={Live} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
       <Route path="/admin" component={Admin} />
+      <Route path="/federation/:slug" component={FederationRoute} />
+      <Route path="/federation/:slug/events" component={FederationRoute} />
+      <Route path="/federation/:slug/clubs" component={FederationRoute} />
+      <Route path="/federation/:slug/athletes" component={FederationRoute} />
+      <Route path="/federation/:slug/news" component={FederationRoute} />
+      <Route path="/federation/:slug/streams" component={FederationRoute} />
       <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light">
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
+      <ThemeProvider defaultTheme="dark">
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

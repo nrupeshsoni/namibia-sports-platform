@@ -1,0 +1,32 @@
+---
+description: Database schema and query standards
+globs: ["**/drizzle/**", "**/schema.ts", "**/*.sql", "**/db.ts"]
+alwaysApply: false
+---
+
+# DATABASE GOVERNANCE — Drizzle + Supabase
+
+## Schema Change Protocol
+Before ANY schema change:
+1. Check which routers/queries use the affected tables
+2. List RLS policies that reference affected tables
+3. Write reversible migration
+4. Update docs/02_database_schema.md
+5. Update drizzle/relations.ts if needed
+
+## Schema Standards
+- Every table: id (serial/uuid), createdAt, updatedAt
+- Foreign keys: specify ON DELETE (CASCADE, SET NULL, RESTRICT)
+- Table prefix: namibia_na_26_ (exception: users)
+- Indexes for: FKs, WHERE columns, ORDER BY columns
+
+## Query Standards
+- Use Drizzle ORM exclusively in server layer
+- Paginate all list queries (.limit() or .range())
+- Avoid N+1: use joins/relations
+- Specify columns in select, avoid SELECT *
+
+## Migration Standards
+- One concern per migration
+- Descriptive filenames
+- Never modify applied migrations

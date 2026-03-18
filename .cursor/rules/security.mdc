@@ -1,0 +1,33 @@
+---
+description: Security requirements for all code
+globs:
+alwaysApply: true
+---
+
+# SECURITY IS NON-NEGOTIABLE
+
+## Input Validation
+- Validate ALL inputs server-side with Zod (never trust client only)
+- Use Drizzle ORM — NEVER concatenate user input into SQL
+- Validate file uploads: type, size, content
+
+## Authentication & Authorization
+- Every tRPC mutation must check auth (protectedProcedure, federationAdminProcedure, adminProcedure)
+- RBAC enforced at API level
+- Session timeout handled by Supabase Auth
+
+## Database Security
+- RLS enabled on every Supabase table
+- Test RLS policies
+- Never expose service_role key in client bundles
+
+## API Security
+- CORS restrict to production domains
+- Security headers: CSP, X-Frame-Options, X-Content-Type-Options
+- Generic error messages to clients; log details server-side
+- Never expose stack traces in production
+
+## Secrets Management
+- All secrets in environment variables
+- Document every env var in .env.example
+- Different secrets per environment

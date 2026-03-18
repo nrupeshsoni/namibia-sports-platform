@@ -31,7 +31,7 @@ export interface DbFederation {
 // Fetch all federations from Supabase
 export async function fetchFederations(): Promise<DbFederation[]> {
   const { data, error } = await supabase
-    .from('namibia_na_26_federations')
+    .from('sportsplatform_federations')
     .select('*')
     .order('id');
   

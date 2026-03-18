@@ -7,7 +7,7 @@
 - **Domain**: sports.com.na (Cloudflare DNS)
 - **Hosting**: Netlify (auto-deploy from GitHub `main`)
 - **Database**: Supabase PostgreSQL (`rbibqjgsnrueubrvyqps`, EU West / Ireland)
-- **Table prefix**: `namibia_na_26_`
+- **Table prefix**: `sportsplatform_`
 - **Supabase project**: rbibqjgsnrueubrvyqps
 
 ---
@@ -110,8 +110,7 @@ namibia-sports-platform/
 
 ## Database Conventions
 
-- **All tables use prefix**: `namibia_na_26_`
-- **Exception**: `users` table (no prefix — shared auth table)
+- **All tables use prefix**: `sportsplatform_`
 - **Schema file**: `drizzle/schema.ts` is the single source of truth
 - **Column naming**: camelCase in TypeScript, matching the actual Supabase column names
 - **Migrations**: Generate with `drizzle-kit generate`, apply in Supabase SQL editor
@@ -120,15 +119,15 @@ namibia-sports-platform/
 
 | Table | Purpose |
 |-------|---------|
-| `namibia_na_26_federations` | 67 entities: Ministry + Commission + 8 Umbrella Bodies + 57 Federations |
-| `namibia_na_26_clubs` | Clubs/teams linked to federations |
-| `namibia_na_26_events` | Competitions, tournaments, workshops |
-| `namibia_na_26_athletes` | Athlete profiles |
-| `namibia_na_26_coaches` | Coach profiles |
-| `namibia_na_26_venues` | Sports facilities |
-| `namibia_na_26_schools` | Schools with sports programs |
-| `namibia_na_26_media` | Photos, videos, documents |
-| `namibia_na_26_hp_programs` | High-performance programs |
+| `sportsplatform_federations` | 67 entities: Ministry + Commission + 8 Umbrella Bodies + 57 Federations |
+| `sportsplatform_clubs` | Clubs/teams linked to federations |
+| `sportsplatform_events` | Competitions, tournaments, workshops |
+| `sportsplatform_athletes` | Athlete profiles |
+| `sportsplatform_coaches` | Coach profiles |
+| `sportsplatform_venues` | Sports facilities |
+| `sportsplatform_schools` | Schools with sports programs |
+| `sportsplatform_media` | Photos, videos, documents |
+| `sportsplatform_hp_programs` | High-performance programs |
 | `users` | Platform users with RBAC |
 
 ---
