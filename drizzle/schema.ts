@@ -135,6 +135,7 @@ export const athletes = pgTable("sportsplatform_athletes", {
   email: varchar("email", { length: 320 }),
   phone: varchar("phone", { length: 50 }),
   
+  nationality: varchar("nationality", { length: 100 }),
   achievements: text("achievements"),
   currentRanking: integer("current_ranking"),
   
