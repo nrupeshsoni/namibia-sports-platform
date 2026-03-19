@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Phone, MapPin, Users, Globe, Facebook, Instagram, Twitter, Youtube, ExternalLink, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 import type { Federation } from "../data/federations";
+import { getFederationSlug } from "../data/federations";
 
 interface FederationModalProps {
   federation: Federation | null;
@@ -12,7 +13,7 @@ export default function FederationModal({ federation, onClose }: FederationModal
   const [, navigate] = useLocation();
   if (!federation) return null;
 
-  const federationSlug = federation.slug || `fed-${federation.id}`;
+  const federationSlug = getFederationSlug(federation);
 
   const getCategoryLabel = (category: string) => {
     switch (category) {

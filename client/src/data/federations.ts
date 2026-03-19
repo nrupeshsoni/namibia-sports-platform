@@ -1,3 +1,10 @@
+/** Derive URL slug from name — matches server getBySlug resolution */
+export function getFederationSlug(f: { id: number; name: string; slug?: string | null }): string {
+  if (f.slug) return f.slug;
+  const fromName = f.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  return fromName || `fed-${f.id}`;
+}
+
 export interface Federation {
   id: number;
   name: string;

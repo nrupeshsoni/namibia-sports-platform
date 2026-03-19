@@ -81,53 +81,58 @@ export const federationsRouter = router({
   getBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) return null;
+      try {
+        const db = await getDb();
+        if (!db) return null;
 
-      const slugLower = input.slug.toLowerCase();
+        const slugLower = input.slug.toLowerCase();
 
-      // 1. Exact slug match
-      let result = await db
-        .select()
-        .from(federations)
-        .where(eq(federations.slug, input.slug))
-        .limit(1);
+        // 1. Exact slug match
+        let result = await db
+          .select()
+          .from(federations)
+          .where(eq(federations.slug, input.slug))
+          .limit(1);
 
-      if (result[0]) return result[0];
+        if (result[0]) return result[0];
 
-      // 2. Case-insensitive slug match (handles "Karate" vs "karate")
-      result = await db
-        .select()
-        .from(federations)
-        .where(ilike(federations.slug, input.slug))
-        .limit(1);
-
-      if (result[0]) return result[0];
-
-      // 3. Abbreviation match (e.g. "kna" for Karate Namibia)
-      result = await db
-        .select()
-        .from(federations)
-        .where(ilike(federations.abbreviation, input.slug))
-        .limit(1);
-
-      if (result[0]) return result[0];
-
-      // 4. fed-{id} fallback
-      const fedIdMatch = input.slug.match(/^fed-(\d+)$/);
-      if (fedIdMatch) {
+        // 2. Case-insensitive slug match (handles "Karate" vs "karate")
         result = await db
           .select()
           .from(federations)
-          .where(eq(federations.id, parseInt(fedIdMatch[1], 10)))
+          .where(ilike(federations.slug, input.slug))
           .limit(1);
-        if (result[0]) return result[0];
-      }
 
-      // 5. Name-derived slug: "Karate Namibia" → "karate-namibia"
-      const all = await db.select().from(federations);
-      const found = all.find((f) => nameToSlug(f.name) === slugLower);
-      return found ?? null;
+        if (result[0]) return result[0];
+
+        // 3. Abbreviation match (e.g. "kna" for Karate Namibia)
+        result = await db
+          .select()
+          .from(federations)
+          .where(ilike(federations.abbreviation, input.slug))
+          .limit(1);
+
+        if (result[0]) return result[0];
+
+        // 4. fed-{id} fallback
+        const fedIdMatch = input.slug.match(/^fed-(\d+)$/);
+        if (fedIdMatch) {
+          result = await db
+            .select()
+            .from(federations)
+            .where(eq(federations.id, parseInt(fedIdMatch[1], 10)))
+            .limit(1);
+          if (result[0]) return result[0];
+        }
+
+        // 5. Name-derived slug: "Karate Namibia" → "karate-namibia"
+        const all = await db.select().from(federations);
+        const found = all.find((f) => nameToSlug(f.name) === slugLower);
+        return found ?? null;
+      } catch (e) {
+        console.error("[federations.getBySlug]", e);
+        return null;
+      }
     }),
 
   create: protectedProcedure
