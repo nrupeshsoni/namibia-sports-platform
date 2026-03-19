@@ -3,7 +3,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import AIChatAssistant from "@/components/AIChatAssistant";
 import OfflineBanner from "@/components/OfflineBanner";
-import { Route, Switch } from "wouter";
+import PWAInstallBanner from "@/components/PWAInstallBanner";
+import MobileBottomNav from "@/components/MobileBottomNav";
+import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -21,6 +23,7 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path="/events" component={Events} />
+      <Route path="/news/:slug" component={News} />
       <Route path="/news" component={News} />
       <Route path="/live" component={Live} />
       <Route path="/login" component={Login} />
@@ -38,15 +41,25 @@ function Router() {
   );
 }
 
+const HIDE_NAV_PATHS = ["/login", "/register", "/admin"];
+
 function App() {
+  const [location] = useLocation();
+  const showMobileNav = !HIDE_NAV_PATHS.some((p) => location === p || location.startsWith(p + "/"));
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">
         <AuthProvider>
           <TooltipProvider>
+            <OfflineBanner />
             <Toaster />
-            <Router />
+            <main className={showMobileNav ? "pb-[72px] md:pb-0" : ""}>
+              <Router />
+            </main>
             <AIChatAssistant />
+            <PWAInstallBanner />
+            <MobileBottomNav />
           </TooltipProvider>
         </AuthProvider>
       </ThemeProvider>

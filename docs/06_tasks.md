@@ -1,7 +1,7 @@
 # Master Tasks — Namibia Sports Platform
 
 ## 🛑 CRITICAL BLOCKERS
-- [ ] FederationLayout imports missing components (FederationHome, FederationEvents, FederationClubs, FederationAthletes, FederationNews, FederationStreams) — client build may fail
+- [x] Federation pages broken (/federation/karate-namibia) — fixed getBySlug fallbacks, migration for slugs, Home→tRPC
 - [ ] Verify .env.example is complete and matches actual usage
 
 ## ⚠️ HIGH PRIORITY

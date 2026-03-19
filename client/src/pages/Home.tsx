@@ -1,11 +1,25 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'wouter';
+import { motion } from 'framer-motion';
 import { federations as staticFederations } from '../data/federations';
 import FederationModal from '../components/FederationModal';
 import NavDrawer from '../components/NavDrawer';
 import type { Federation as StaticFederation } from '../data/federations';
-import { ChevronDown, Search, Menu, Loader2, MapPin, Users, Calendar, Trophy, X, Filter } from 'lucide-react';
-import { fetchFederations, supabase, type DbFederation } from '../lib/supabase';
+import { ChevronDown, Search, Menu, Loader2, MapPin, Users, Calendar, Trophy, X, Filter, Clock, Newspaper } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { trpc } from '../lib/trpc';
+import { fadeUp, staggerContainer, scaleIn } from '../lib/animations';
+
+const EVENT_TYPE_IMAGES: Record<string, string> = {
+  competition: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800&q=80',
+  tournament: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80',
+  training: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=800&q=80',
+  workshop: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&q=80',
+  meeting: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
+  other: 'https://images.unsplash.com/photo-1461896836934-4f16cf7d507c?w=800&q=80',
+};
+
+const NEWS_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80';
 
 // Venue type
 interface Venue {
@@ -19,8 +33,29 @@ interface Venue {
   capacity: number | null;
 }
 
-// Convert DB federation to display format
-function toDisplayFederation(fed: DbFederation): StaticFederation {
+/** Federation row from tRPC (camelCase, matches getBySlug) */
+type TrpcFederation = {
+  id: number;
+  name: string;
+  abbreviation: string | null;
+  type: 'ministry' | 'commission' | 'umbrella' | 'federation';
+  description: string | null;
+  logo: string | null;
+  backgroundImage: string | null;
+  slug: string | null;
+  president?: string | null;
+  secretaryGeneral?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  website?: string | null;
+  facebook?: string | null;
+  instagram?: string | null;
+  twitter?: string | null;
+  youtube?: string | null;
+};
+
+/** Convert tRPC federation to display format (matches getBySlug, so links resolve correctly) */
+function toDisplayFederation(fed: TrpcFederation): StaticFederation {
   const shortName = (fed.abbreviation || fed.name
     .replace('Namibia ', '')
     .replace('Ministry of ', '')
@@ -36,9 +71,9 @@ function toDisplayFederation(fed: DbFederation): StaticFederation {
     category: fed.type,
     shortName: shortName || fed.name.toUpperCase(),
     description: fed.description || undefined,
-    image: fed.background_image || fed.logo || '/hero/stadium.jpg',
+    image: fed.backgroundImage || fed.logo || '/hero/stadium.jpg',
     president: fed.president || undefined,
-    secretary: fed.secretary_general || undefined,
+    secretary: fed.secretaryGeneral || undefined,
     email: fed.email || undefined,
     phone: fed.phone || undefined,
     website: fed.website || undefined,
@@ -74,36 +109,36 @@ export default function Home() {
     });
   }, [federations, searchQuery, selectedCategory]);
   
-  // Fetch federations and venues from Supabase
+  // Federations via tRPC (same source as getBySlug — consistent slug resolution)
+  const federationQuery = trpc.federations.list.useQuery();
+  const fedList = federationQuery.data ?? [];
+  const fedError = federationQuery.error;
+  const fedLoading = federationQuery.isLoading;
+
+  // Sync federations when tRPC succeeds; use fedLoading for grid
   useEffect(() => {
-    async function loadData() {
+    if (fedList.length > 0) {
+      setFederations(fedList.map(toDisplayFederation));
+      setError(null);
+    }
+    if (fedError) setError(fedError instanceof Error ? fedError : new Error(String(fedError)));
+    setIsLoading(fedLoading);
+  }, [fedList, fedError, fedLoading]);
+
+  // Fetch venues from Supabase
+  useEffect(() => {
+    async function loadVenues() {
       try {
-        setIsLoading(true);
-        
-        // Fetch federations
-        const dbFederations = await fetchFederations();
-        if (dbFederations.length > 0) {
-          setFederations(dbFederations.map(toDisplayFederation));
-        }
-        
-        // Fetch venues
         const { data: venuesData } = await supabase
           .from('sportsplatform_venues')
           .select('*')
           .order('capacity', { ascending: false });
-        if (venuesData) {
-          setVenues(venuesData);
-        }
-        
-        setError(null);
+        if (venuesData) setVenues(venuesData);
       } catch (err) {
-        console.error('Failed to fetch data:', err);
-        setError(err as Error);
-      } finally {
-        setIsLoading(false);
+        console.error('Failed to fetch venues:', err);
       }
     }
-    loadData();
+    loadVenues();
   }, []);
 
   const heroImages = [
@@ -145,8 +180,46 @@ export default function Home() {
     document.getElementById('federations')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // tRPC data for home sections
+  const upcomingEventsQuery = trpc.events.list.useQuery({ upcoming: true, limit: 8 });
+  const newsQuery = trpc.news.list.useQuery({ limit: 6 });
+  const upcomingEvents = (upcomingEventsQuery.data ?? []) as Array<{
+    id: number;
+    name: string;
+    slug: string;
+    posterUrl: string | null;
+    type: string;
+    startDate: Date;
+    endDate: Date | null;
+    location: string | null;
+    region: string | null;
+  }>;
+  const newsArticles = (newsQuery.data ?? []) as Array<{
+    id: number;
+    title: string;
+    slug: string;
+    summary: string | null;
+    category: string | null;
+    featuredImage: string | null;
+    publishedAt: string | null;
+  }>;
+
+  const EVENT_TYPE_IMAGES: Record<string, string> = {
+    competition: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&q=80',
+    tournament: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&q=80',
+    training: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=400&q=80',
+    workshop: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&q=80',
+    meeting: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&q=80',
+    other: 'https://images.unsplash.com/photo-1461896836934-4f16cf7d507c?w=400&q=80',
+  };
+
+  const formatEventDate = (d: Date | string) =>
+    new Date(d).toLocaleDateString('en-NA', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  const formatNewsDate = (d: string | null) =>
+    d ? new Date(d).toLocaleDateString('en-NA', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black overflow-x-hidden">
       {/* Header - Glass */}
       <header 
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
@@ -155,12 +228,13 @@ export default function Home() {
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          paddingTop: 'env(safe-area-inset-top, 0px)',
         }}
       >
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between min-h-[44px]">
           <button 
             onClick={() => setShowSearch(!showSearch)}
-            className="p-2 rounded-xl text-white hover:bg-white/10 transition-all duration-300"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-white hover:bg-white/10 transition-all duration-300 touch-target"
             style={{ backdropFilter: 'blur(10px)' }}
           >
             {showSearch ? <X className="w-6 h-6" /> : <Search className="w-6 h-6" />}
@@ -192,7 +266,7 @@ export default function Home() {
 
           <button
             onClick={() => setNavDrawerOpen(true)}
-            className="p-2 rounded-xl text-white hover:bg-white/10 transition-all duration-300"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-white hover:bg-white/10 transition-all duration-300 touch-target"
             style={{ backdropFilter: 'blur(10px)' }}
             aria-label="Open menu"
           >
@@ -310,6 +384,769 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* Schedules Section - Aggregate schedules across sports */}
+      <section className="py-16 px-4 bg-black relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-red-500/5 rounded-full blur-[120px]" />
+        <div className="container mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-10"
+          >
+            <p className="text-sm tracking-[0.3em] text-red-400 mb-2">UPCOMING</p>
+            <h2 className="text-3xl md:text-5xl font-serif text-white mb-2">
+              SCHEDULES
+            </h2>
+            <p className="text-gray-400">Matches and competitions across all sports</p>
+          </motion.div>
+          {upcomingEventsQuery.isLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-10 h-10 text-white animate-spin" />
+            </div>
+          ) : upcomingEvents.length > 0 ? (
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-30px' }}
+              className="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide"
+            >
+              {upcomingEvents.slice(0, 5).map((evt, i) => (
+                <motion.div
+                  key={evt.id}
+                  variants={fadeUp}
+                  className="flex-shrink-0 w-[280px] snap-center group"
+                >
+                  <Link href={`/events?slug=${evt.slug}`}>
+                    <div
+                      className="h-full rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 hover:scale-105 hover:-translate-y-1"
+                      style={{
+                        background: 'rgba(255,255,255,0.06)',
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        boxShadow: '0 20px 40px -15px rgba(0,0,0,0.4)',
+                      }}
+                    >
+                      <div
+                        className="h-32 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                        style={{ backgroundImage: `url(${evt.posterUrl || EVENT_TYPE_IMAGES[evt.type] || EVENT_TYPE_IMAGES.other})` }}
+                      />
+                      <div className="p-4">
+                        <span className="text-xs font-medium text-red-400 uppercase tracking-wider">
+                          {evt.type}
+                        </span>
+                        <h3 className="text-white font-serif mt-1 line-clamp-2">{evt.name}</h3>
+                        <div className="flex items-center gap-2 mt-2 text-gray-400 text-sm">
+                          <Calendar className="w-4 h-4 flex-shrink-0" />
+                          {formatEventDate(evt.startDate)}
+                        </div>
+                        {evt.location && (
+                          <div className="flex items-center gap-2 mt-1 text-gray-500 text-xs">
+                            <MapPin className="w-3 h-3 flex-shrink-0" />
+                            {evt.location}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <div
+              className="text-center py-12 rounded-2xl"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              <Clock className="w-12 h-12 mx-auto text-gray-600 mb-3" />
+              <p className="text-gray-500">No upcoming events scheduled</p>
+              <Link href="/events">
+                <span className="inline-block mt-3 text-sm text-red-400 hover:text-red-300 cursor-pointer">View events</span>
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Calendar / Upcoming Events Section */}
+      <section className="py-16 px-4 bg-black relative overflow-hidden">
+        <div className="absolute bottom-0 right-0 w-[600px] h-[300px] bg-blue-500/5 rounded-full blur-[100px]" />
+        <div className="container mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10"
+          >
+            <div>
+              <p className="text-sm tracking-[0.3em] text-blue-400 mb-2">EVENTS</p>
+              <h2 className="text-3xl md:text-5xl font-serif text-white mb-2">
+                UPCOMING CALENDAR
+              </h2>
+              <p className="text-gray-400">Events across Namibia's federations</p>
+            </div>
+            <Link href="/events">
+              <span
+                className="inline-block px-6 py-3 rounded-xl text-white text-sm font-medium cursor-pointer transition-all hover:scale-105"
+                style={{ background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.4)' }}
+              >
+                View all events
+              </span>
+            </Link>
+          </motion.div>
+          {upcomingEventsQuery.isLoading ? null : upcomingEvents.length > 0 ? (
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-30px' }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+            >
+              {upcomingEvents.slice(0, 8).map((evt, i) => (
+                <motion.div key={evt.id} variants={fadeUp}>
+                  <Link href={`/events?slug=${evt.slug}`}>
+                    <div
+                      className="h-full rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 hover:scale-[1.02] hover:shadow-xl"
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        boxShadow: '0 15px 35px -10px rgba(0,0,0,0.3)',
+                      }}
+                    >
+                      <div className="relative">
+                        <div
+                          className="aspect-[16/9] bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                          style={{ backgroundImage: `url(${evt.posterUrl || EVENT_TYPE_IMAGES[evt.type] || EVENT_TYPE_IMAGES.other})` }}
+                        />
+                        <div className="absolute bottom-2 left-2 right-2 flex justify-between items-end">
+                          <span
+                            className="px-2.5 py-1 rounded-lg text-xs font-medium"
+                            style={{ background: 'rgba(239,68,68,0.7)', color: 'white' }}
+                          >
+                            {formatEventDate(evt.startDate)}
+                          </span>
+                          {evt.region && (
+                            <span className="px-2 py-1 rounded-lg text-xs text-white" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                              {evt.region}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <h3 className="text-white font-serif text-lg line-clamp-2">{evt.name}</h3>
+                        {evt.location && (
+                          <div className="flex items-center gap-2 mt-2 text-gray-400 text-sm">
+                            <MapPin className="w-4 h-4 flex-shrink-0" />
+                            {evt.location}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <div
+              className="text-center py-16 rounded-2xl"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              <Calendar className="w-14 h-14 mx-auto text-gray-600 mb-4" />
+              <p className="text-gray-500 mb-2">No upcoming events</p>
+              <Link href="/events">
+                <span className="text-blue-400 hover:text-blue-300 cursor-pointer text-sm">Browse events</span>
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Sports News Section */}
+      <section className="py-16 px-4 bg-black relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[350px] bg-green-500/5 rounded-full blur-[130px]" />
+        <div className="container mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10"
+          >
+            <div>
+              <p className="text-sm tracking-[0.3em] text-emerald-400 mb-2">LATEST</p>
+              <h2 className="text-3xl md:text-5xl font-serif text-white mb-2">
+                SPORTS NEWS
+              </h2>
+              <p className="text-gray-400">Updates from across Namibian sport</p>
+            </div>
+            <Link href="/news">
+              <span
+                className="inline-block px-6 py-3 rounded-xl text-white text-sm font-medium cursor-pointer transition-all hover:scale-105"
+                style={{ background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.4)' }}
+              >
+                All news
+              </span>
+            </Link>
+          </motion.div>
+          {newsQuery.isLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-10 h-10 text-white animate-spin" />
+            </div>
+          ) : newsArticles.length > 0 ? (
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-30px' }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {newsArticles.map((article) => (
+                <motion.div key={article.id} variants={fadeUp}>
+                  <Link href="/news">
+                    <div
+                      className="h-full rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 hover:scale-[1.02] hover:shadow-xl"
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        boxShadow: '0 15px 35px -10px rgba(0,0,0,0.3)',
+                      }}
+                    >
+                      <div className="aspect-video relative overflow-hidden">
+                        <div
+                          className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                          style={{
+                            backgroundImage: `url(${article.featuredImage || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80'})`,
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                        {article.category && (
+                          <span
+                            className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-medium"
+                            style={{ background: 'rgba(16,185,129,0.8)', color: 'white' }}
+                          >
+                            {article.category}
+                          </span>
+                        )}
+                      </div>
+                      <div className="p-5">
+                        <h3 className="text-white font-serif text-lg line-clamp-2 mb-2">{article.title}</h3>
+                        {article.summary && (
+                          <p className="text-gray-400 text-sm line-clamp-2 mb-3">{article.summary}</p>
+                        )}
+                        {article.publishedAt && (
+                          <p className="text-xs text-gray-500 flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {formatNewsDate(article.publishedAt)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <div
+              className="text-center py-16 rounded-2xl"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              <Newspaper className="w-14 h-14 mx-auto text-gray-600 mb-4" />
+              <p className="text-gray-500 mb-2">No news yet</p>
+              <Link href="/news">
+                <span className="text-emerald-400 hover:text-emerald-300 cursor-pointer text-sm">Browse news</span>
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Schedules — aggregate upcoming across sports */}
+      <section className="py-16 px-4 bg-black relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-red-500/5 rounded-full blur-[120px]" />
+        <div className="container mx-auto relative z-10">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            className="text-center mb-10"
+          >
+            <p className="text-sm tracking-[0.3em] text-red-400 mb-2">SCHEDULES</p>
+            <h2 className="text-3xl md:text-5xl font-serif text-white mb-3">UPCOMING MATCHES & COMPETITIONS</h2>
+            <p className="text-gray-400">Aggregated schedules across all Namibian sports</p>
+          </motion.div>
+          {upcomingEventsQuery.isLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-8 h-8 text-white animate-spin" />
+            </div>
+          ) : (
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="flex flex-wrap justify-center gap-3"
+            >
+              {(upcomingEvents.slice(0, 5).length === 0 ? (
+                <div
+                  className="px-6 py-4 rounded-2xl text-gray-400 text-sm"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                >
+                  No upcoming events — check back soon
+                </div>
+              ) : (
+                upcomingEvents.slice(0, 5).map((evt, i) => (
+                  <motion.div
+                    key={evt.id}
+                    variants={fadeUp}
+                    whileHover={{ scale: 1.05, y: -4 }}
+                    className="group cursor-pointer"
+                  >
+                    <Link href={`/events`}>
+                      <div
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl min-w-[240px] max-w-[280px]"
+                        style={{
+                          background: 'rgba(255,255,255,0.08)',
+                          backdropFilter: 'blur(20px)',
+                          border: '1px solid rgba(255,255,255,0.15)',
+                          boxShadow: '0 4px 24px -4px rgba(0,0,0,0.3)',
+                        }}
+                      >
+                        <div
+                          className="flex-shrink-0 w-12 h-12 rounded-lg flex flex-col items-center justify-center"
+                          style={{ background: 'rgba(239,68,68,0.25)', border: '1px solid rgba(239,68,68,0.3)' }}
+                        >
+                          <span className="text-lg font-bold text-white leading-none">{new Date(evt.startDate).getDate()}</span>
+                          <span className="text-[10px] text-red-300 uppercase">{new Date(evt.startDate).toLocaleString('en-US', { month: 'short' })}</span>
+                        </div>
+                        <div className="min-w-0 flex-1 text-left">
+                          <p className="text-white font-medium truncate">{evt.name}</p>
+                          <p className="text-xs text-gray-400 truncate">{evt.location || evt.region || 'TBA'}</p>
+                        </div>
+                        <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))
+              ))}
+            </motion.div>
+          )}
+        </div>
+      </section>
+
+      {/* Calendar / Upcoming Events — grid with dates and locations */}
+      <section className="py-16 px-4 bg-black relative overflow-hidden">
+        <div className="absolute bottom-0 right-0 w-[500px] h-[300px] bg-blue-500/5 rounded-full blur-[100px]" />
+        <div className="container mx-auto relative z-10">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            className="text-center mb-10"
+          >
+            <p className="text-sm tracking-[0.3em] text-blue-400 mb-2">CALENDAR</p>
+            <h2 className="text-3xl md:text-5xl font-serif text-white mb-3">UPCOMING EVENTS</h2>
+            <p className="text-gray-400">Events across federations — dates, locations, and more</p>
+          </motion.div>
+          {upcomingEventsQuery.isLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-8 h-8 text-white animate-spin" />
+            </div>
+          ) : (
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            >
+              {(upcomingEvents.length === 0 ? (
+                <div
+                  className="col-span-full py-12 rounded-2xl text-center text-gray-400"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                >
+                  No upcoming events — visit the Events page for more
+                </div>
+              ) : (
+                upcomingEvents.map((evt) => (
+                  <motion.div key={evt.id} variants={fadeUp}>
+                    <Link href="/events">
+                      <motion.div
+                        whileHover={{ scale: 1.02, rotateY: 2 }}
+                        className="h-full rounded-2xl overflow-hidden group"
+                        style={{
+                          perspective: '1000px',
+                          background: 'rgba(255,255,255,0.08)',
+                          backdropFilter: 'blur(20px)',
+                          border: '1px solid rgba(255,255,255,0.12)',
+                          boxShadow: '0 8px 32px -8px rgba(0,0,0,0.4)',
+                        } as React.CSSProperties}
+                      >
+                        <div className="aspect-video bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style={{ backgroundImage: `url(${evt.posterUrl || EVENT_TYPE_IMAGES[evt.type] || EVENT_TYPE_IMAGES.other})` }} />
+                        <div className="p-4">
+                          <span className="inline-block px-2 py-0.5 rounded text-xs font-medium mb-2" style={{ background: 'rgba(251,191,36,0.2)', color: '#FCD34D', border: '1px solid rgba(251,191,36,0.3)' }}>
+                            {evt.type}
+                          </span>
+                          <h3 className="text-lg font-serif text-white mb-1 line-clamp-2">{evt.name}</h3>
+                          <p className="text-sm text-gray-400 flex items-center gap-1">
+                            <Calendar className="w-4 h-4 flex-shrink-0" />
+                            {formatEventDate(evt.startDate)}
+                          </p>
+                          {(evt.location || evt.region) && (
+                            <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                              <MapPin className="w-3 h-3" />
+                              {evt.location || evt.region}
+                            </p>
+                          )}
+                        </div>
+                      </motion.div>
+                    </Link>
+                  </motion.div>
+                ))
+              ))}
+            </motion.div>
+          )}
+        </div>
+      </section>
+
+      {/* Sports News — latest news feed */}
+      <section className="py-16 px-4 bg-black relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[250px] bg-green-500/5 rounded-full blur-[100px]" />
+        <div className="container mx-auto relative z-10">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            className="text-center mb-10"
+          >
+            <p className="text-sm tracking-[0.3em] text-green-400 mb-2">UPDATES</p>
+            <h2 className="text-3xl md:text-5xl font-serif text-white mb-3">SPORTS NEWS</h2>
+            <p className="text-gray-400">Latest news and updates from Namibian federations</p>
+          </motion.div>
+          {newsQuery.isLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-8 h-8 text-white animate-spin" />
+            </div>
+          ) : (
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+            >
+              {(newsArticles.length === 0 ? (
+                <div
+                  className="col-span-full py-12 rounded-2xl text-center text-gray-400"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                >
+                  No news yet — check back soon
+                </div>
+              ) : (
+                newsArticles.map((article) => (
+                  <motion.div key={article.id} variants={fadeUp}>
+                    <Link href={`/news`}>
+                      <motion.div
+                        whileHover={{ scale: 1.02, y: -4 }}
+                        className="h-full rounded-2xl overflow-hidden group"
+                        style={{
+                          background: 'rgba(255,255,255,0.08)',
+                          backdropFilter: 'blur(20px)',
+                          border: '1px solid rgba(255,255,255,0.12)',
+                          boxShadow: '0 8px 32px -8px rgba(0,0,0,0.4)',
+                        }}
+                      >
+                        <div className="aspect-video bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style={{ backgroundImage: `url(${article.featuredImage || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'})` }} />
+                        <div className="p-5">
+                          {article.category && (
+                            <span className="inline-block px-2 py-0.5 rounded text-xs font-medium mb-2" style={{ background: 'rgba(16,185,129,0.2)', color: '#6EE7B7', border: '1px solid rgba(16,185,129,0.3)' }}>
+                              {article.category}
+                            </span>
+                          )}
+                          <h3 className="text-lg font-serif text-white mb-2 line-clamp-2">{article.title}</h3>
+                          {article.summary && <p className="text-sm text-gray-400 line-clamp-2 mb-2">{article.summary}</p>}
+                          <p className="text-xs text-gray-500">{formatNewsDate(article.publishedAt)}</p>
+                        </div>
+                      </motion.div>
+                    </Link>
+                  </motion.div>
+                ))
+              ))}
+            </motion.div>
+          )}
+        </div>
+      </section>
+
+      {/* ─── Schedules & Upcoming Events & News (Glassmorphism) ─── */}
+      <div className="relative py-16 px-4 bg-black overflow-hidden">
+        {/* Ambient glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-red-500/10 rounded-full blur-[120px]" />
+
+        <div className="container mx-auto relative z-10 space-y-20">
+          {/* 1. Schedules Section — aggregate upcoming across sports */}
+          <motion.section
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+            variants={staggerContainer}
+            className="relative"
+          >
+            <div className="text-center mb-10">
+              <p className="text-sm tracking-[0.3em] text-red-400 mb-2">SCHEDULES</p>
+              <h2 className="text-3xl md:text-5xl font-serif text-white mb-2">
+                WHAT&apos;S COMING UP
+              </h2>
+              <p className="text-gray-400 max-w-xl mx-auto">
+                Matches, competitions, and events across all Namibian sports
+              </p>
+            </div>
+
+            {upcomingEventsQuery.isLoading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="w-8 h-8 text-white animate-spin" />
+              </div>
+            ) : upcomingEvents.length === 0 ? (
+              <div
+                className="flex flex-col items-center justify-center py-16 rounded-3xl text-gray-500"
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}
+              >
+                <Calendar className="w-12 h-12 mb-4 opacity-60" />
+                <p className="text-lg font-medium text-gray-400">No upcoming events</p>
+                <p className="text-sm">Check back soon for new schedules</p>
+                <Link href="/events">
+                  <span className="mt-4 px-6 py-2 rounded-full text-sm text-white cursor-pointer hover:bg-white/10 transition-colors" style={{ background: 'rgba(239,68,68,0.3)', border: '1px solid rgba(239,68,68,0.4)' }}>
+                    Browse All Events
+                  </span>
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {upcomingEvents.slice(0, 4).map((evt, i) => (
+                  <motion.div
+                    key={evt.id}
+                    variants={fadeUp}
+                    whileHover={{ scale: 1.03, y: -4 }}
+                    transition={{ duration: 0.3 }}
+                    className="group cursor-pointer"
+                  >
+                    <Link href={`/events?slug=${evt.slug}`}>
+                      <div
+                        className="relative overflow-hidden rounded-2xl h-full transition-all duration-300"
+                        style={{
+                          background: 'rgba(255,255,255,0.07)',
+                          backdropFilter: 'blur(20px)',
+                          border: '1px solid rgba(255,255,255,0.12)',
+                          boxShadow: '0 4px 24px -4px rgba(0,0,0,0.3)',
+                        }}
+                      >
+                        <div
+                          className="aspect-[16/10] bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                          style={{ backgroundImage: `url(${evt.posterUrl ?? EVENT_TYPE_IMAGES[evt.type] ?? EVENT_TYPE_IMAGES.other})` }}
+                        />
+                        <div className="p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Clock className="w-4 h-4 text-red-400" />
+                            <span className="text-xs text-gray-400">{formatEventDate(evt.startDate)}</span>
+                          </div>
+                          <h3 className="font-serif text-white line-clamp-2 text-lg">{evt.name}</h3>
+                          {(evt.location || evt.region) && (
+                            <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5" />
+                              {evt.location || evt.region}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </motion.section>
+
+          {/* 2. Calendar / Upcoming Events — fuller grid */}
+          <motion.section
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+            variants={staggerContainer}
+            className="relative"
+          >
+            <div className="flex items-center justify-between flex-wrap gap-4 mb-10">
+              <div>
+                <p className="text-sm tracking-[0.3em] text-blue-400 mb-2">CALENDAR</p>
+                <h2 className="text-3xl md:text-4xl font-serif text-white">
+                  UPCOMING EVENTS
+                </h2>
+                <p className="text-gray-400 mt-1">Events across the country</p>
+              </div>
+              <Link href="/events">
+                <span
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white cursor-pointer transition-all hover:scale-105"
+                  style={{
+                    background: 'rgba(59,130,246,0.25)',
+                    border: '1px solid rgba(59,130,246,0.4)',
+                  }}
+                >
+                  View All <Calendar className="w-4 h-4" />
+                </span>
+              </Link>
+            </div>
+
+            {upcomingEvents.length === 0 && !upcomingEventsQuery.isLoading ? null : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {upcomingEvents.slice(0, 6).map((evt, i) => (
+                  <motion.div
+                    key={evt.id}
+                    variants={fadeUp}
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    transition={{ duration: 0.3 }}
+                    className="group"
+                  >
+                    <Link href={`/events?slug=${evt.slug}`}>
+                      <div
+                        className="relative overflow-hidden rounded-2xl h-full transition-all duration-300"
+                        style={{
+                          background: 'rgba(255,255,255,0.08)',
+                          backdropFilter: 'blur(20px)',
+                          border: '1px solid rgba(255,255,255,0.15)',
+                          boxShadow: '0 8px 32px -8px rgba(0,0,0,0.3)',
+                        }}
+                      >
+                        <div className="flex">
+                          <div
+                            className="flex-shrink-0 w-24 flex flex-col items-center justify-center p-3 text-center"
+                            style={{ background: 'rgba(239,68,68,0.12)', borderRight: '1px solid rgba(255,255,255,0.08)' }}
+                          >
+                            <span className="text-2xl font-bold text-white leading-none">{new Date(evt.startDate).getDate()}</span>
+                            <span className="text-xs text-gray-400 uppercase mt-1">{new Date(evt.startDate).toLocaleString('en-US', { month: 'short' })}</span>
+                          </div>
+                          <div className="flex-1 p-4 min-w-0">
+                            <h3 className="font-serif text-white line-clamp-2">{evt.name}</h3>
+                            <div className="flex flex-wrap gap-2 mt-2 text-xs text-gray-400">
+                              {evt.location && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {evt.location}</span>}
+                              {evt.region && <span>{evt.region}</span>}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </motion.section>
+
+          {/* 3. Sports News Section */}
+          <motion.section
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+            variants={staggerContainer}
+            className="relative"
+          >
+            <div className="flex items-center justify-between flex-wrap gap-4 mb-10">
+              <div>
+                <p className="text-sm tracking-[0.3em] text-emerald-400 mb-2">LATEST</p>
+                <h2 className="text-3xl md:text-4xl font-serif text-white">
+                  SPORTS NEWS
+                </h2>
+                <p className="text-gray-400 mt-1">Updates from Namibian federations</p>
+              </div>
+              <Link href="/news">
+                <span
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white cursor-pointer transition-all hover:scale-105"
+                  style={{
+                    background: 'rgba(16,185,129,0.25)',
+                    border: '1px solid rgba(16,185,129,0.4)',
+                  }}
+                >
+                  All News <Newspaper className="w-4 h-4" />
+                </span>
+              </Link>
+            </div>
+
+            {newsQuery.isLoading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="w-8 h-8 text-white animate-spin" />
+              </div>
+            ) : newsArticles.length === 0 ? (
+              <div
+                className="flex flex-col items-center justify-center py-16 rounded-3xl text-gray-500"
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}
+              >
+                <Newspaper className="w-12 h-12 mb-4 opacity-60" />
+                <p className="text-lg font-medium text-gray-400">No news yet</p>
+                <p className="text-sm">Latest stories will appear here</p>
+                <Link href="/news">
+                  <span className="mt-4 px-6 py-2 rounded-full text-sm text-white cursor-pointer hover:bg-white/10 transition-colors" style={{ background: 'rgba(16,185,129,0.3)', border: '1px solid rgba(16,185,129,0.4)' }}>
+                    Browse News
+                  </span>
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {newsArticles.map((art, i) => (
+                  <motion.article
+                    key={art.id}
+                    variants={fadeUp}
+                    whileHover={{ scale: 1.02, y: -4 }}
+                    transition={{ duration: 0.3 }}
+                    className="group"
+                  >
+                    <Link href={`/news/${art.slug}`}>
+                      <div
+                        className="relative overflow-hidden rounded-2xl h-full transition-all duration-300"
+                        style={{
+                          background: 'rgba(255,255,255,0.06)',
+                          backdropFilter: 'blur(20px)',
+                          border: '1px solid rgba(255,255,255,0.12)',
+                          boxShadow: '0 8px 32px -8px rgba(0,0,0,0.25)',
+                        }}
+                      >
+                        <div
+                          className="aspect-video bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                          style={{
+                            backgroundImage: `url(${art.featuredImage ?? 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80'})`,
+                          }}
+                        />
+                        <div className="p-5">
+                          {art.category && (
+                            <span
+                              className="inline-block px-2.5 py-1 rounded-lg text-xs font-medium mb-2"
+                              style={{ background: 'rgba(239,68,68,0.2)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.3)' }}
+                            >
+                              {art.category}
+                            </span>
+                          )}
+                          <h3 className="font-serif text-white text-lg line-clamp-2 mb-2">{art.title}</h3>
+                          {art.summary && <p className="text-sm text-gray-400 line-clamp-2">{art.summary}</p>}
+                          {art.publishedAt && <p className="text-xs text-gray-500 mt-2">{formatNewsDate(art.publishedAt)}</p>}
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.article>
+                ))}
+              </div>
+            )}
+          </motion.section>
+        </div>
+      </div>
 
       {/* Federations Grid */}
       <section id="federations" className="py-12 px-4 bg-black">

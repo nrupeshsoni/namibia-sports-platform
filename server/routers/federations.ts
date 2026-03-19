@@ -4,6 +4,14 @@ import { federations } from "../../drizzle/schema";
 import { eq, like, and, ilike } from "drizzle-orm";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 
+/** Derives URL slug from federation name: "Karate Namibia" → "karate-namibia" */
+function nameToSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+}
+
 export const federationsRouter = router({
   list: publicProcedure
     .input(
@@ -71,6 +79,9 @@ export const federationsRouter = router({
       const db = await getDb();
       if (!db) return null;
 
+      const slugLower = input.slug.toLowerCase();
+
+      // 1. Exact slug match
       let result = await db
         .select()
         .from(federations)
@@ -79,6 +90,16 @@ export const federationsRouter = router({
 
       if (result[0]) return result[0];
 
+      // 2. Case-insensitive slug match (handles "Karate" vs "karate")
+      result = await db
+        .select()
+        .from(federations)
+        .where(ilike(federations.slug, input.slug))
+        .limit(1);
+
+      if (result[0]) return result[0];
+
+      // 3. Abbreviation match (e.g. "kna" for Karate Namibia)
       result = await db
         .select()
         .from(federations)
@@ -87,6 +108,7 @@ export const federationsRouter = router({
 
       if (result[0]) return result[0];
 
+      // 4. fed-{id} fallback
       const fedIdMatch = input.slug.match(/^fed-(\d+)$/);
       if (fedIdMatch) {
         result = await db
@@ -94,9 +116,13 @@ export const federationsRouter = router({
           .from(federations)
           .where(eq(federations.id, parseInt(fedIdMatch[1], 10)))
           .limit(1);
+        if (result[0]) return result[0];
       }
 
-      return result[0] || null;
+      // 5. Name-derived slug: "Karate Namibia" → "karate-namibia"
+      const all = await db.select().from(federations);
+      const found = all.find((f) => nameToSlug(f.name) === slugLower);
+      return found ?? null;
     }),
 
   create: protectedProcedure

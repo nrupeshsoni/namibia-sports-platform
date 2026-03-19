@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { getDb } from "../db";
 import { events } from "../../drizzle/schema";
-import { eq, desc, like, and } from "drizzle-orm";
+import { eq, desc, asc, like, and, gte } from "drizzle-orm";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 
 export const eventsRouter = router({
@@ -12,6 +12,7 @@ export const eventsRouter = router({
           federationId: z.number().optional(),
           upcoming: z.boolean().optional(),
           search: z.string().optional(),
+          limit: z.number().optional(),
         })
         .optional()
     )
@@ -26,14 +27,24 @@ export const eventsRouter = router({
       if (input?.search) {
         conditions.push(like(events.name, `%${input.search}%`));
       }
+      if (input?.upcoming) {
+        conditions.push(gte(events.startDate, new Date()));
+      }
 
-      const result = await db
+      const orderBy = input?.upcoming ? asc(events.startDate) : desc(events.startDate);
+      const limit = input?.limit;
+
+      let query = db
         .select()
         .from(events)
         .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(desc(events.startDate));
+        .orderBy(orderBy);
 
-      return result;
+      if (limit) {
+        query = query.limit(limit) as typeof query;
+      }
+
+      return query;
     }),
 
   getById: publicProcedure

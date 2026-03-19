@@ -97,7 +97,7 @@ function FederationLayoutInner({
   currentTab: string;
 }) {
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a] overflow-x-hidden">
       {/* Hero Banner - Glassmorphism */}
       <header
         className="relative overflow-hidden"
@@ -116,7 +116,10 @@ function FederationLayoutInner({
             backdropFilter: "blur(1px)",
           }}
         />
-        <div className="relative z-10 container mx-auto px-4 py-8 md:py-12">
+        <div
+          className="relative z-10 container mx-auto px-4 py-8 md:py-12"
+          style={{ paddingTop: "calc(2rem + env(safe-area-inset-top, 0px))" }}
+        >
           <div className="flex items-center gap-4 mb-6">
             <Link href="/">
               <button

@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { ChevronLeft, Newspaper, X, Calendar, Tag } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { fadeUp, staggerContainer } from "@/lib/animations";
@@ -124,8 +124,30 @@ function ArticleModal({ article, onClose }: { article: NewsArticle; onClose: () 
 }
 
 export default function News() {
+  const [location, setLocation] = useLocation();
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
+
+  const slugFromPath = useMemo(() => {
+    const m = location.match(/^\/news\/(.+)$/);
+    return m ? m[1] : null;
+  }, [location]);
+
+  const articleBySlugQuery = trpc.news.getBySlug.useQuery(
+    { slug: slugFromPath! },
+    { enabled: !!slugFromPath }
+  );
+
+  useEffect(() => {
+    if (articleBySlugQuery.data) {
+      setSelectedArticle(articleBySlugQuery.data as NewsArticle);
+    }
+  }, [articleBySlugQuery.data]);
+
+  const handleCloseArticle = () => {
+    setSelectedArticle(null);
+    if (slugFromPath) setLocation("/news");
+  };
 
   const newsQuery = trpc.news.list.useQuery({ limit: 50 });
   const news = (newsQuery.data ?? []) as NewsArticle[];
@@ -369,7 +391,7 @@ export default function News() {
 
       {/* Article modal */}
       {selectedArticle && (
-        <ArticleModal article={selectedArticle} onClose={() => setSelectedArticle(null)} />
+        <ArticleModal article={selectedArticle} onClose={handleCloseArticle} />
       )}
     </div>
   );
