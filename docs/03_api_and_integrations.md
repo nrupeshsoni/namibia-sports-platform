@@ -33,6 +33,7 @@
 | **events** | delete | protected | |
 | **athletes** | list | public | |
 | **athletes** | getById | public | |
+| **athletes** | getBySlug | public | Get by slug (e.g. christine-mboma-1) |
 | **athletes** | create | protected | |
 | **athletes** | update | protected | |
 | **athletes** | delete | protected | |

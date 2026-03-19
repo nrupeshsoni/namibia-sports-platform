@@ -248,6 +248,7 @@ export default function Home() {
                 { label: 'Events', href: '/events' },
                 { label: 'News', href: '/news' },
                 { label: 'Live', href: '/live' },
+                { label: 'Map', href: '/map' },
               ].map((link) => (
                 <Link key={link.href} href={link.href}>
                   <span
@@ -1280,13 +1281,28 @@ export default function Home() {
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-12">
-            <p className="text-sm tracking-[0.3em] text-red-400 mb-4">ACROSS</p>
-            <h2 className="text-3xl md:text-5xl font-serif text-white mb-4">
-              14 REGIONS
-            </h2>
-            <p className="text-gray-300">
-              Sports development spanning all of Namibia's administrative regions
-            </p>
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+              <div>
+                <p className="text-sm tracking-[0.3em] text-red-400 mb-4">ACROSS</p>
+                <h2 className="text-3xl md:text-5xl font-serif text-white mb-4">
+                  14 REGIONS
+                </h2>
+                <p className="text-gray-300">
+                  Sports development spanning all of Namibia's administrative regions
+                </p>
+              </div>
+              <Link href="/map">
+                <span
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white cursor-pointer transition-all hover:scale-105"
+                  style={{
+                    background: 'rgba(239,68,68,0.25)',
+                    border: '1px solid rgba(239,68,68,0.4)',
+                  }}
+                >
+                  <MapPin className="w-4 h-4" /> View on Map
+                </span>
+              </Link>
+            </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
             {['Khomas', 'Erongo', 'Oshana', 'Omusati', 'Ohangwena', 'Oshikoto', 'Kavango East', 

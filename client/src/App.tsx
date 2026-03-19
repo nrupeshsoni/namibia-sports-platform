@@ -5,6 +5,7 @@ import AIChatAssistant from "@/components/AIChatAssistant";
 import OfflineBanner from "@/components/OfflineBanner";
 import PWAInstallBanner from "@/components/PWAInstallBanner";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import { SearchCommandPalette } from "@/components/SearchCommandPalette";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -17,19 +18,25 @@ import Admin from "./pages/Admin";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import FederationRoute from "./pages/federation/FederationRoute";
+import AthleteProfile from "./pages/athletes/AthleteProfile";
+import Map from "./pages/Map";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path="/athletes/:slug" component={AthleteProfile} />
       <Route path="/events" component={Events} />
       <Route path="/news/:slug" component={News} />
       <Route path="/news" component={News} />
       <Route path="/live" component={Live} />
+      <Route path="/map" component={Map} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/admin" component={Admin} />
       <Route path="/federation/:slug" component={FederationRoute} />
+      <Route path="/federation/:slug/admin" component={FederationRoute} />
+      <Route path="/federation/:slug/admin/:section" component={FederationRoute} />
       <Route path="/federation/:slug/events" component={FederationRoute} />
       <Route path="/federation/:slug/clubs" component={FederationRoute} />
       <Route path="/federation/:slug/athletes" component={FederationRoute} />
@@ -57,6 +64,7 @@ function App() {
             <main className={showMobileNav ? "pb-[72px] md:pb-0" : ""}>
               <Router />
             </main>
+            <SearchCommandPalette />
             <AIChatAssistant />
             <PWAInstallBanner />
             <MobileBottomNav />

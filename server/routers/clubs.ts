@@ -2,7 +2,7 @@ import { z } from "zod";
 import { getDb } from "../db";
 import { clubs } from "../../drizzle/schema";
 import { eq, like, and } from "drizzle-orm";
-import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
+import { federationAdminProcedure, publicProcedure, router } from "../_core/trpc";
 
 export const clubsRouter = router({
   list: publicProcedure
@@ -54,7 +54,7 @@ export const clubsRouter = router({
       return result[0] || null;
     }),
 
-  create: protectedProcedure
+  create: federationAdminProcedure
     .input(
       z.object({
         name: z.string(),
@@ -81,10 +81,11 @@ export const clubsRouter = router({
       return { success: true, id: result.id };
     }),
 
-  update: protectedProcedure
+  update: federationAdminProcedure
     .input(
       z.object({
         id: z.number(),
+        federationId: z.number(),
         name: z.string().optional(),
         description: z.string().optional(),
         logoUrl: z.string().optional(),
@@ -104,18 +105,23 @@ export const clubsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const { id, ...data } = input;
-      await db.update(clubs).set(data).where(eq(clubs.id, id));
+      const { id, federationId, ...data } = input;
+      await db
+        .update(clubs)
+        .set(data)
+        .where(and(eq(clubs.id, id), eq(clubs.federationId, federationId)));
       return { success: true };
     }),
 
-  delete: protectedProcedure
-    .input(z.object({ id: z.number() }))
+  delete: federationAdminProcedure
+    .input(z.object({ id: z.number(), federationId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      await db.delete(clubs).where(eq(clubs.id, input.id));
+      await db
+        .delete(clubs)
+        .where(and(eq(clubs.id, input.id), eq(clubs.federationId, input.federationId)));
       return { success: true };
     }),
 });

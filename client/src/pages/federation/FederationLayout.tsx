@@ -1,5 +1,6 @@
-import { useLocation, Link } from "wouter";
-import { ChevronLeft, Loader2, Home, Calendar, Users, User, Newspaper, Radio } from "lucide-react";
+import { useEffect } from "react";
+import { useLocation, Link, Redirect } from "wouter";
+import { ChevronLeft, Loader2, Home, Calendar, Users, User, Newspaper, Radio, Shield } from "lucide-react";
 import type { FederationContextValue } from "@/contexts/FederationContext";
 import { trpc } from "@/lib/trpc";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,6 +11,13 @@ import FederationClubs from "./FederationClubs";
 import FederationAthletes from "./FederationAthletes";
 import FederationNews from "./FederationNews";
 import FederationStreams from "./FederationStreams";
+import { FedAdminLayout, FedAdminLayoutSkeleton } from "./admin/FedAdminLayout";
+import FedAdminDashboard from "./admin/FedAdminDashboard";
+import FedAdminEvents from "./admin/FedAdminEvents";
+import FedAdminClubs from "./admin/FedAdminClubs";
+import FedAdminAthletes from "./admin/FedAdminAthletes";
+import FedAdminNews from "./admin/FedAdminNews";
+import FedAdminStreams from "./admin/FedAdminStreams";
 
 const TABS = [
   { path: "", label: "Home", icon: Home },
@@ -26,6 +34,21 @@ function getCurrentTab(pathname: string, slug: string): string {
   const rest = pathname.slice(base.length).replace(/^\//, "");
   const segment = rest.split("/")[0];
   return TABS.some((t) => t.path === segment) ? segment : "";
+}
+
+function isAdminPath(pathname: string, slug: string): boolean {
+  const base = `/federation/${slug}`;
+  if (pathname === base || pathname === `${base}/`) return false;
+  const rest = pathname.slice(base.length).replace(/^\//, "");
+  return rest === "admin" || rest.startsWith("admin/");
+}
+
+function getAdminSection(pathname: string, slug: string): string {
+  const base = `/federation/${slug}/admin`;
+  if (pathname === base || pathname === `${base}/`) return "";
+  if (!pathname.startsWith(base + "/")) return "";
+  const rest = pathname.slice(base.length).replace(/^\//, "");
+  return rest.split("/")[0] ?? "";
 }
 
 function FederationShell(props: { slug: string }) {
@@ -70,7 +93,7 @@ function FederationShell(props: { slug: string }) {
         is404: false,
       }}
     >
-      <FederationLayoutInner federation={federation!} slug={slug} currentTab={currentTab} />
+      <FederationLayoutInner federation={federation!} slug={slug} currentTab={currentTab} location={location} />
     </FederationProvider>
   );
 }
@@ -91,11 +114,48 @@ function FederationLayoutInner({
   federation,
   slug,
   currentTab,
+  location,
 }: {
   federation: FederationData;
   slug: string;
   currentTab: string;
+  location: string;
 }) {
+  const meQuery = trpc.auth.me.useQuery(undefined, { retry: false });
+  const user = meQuery.data ?? null;
+  const isAdminPathVal = isAdminPath(location, slug);
+  const adminSection = isAdminPathVal ? getAdminSection(location, slug) : "";
+  const hasAdminAccess =
+    user &&
+    (user.role === "admin" ||
+      (user.role === "federation_admin" && user.federationId === federation.id));
+
+  if (isAdminPathVal) {
+    if (meQuery.isLoading) return <FedAdminLayoutSkeleton />;
+    if (!user) return <Redirect to="/login" />;
+    if (!hasAdminAccess) {
+      return (
+        <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center px-4 text-white">
+          <h1 className="text-2xl font-serif mb-2">Access Denied</h1>
+          <p className="text-gray-400 mb-6">You don&apos;t have permission to manage this federation.</p>
+          <a href={`/federation/${slug}`} className="text-red-400 hover:text-red-300">
+            ← Back to {federation.name}
+          </a>
+        </div>
+      );
+    }
+    return (
+      <FedAdminLayout slug={slug} federationId={federation.id} federationName={federation.name}>
+        {adminSection === "" && <FedAdminDashboard federationId={federation.id} federationName={federation.name} />}
+        {adminSection === "events" && <FedAdminEvents federationId={federation.id} />}
+        {adminSection === "clubs" && <FedAdminClubs federationId={federation.id} />}
+        {adminSection === "athletes" && <FedAdminAthletes federationId={federation.id} />}
+        {adminSection === "news" && <FedAdminNews federationId={federation.id} />}
+        {adminSection === "streams" && <FedAdminStreams federationId={federation.id} />}
+      </FedAdminLayout>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] overflow-x-hidden">
       {/* Hero Banner - Glassmorphism */}
@@ -201,6 +261,20 @@ function FederationLayoutInner({
                 </Link>
               );
             })}
+            {hasAdminAccess && (
+              <Link href={`/federation/${slug}/admin`}>
+                <button
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-amber-400/90 hover:text-amber-400"
+                  style={{
+                    background: "rgba(251, 191, 36, 0.1)",
+                    border: "1px solid rgba(251, 191, 36, 0.3)",
+                  }}
+                >
+                  <Shield className="w-4 h-4" />
+                  Admin
+                </button>
+              </Link>
+            )}
           </div>
         </div>
       </nav>

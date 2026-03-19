@@ -24,28 +24,33 @@ export const newsRouter = router({
         .optional()
     )
     .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) return [];
+      try {
+        const db = await getDb();
+        if (!db) return [];
 
-      const conditions = [];
-      if (!input?.includeUnpublished) {
-        conditions.push(eq(newsArticles.isPublished, true));
-      }
-      if (input?.federationId) {
-        conditions.push(eq(newsArticles.federationId, input.federationId));
-      }
-      if (input?.category) {
-        conditions.push(eq(newsArticles.category, input.category));
-      }
+        const conditions = [];
+        if (!input?.includeUnpublished) {
+          conditions.push(eq(newsArticles.isPublished, true));
+        }
+        if (input?.federationId) {
+          conditions.push(eq(newsArticles.federationId, input.federationId));
+        }
+        if (input?.category) {
+          conditions.push(eq(newsArticles.category, input.category));
+        }
 
-      const result = await db
-        .select()
-        .from(newsArticles)
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(desc(newsArticles.publishedAt))
-        .limit(input?.limit ?? 50);
+        const result = await db
+          .select()
+          .from(newsArticles)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(desc(newsArticles.publishedAt))
+          .limit(input?.limit ?? 50);
 
-      return result;
+        return result;
+      } catch (e) {
+        console.error("[news.list]", e);
+        return [];
+      }
     }),
 
   getBySlug: publicProcedure

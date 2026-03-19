@@ -86,6 +86,9 @@
 | club_id | integer | FK → clubs |
 | first_name | varchar(255) | NOT NULL |
 | last_name | varchar(255) | NOT NULL |
+| slug | varchar(255) | UNIQUE (firstname-lastname-id) |
+| slug | varchar(255) | UNIQUE (firstname-lastname-id) |
+| slug | varchar(255) | UNIQUE (e.g. christine-mboma-1) |
 | date_of_birth | timestamp | |
 | gender | gender | |
 | photo_url | text | |

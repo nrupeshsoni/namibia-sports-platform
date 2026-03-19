@@ -49,7 +49,11 @@ export default function Admin() {
   const [evtModal, setEvtModal] = useState<EvtModal | null>(null);
   const [clubModal, setClubModal] = useState<ClubModal | null>(null);
   const [athModal, setAthModal] = useState<AthModal | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<{ entity: CrudTab; id: number } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    entity: CrudTab;
+    id: number;
+    federationId?: number | null;
+  } | null>(null);
 
   const utils = trpc.useUtils();
   const federationsQuery = trpc.federations.list.useQuery({});
@@ -84,11 +88,11 @@ export default function Admin() {
 
   const handleDeleteConfirm = () => {
     if (!deleteConfirm) return;
-    const { entity, id } = deleteConfirm;
+    const { entity, id, federationId } = deleteConfirm;
     if (entity === "federations") deleteFed.mutate({ id });
-    else if (entity === "events") deleteEvt.mutate({ id });
-    else if (entity === "clubs") deleteClub.mutate({ id });
-    else if (entity === "athletes") deleteAth.mutate({ id });
+    else if (entity === "events" && federationId != null) deleteEvt.mutate({ id, federationId });
+    else if (entity === "clubs" && federationId != null) deleteClub.mutate({ id, federationId });
+    else if (entity === "athletes") deleteAth.mutate({ id, federationId: federationId ?? undefined });
   };
 
   const stats = [
@@ -205,7 +209,7 @@ export default function Admin() {
             isLoading={eventsQuery.isLoading}
             search={searchQuery}
             onEdit={(item) => setEvtModal({ mode: "edit", data: item })}
-            onDelete={(id) => setDeleteConfirm({ entity: "events", id })}
+            onDelete={(item) => setDeleteConfirm({ entity: "events", id: item.id, federationId: item.federationId })}
           />
         )}
         {activeTab === "clubs" && (
@@ -214,7 +218,7 @@ export default function Admin() {
             isLoading={clubsQuery.isLoading}
             search={searchQuery}
             onEdit={(item) => setClubModal({ mode: "edit", data: item })}
-            onDelete={(id) => setDeleteConfirm({ entity: "clubs", id })}
+            onDelete={(item) => setDeleteConfirm({ entity: "clubs", id: item.id, federationId: item.federationId })}
           />
         )}
         {activeTab === "athletes" && (
@@ -223,7 +227,7 @@ export default function Admin() {
             isLoading={athletesQuery.isLoading}
             search={searchQuery}
             onEdit={(item) => setAthModal({ mode: "edit", data: item })}
-            onDelete={(id) => setDeleteConfirm({ entity: "athletes", id })}
+            onDelete={(item) => setDeleteConfirm({ entity: "athletes", id: item.id, federationId: item.federationId ?? null })}
           />
         )}
         {activeTab === "news" && (
@@ -450,7 +454,7 @@ function EventsTable({
   isLoading: boolean;
   search: string;
   onEdit: (item: EventFormData) => void;
-  onDelete: (id: number) => void;
+  onDelete: (item: EventFormData) => void;
 }) {
   const filtered = (data ?? []).filter((e) => e.name.toLowerCase().includes(search.toLowerCase()));
   return (
@@ -470,7 +474,7 @@ function EventsTable({
               <Td>
                 <RowActions
                   onEdit={() => onEdit(e)}
-                  onDelete={() => onDelete(e.id)}
+                  onDelete={() => onDelete(e)}
                 />
               </Td>
             </tr>
@@ -488,7 +492,7 @@ function ClubsTable({
   isLoading: boolean;
   search: string;
   onEdit: (item: ClubFormData) => void;
-  onDelete: (id: number) => void;
+  onDelete: (item: ClubFormData) => void;
 }) {
   const filtered = (data ?? []).filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
   return (
@@ -508,7 +512,7 @@ function ClubsTable({
               <Td>
                 <RowActions
                   onEdit={() => onEdit(c)}
-                  onDelete={() => onDelete(c.id)}
+                  onDelete={() => onDelete(c)}
                 />
               </Td>
             </tr>
@@ -526,7 +530,7 @@ function AthletesTable({
   isLoading: boolean;
   search: string;
   onEdit: (item: AthleteFormData) => void;
-  onDelete: (id: number) => void;
+  onDelete: (item: AthleteFormData) => void;
 }) {
   const filtered = (data ?? []).filter((a) => {
     const name = `${a.firstName ?? ""} ${a.lastName ?? ""}`.toLowerCase();
@@ -548,7 +552,7 @@ function AthletesTable({
               <Td>
                 <RowActions
                   onEdit={() => onEdit(a)}
-                  onDelete={() => onDelete(a.id)}
+                  onDelete={() => onDelete(a)}
                 />
               </Td>
             </tr>

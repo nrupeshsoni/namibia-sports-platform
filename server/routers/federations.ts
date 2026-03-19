@@ -23,24 +23,29 @@ export const federationsRouter = router({
         .optional()
     )
     .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) return [];
+      try {
+        const db = await getDb();
+        if (!db) return [];
 
-      const conditions = [];
-      if (input?.search) {
-        conditions.push(like(federations.name, `%${input.search}%`));
+        const conditions = [];
+        if (input?.search) {
+          conditions.push(like(federations.name, `%${input.search}%`));
+        }
+        if (input?.type) {
+          conditions.push(eq(federations.type, input.type));
+        }
+
+        const result = await db
+          .select()
+          .from(federations)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(federations.id);
+
+        return result;
+      } catch (e) {
+        console.error("[federations.list]", e);
+        return [];
       }
-      if (input?.type) {
-        conditions.push(eq(federations.type, input.type));
-      }
-
-      const result = await db
-        .select()
-        .from(federations)
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(federations.id);
-
-      return result;
     }),
 
   getById: publicProcedure

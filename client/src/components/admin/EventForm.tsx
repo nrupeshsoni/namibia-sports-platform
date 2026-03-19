@@ -52,20 +52,23 @@ interface Props {
   mode: "create" | "edit";
   initialData?: EventFormData;
   onSuccess: () => void;
+  /** When set, locks federation to this ID (used by federation admin) */
+  federationIdLock?: number;
 }
 
 const F = "bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-red-500/50";
 const L = "text-sm text-gray-400";
 
-export function EventForm({ mode, initialData, onSuccess }: Props) {
+export function EventForm({ mode, initialData, onSuccess, federationIdLock }: Props) {
   const utils = trpc.useUtils();
   const federationsQuery = trpc.federations.list.useQuery({});
   const [error, setError] = useState<string | null>(null);
+  const lockedFedId = federationIdLock ?? initialData?.federationId;
 
   const [form, setForm] = useState({
     name: initialData?.name ?? "",
     slug: initialData?.slug ?? "",
-    federationId: initialData?.federationId?.toString() ?? "",
+    federationId: (lockedFedId ?? initialData?.federationId)?.toString() ?? "",
     eventType: (initialData?.type ?? "competition") as EventType,
     startDate: toDateInput(initialData?.startDate),
     endDate: toDateInput(initialData?.endDate),
@@ -96,17 +99,17 @@ export function EventForm({ mode, initialData, onSuccess }: Props) {
     e.preventDefault();
     setError(null);
     if (!form.name.trim()) { setError("Name is required"); return; }
-    if (!form.federationId) { setError("Federation is required"); return; }
+    const fedId = federationIdLock ?? (form.federationId ? parseInt(form.federationId, 10) : undefined);
+    if (!fedId) { setError("Federation is required"); return; }
     if (!form.startDate) { setError("Start date is required"); return; }
 
     const slug = form.slug || toSlug(form.name);
-    const fedId = parseInt(form.federationId, 10);
 
     if (mode === "create") {
       createMut.mutate({
         name: form.name,
         slug,
-        federationId: fedId,
+        federationId: fedId as number,
         eventType: form.eventType,
         startDate: new Date(form.startDate),
         endDate: form.endDate ? new Date(form.endDate) : undefined,
@@ -117,6 +120,7 @@ export function EventForm({ mode, initialData, onSuccess }: Props) {
     } else if (initialData) {
       updateMut.mutate({
         id: initialData.id,
+        federationId: initialData.federationId,
         name: form.name,
         posterUrl: form.posterUrl || undefined,
         eventType: form.eventType,
@@ -170,7 +174,7 @@ export function EventForm({ mode, initialData, onSuccess }: Props) {
         )}
       </div>
 
-      {mode === "create" && (
+      {mode === "create" && !federationIdLock && (
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label className={L}>Federation *</Label>

@@ -124,6 +124,7 @@ export const athletes = pgTable("sportsplatform_athletes", {
   id: serial("id").primaryKey(),
   firstName: varchar("first_name", { length: 255 }).notNull(),
   lastName: varchar("last_name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).unique(),
   dateOfBirth: timestamp("date_of_birth"),
   gender: genderEnum("gender"),
 

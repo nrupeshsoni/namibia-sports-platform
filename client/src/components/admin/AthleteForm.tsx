@@ -42,20 +42,23 @@ interface Props {
   mode: "create" | "edit";
   initialData?: AthleteFormData;
   onSuccess: () => void;
+  /** When set, locks federation to this ID (used by federation admin) */
+  federationIdLock?: number;
 }
 
 const F = "bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-red-500/50";
 const L = "text-sm text-gray-400";
 
-export function AthleteForm({ mode, initialData, onSuccess }: Props) {
+export function AthleteForm({ mode, initialData, onSuccess, federationIdLock }: Props) {
   const utils = trpc.useUtils();
   const federationsQuery = trpc.federations.list.useQuery({});
   const [error, setError] = useState<string | null>(null);
+  const lockedFedId = federationIdLock ?? initialData?.federationId;
 
   const [form, setForm] = useState({
     firstName: initialData?.firstName ?? "",
     lastName: initialData?.lastName ?? "",
-    federationId: initialData?.federationId?.toString() ?? "",
+    federationId: (lockedFedId ?? initialData?.federationId)?.toString() ?? "",
     gender: (initialData?.gender ?? "") as Gender,
     dateOfBirth: toDateInput(initialData?.dateOfBirth),
     photoUrl: initialData?.photoUrl ?? "",
@@ -87,10 +90,11 @@ export function AthleteForm({ mode, initialData, onSuccess }: Props) {
     if (!form.firstName.trim()) { setError("First name is required"); return; }
     if (!form.lastName.trim()) { setError("Last name is required"); return; }
 
-    const payload = {
+    const createFedId = federationIdLock ?? (form.federationId ? parseInt(form.federationId, 10) : undefined);
+    const createPayload = {
       firstName: form.firstName,
       lastName: form.lastName,
-      federationId: form.federationId ? parseInt(form.federationId, 10) : undefined,
+      federationId: createFedId,
       gender: (form.gender || undefined) as "male" | "female" | "other" | undefined,
       dateOfBirth: form.dateOfBirth ? new Date(form.dateOfBirth) : undefined,
       email: form.email || undefined,
@@ -99,9 +103,25 @@ export function AthleteForm({ mode, initialData, onSuccess }: Props) {
     };
 
     if (mode === "create") {
-      createMut.mutate(payload);
+      createMut.mutate(createPayload);
     } else if (initialData) {
-      updateMut.mutate({ id: initialData.id, ...payload, photoUrl: form.photoUrl || undefined, isActive: form.isActive });
+      if (initialData.federationId == null) {
+        setError("Athletes without a federation cannot be updated here.");
+        return;
+      }
+      updateMut.mutate({
+        id: initialData.id,
+        federationId: initialData.federationId,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        gender: (form.gender || undefined) as "male" | "female" | "other" | undefined,
+        dateOfBirth: form.dateOfBirth ? new Date(form.dateOfBirth) : undefined,
+        email: form.email || undefined,
+        phone: form.phone || undefined,
+        achievements: form.achievements || undefined,
+        photoUrl: form.photoUrl || undefined,
+        isActive: form.isActive,
+      });
     }
   };
 
@@ -152,6 +172,7 @@ export function AthleteForm({ mode, initialData, onSuccess }: Props) {
         </div>
       </div>
 
+      {!federationIdLock && (
       <div className="space-y-1.5">
         <Label className={L}>Federation</Label>
         <Select
@@ -166,6 +187,7 @@ export function AthleteForm({ mode, initialData, onSuccess }: Props) {
           </SelectContent>
         </Select>
       </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 import { Search, Trophy, User } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { fadeUp, staggerContainer } from "@/lib/animations";
@@ -193,12 +194,12 @@ export default function FederationAthletes() {
             const color = avatarColor(`${athlete.firstName}${athlete.lastName}`);
             const age = calcAge(athlete.dateOfBirth);
             const isMale = athlete.gender?.toLowerCase() === "male";
+            const profileUrl = athlete.slug ? `/athletes/${athlete.slug}` : null;
 
-            return (
+            const card = (
               <motion.div
-                key={athlete.id}
                 variants={fadeUp}
-                className="rounded-2xl p-5 text-center transition-all hover:scale-[1.02]"
+                className={`rounded-2xl p-5 text-center transition-all hover:scale-[1.02] ${profileUrl ? "cursor-pointer" : ""}`}
                 style={{
                   background: "rgba(255,255,255,0.05)",
                   backdropFilter: "blur(20px)",
@@ -272,6 +273,14 @@ export default function FederationAthletes() {
                   </p>
                 )}
               </motion.div>
+            );
+
+            return profileUrl ? (
+              <Link key={athlete.id} href={profileUrl}>
+                {card}
+              </Link>
+            ) : (
+              <div key={athlete.id}>{card}</div>
             );
           })}
         </div>

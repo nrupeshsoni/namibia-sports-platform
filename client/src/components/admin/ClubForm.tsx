@@ -42,20 +42,23 @@ interface Props {
   mode: "create" | "edit";
   initialData?: ClubFormData;
   onSuccess: () => void;
+  /** When set, locks federation to this ID (used by federation admin) */
+  federationIdLock?: number;
 }
 
 const F = "bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-red-500/50";
 const L = "text-sm text-gray-400";
 
-export function ClubForm({ mode, initialData, onSuccess }: Props) {
+export function ClubForm({ mode, initialData, onSuccess, federationIdLock }: Props) {
   const utils = trpc.useUtils();
   const federationsQuery = trpc.federations.list.useQuery({});
   const [error, setError] = useState<string | null>(null);
+  const lockedFedId = federationIdLock ?? initialData?.federationId;
 
   const [form, setForm] = useState({
     name: initialData?.name ?? "",
     slug: initialData?.slug ?? "",
-    federationId: initialData?.federationId?.toString() ?? "",
+    federationId: (lockedFedId ?? initialData?.federationId)?.toString() ?? "",
     description: initialData?.description ?? "",
     city: initialData?.city ?? "",
     region: initialData?.region ?? "",
@@ -87,7 +90,6 @@ export function ClubForm({ mode, initialData, onSuccess }: Props) {
     e.preventDefault();
     setError(null);
     if (!form.name.trim()) { setError("Name is required"); return; }
-    if (mode === "create" && !form.federationId) { setError("Federation is required"); return; }
 
     const slug = form.slug || toSlug(form.name);
     const year = form.establishedYear ? parseInt(form.establishedYear, 10) : undefined;
@@ -104,14 +106,21 @@ export function ClubForm({ mode, initialData, onSuccess }: Props) {
       establishedYear: year && !isNaN(year) ? year : undefined,
     };
 
+    const fedId = federationIdLock ?? (form.federationId ? parseInt(form.federationId, 10) : undefined);
     if (mode === "create") {
+      if (!fedId) { setError("Federation is required"); return; }
       createMut.mutate({
         ...payload,
         slug,
-        federationId: parseInt(form.federationId, 10),
+        federationId: fedId,
       });
     } else if (initialData) {
-      updateMut.mutate({ id: initialData.id, ...payload, isActive: form.isActive });
+      updateMut.mutate({
+        id: initialData.id,
+        federationId: initialData.federationId,
+        ...payload,
+        isActive: form.isActive,
+      });
     }
   };
 
@@ -135,21 +144,23 @@ export function ClubForm({ mode, initialData, onSuccess }: Props) {
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        <Label className={L}>Federation {mode === "create" ? "*" : ""}</Label>
-        <Select
-          value={form.federationId}
-          onValueChange={(v) => setForm((p) => ({ ...p, federationId: v }))}
-          disabled={mode === "edit"}
-        >
-          <SelectTrigger className={F}><SelectValue placeholder="Select federation" /></SelectTrigger>
-          <SelectContent className="bg-[#1a1a1a] border-white/10 text-white max-h-60">
-            {(federationsQuery.data ?? []).map((fed) => (
-              <SelectItem key={fed.id} value={fed.id.toString()}>{fed.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {!federationIdLock && (
+        <div className="space-y-1.5">
+          <Label className={L}>Federation {mode === "create" ? "*" : ""}</Label>
+          <Select
+            value={form.federationId}
+            onValueChange={(v) => setForm((p) => ({ ...p, federationId: v }))}
+            disabled={mode === "edit"}
+          >
+            <SelectTrigger className={F}><SelectValue placeholder="Select federation" /></SelectTrigger>
+            <SelectContent className="bg-[#1a1a1a] border-white/10 text-white max-h-60">
+              {(federationsQuery.data ?? []).map((fed) => (
+                <SelectItem key={fed.id} value={fed.id.toString()}>{fed.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="space-y-1.5">
         <Label className={L}>Description</Label>

@@ -15,6 +15,7 @@ import { hpProgramsRouter } from "./hpPrograms";
 import { uploadRouter } from "./upload";
 import { whatsappRouter } from "./whatsapp";
 import { aiRouter } from "./ai";
+import { searchRouter } from "./search";
 
 export const appRouter = router({
   system: systemRouter,
@@ -33,6 +34,7 @@ export const appRouter = router({
   upload: uploadRouter,
   whatsapp: whatsappRouter,
   ai: aiRouter,
+  search: searchRouter,
 });
 
 export type AppRouter = typeof appRouter;
