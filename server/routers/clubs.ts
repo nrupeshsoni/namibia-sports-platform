@@ -16,27 +16,41 @@ export const clubsRouter = router({
         .optional()
     )
     .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) return [];
+      try {
+        const db = await getDb();
+        if (!db) return [];
 
-      const conditions = [];
-      if (input?.federationId) {
-        conditions.push(eq(clubs.federationId, input.federationId));
-      }
-      if (input?.region) {
-        conditions.push(eq(clubs.region, input.region));
-      }
-      if (input?.search) {
-        conditions.push(like(clubs.name, `%${input.search}%`));
-      }
+        const conditions = [];
+        if (input?.federationId) {
+          conditions.push(eq(clubs.federationId, input.federationId));
+        }
+        if (input?.region) {
+          conditions.push(eq(clubs.region, input.region));
+        }
+        if (input?.search) {
+          conditions.push(like(clubs.name, `%${input.search}%`));
+        }
 
-      const result = await db
-        .select()
-        .from(clubs)
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(clubs.name);
+        // #region agent log
+        fetch('http://127.0.0.1:7382/ingest/44978b4f-6913-4991-b97f-acca559f9e7c',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e82a61'},body:JSON.stringify({sessionId:'e82a61',location:'clubs.ts:list',message:'before query',data:{},hypothesisId:'C',timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        const result = await db
+          .select()
+          .from(clubs)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(clubs.name);
 
-      return result;
+        // #region agent log
+        fetch('http://127.0.0.1:7382/ingest/44978b4f-6913-4991-b97f-acca559f9e7c',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e82a61'},body:JSON.stringify({sessionId:'e82a61',location:'clubs.ts:list',message:'query ok',data:{count:result.length},hypothesisId:'C',timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        return result;
+      } catch (e) {
+        // #region agent log
+        fetch('http://127.0.0.1:7382/ingest/44978b4f-6913-4991-b97f-acca559f9e7c',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e82a61'},body:JSON.stringify({sessionId:'e82a61',location:'clubs.ts:list',message:'query error',data:{err:String(e)},hypothesisId:'C,D',timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        console.error("[clubs.list]", e);
+        return [];
+      }
     }),
 
   getById: publicProcedure

@@ -26,35 +26,49 @@ export const athletesRouter = router({
         .optional()
     )
     .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) return [];
+      try {
+        const db = await getDb();
+        if (!db) return [];
 
-      const conditions = [];
-      if (input?.federationId) {
-        conditions.push(eq(athletes.federationId, input.federationId));
-      }
-      if (input?.clubId) {
-        conditions.push(eq(athletes.clubId, input.clubId));
-      }
-      if (input?.nationality) {
-        conditions.push(eq(athletes.nationality, input.nationality));
-      }
-      if (input?.search) {
-        conditions.push(
-          or(
-            like(athletes.firstName, `%${input.search}%`),
-            like(athletes.lastName, `%${input.search}%`)
-          )
-        );
-      }
+        const conditions = [];
+        if (input?.federationId) {
+          conditions.push(eq(athletes.federationId, input.federationId));
+        }
+        if (input?.clubId) {
+          conditions.push(eq(athletes.clubId, input.clubId));
+        }
+        if (input?.nationality) {
+          conditions.push(eq(athletes.nationality, input.nationality));
+        }
+        if (input?.search) {
+          conditions.push(
+            or(
+              like(athletes.firstName, `%${input.search}%`),
+              like(athletes.lastName, `%${input.search}%`)
+            )
+          );
+        }
 
-      const result = await db
-        .select()
-        .from(athletes)
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(athletes.firstName);
+        // #region agent log
+        fetch('http://127.0.0.1:7382/ingest/44978b4f-6913-4991-b97f-acca559f9e7c',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e82a61'},body:JSON.stringify({sessionId:'e82a61',location:'athletes.ts:list',message:'before query',data:{},hypothesisId:'C',timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        const result = await db
+          .select()
+          .from(athletes)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(athletes.firstName);
 
-      return result;
+        // #region agent log
+        fetch('http://127.0.0.1:7382/ingest/44978b4f-6913-4991-b97f-acca559f9e7c',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e82a61'},body:JSON.stringify({sessionId:'e82a61',location:'athletes.ts:list',message:'query ok',data:{count:result.length},hypothesisId:'C',timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        return result;
+      } catch (e) {
+        // #region agent log
+        fetch('http://127.0.0.1:7382/ingest/44978b4f-6913-4991-b97f-acca559f9e7c',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e82a61'},body:JSON.stringify({sessionId:'e82a61',location:'athletes.ts:list',message:'query error',data:{err:String(e)},hypothesisId:'C,D',timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        console.error("[athletes.list]", e);
+        return [];
+      }
     }),
 
   getById: publicProcedure

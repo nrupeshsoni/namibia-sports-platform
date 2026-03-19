@@ -43,6 +43,9 @@ export const federationsRouter = router({
 
         return result;
       } catch (e) {
+        // #region agent log
+        fetch('http://127.0.0.1:7382/ingest/44978b4f-6913-4991-b97f-acca559f9e7c',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e82a61'},body:JSON.stringify({sessionId:'e82a61',location:'federations.ts:list',message:'query error',data:{err:String(e)},hypothesisId:'D',timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         console.error("[federations.list]", e);
         return [];
       }
