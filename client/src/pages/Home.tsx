@@ -312,7 +312,7 @@ export default function Home() {
       </section>
 
       {/* Federations Grid */}
-      <section id="federations" className="py-20 px-4 bg-black">
+      <section id="federations" className="py-12 px-4 bg-black">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <p className="text-sm tracking-[0.3em] text-gray-400 mb-4">DISCOVER</p>
@@ -392,12 +392,12 @@ export default function Home() {
           )}
 
           {/* Grid - 3 columns desktop, 2 columns mobile */}
-          {!isLoading && filteredFederations.length > 0 && <div className="grid grid-cols-2 lg:grid-cols-3 gap-0">
+          {!isLoading && filteredFederations.length > 0 && <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
             {filteredFederations.map((federation) => (
               <button
                 key={federation.id}
                 onClick={() => setSelectedFederation(federation)}
-                className="relative aspect-[4/3] overflow-hidden group cursor-pointer"
+                className="relative aspect-[4/3] overflow-hidden group cursor-pointer rounded-lg"
               >
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
@@ -405,7 +405,7 @@ export default function Home() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60 group-hover:from-black/60 group-hover:via-black/50 group-hover:to-black/70 transition-all duration-500" />
                 
-                <div className="absolute inset-0 flex flex-col items-start justify-end p-6 md:p-8 text-left">
+                <div className="absolute inset-0 flex flex-col items-start justify-end p-3 md:p-4 text-left">
                   {federation.category === 'ministry' && (
                     <p className="text-xs md:text-sm tracking-[0.2em] text-white/80 mb-2 font-light">
                       GOVERNMENT
@@ -426,8 +426,8 @@ export default function Home() {
                       NAMIBIA
                     </p>
                   )}
-                  <h3 className="text-xl md:text-3xl font-serif text-white tracking-wide leading-tight">
-                    {federation.shortName}
+                  <h3 className="text-base md:text-lg font-serif text-white tracking-wide leading-tight line-clamp-2">
+                    {federation.name}
                   </h3>
                 </div>
               </button>

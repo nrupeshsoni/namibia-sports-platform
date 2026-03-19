@@ -1,6 +1,8 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
+import AIChatAssistant from "@/components/AIChatAssistant";
+import OfflineBanner from "@/components/OfflineBanner";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -44,6 +46,7 @@ function App() {
           <TooltipProvider>
             <Toaster />
             <Router />
+            <AIChatAssistant />
           </TooltipProvider>
         </AuthProvider>
       </ThemeProvider>

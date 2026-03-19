@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "./ImageUpload";
 import {
   Select,
   SelectContent,
@@ -18,6 +19,8 @@ export interface FederationFormData {
   abbreviation?: string | null;
   type: "federation" | "umbrella" | "ministry" | "commission";
   description?: string | null;
+  logo?: string | null;
+  backgroundImage?: string | null;
   email?: string | null;
   phone?: string | null;
   website?: string | null;
@@ -46,6 +49,8 @@ export function FederationForm({ mode, initialData, onSuccess }: Props) {
     abbreviation: initialData?.abbreviation ?? "",
     type: (initialData?.type ?? "federation") as FederationFormData["type"],
     description: initialData?.description ?? "",
+    logo: initialData?.logo ?? "",
+    backgroundImage: initialData?.backgroundImage ?? "",
     email: initialData?.email ?? "",
     phone: initialData?.phone ?? "",
     website: initialData?.website ?? "",
@@ -82,6 +87,8 @@ export function FederationForm({ mode, initialData, onSuccess }: Props) {
       name: form.name,
       abbreviation: form.abbreviation || undefined,
       description: form.description || undefined,
+      logo: form.logo || undefined,
+      backgroundImage: form.backgroundImage || undefined,
       email: form.email || undefined,
       phone: form.phone || undefined,
       website: form.website || undefined,
@@ -132,6 +139,27 @@ export function FederationForm({ mode, initialData, onSuccess }: Props) {
         <Label className={L}>Description</Label>
         <Textarea className={F} value={form.description} onChange={set("description")} placeholder="Brief description..." rows={3} />
       </div>
+
+      {mode === "edit" && initialData && (
+        <div className="grid grid-cols-2 gap-4">
+          <ImageUpload
+            label="Logo"
+            entity="federation"
+            entityId={initialData.id}
+            value={form.logo || null}
+            onChange={(url) => setForm((p) => ({ ...p, logo: url ?? "" }))}
+            variant="logo"
+          />
+          <ImageUpload
+            label="Background Image"
+            entity="federation"
+            entityId={initialData.id}
+            value={form.backgroundImage || null}
+            onChange={(url) => setForm((p) => ({ ...p, backgroundImage: url ?? "" }))}
+            variant="poster"
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">

@@ -9,6 +9,12 @@ import { coachesRouter } from "./coaches";
 import { venuesRouter } from "./venues";
 import { newsRouter } from "./news";
 import { streamsRouter } from "./streams";
+import { schoolsRouter } from "./schools";
+import { mediaRouter } from "./media";
+import { hpProgramsRouter } from "./hpPrograms";
+import { uploadRouter } from "./upload";
+import { whatsappRouter } from "./whatsapp";
+import { aiRouter } from "./ai";
 
 export const appRouter = router({
   system: systemRouter,
@@ -21,6 +27,12 @@ export const appRouter = router({
   venues: venuesRouter,
   news: newsRouter,
   streams: streamsRouter,
+  schools: schoolsRouter,
+  media: mediaRouter,
+  hpPrograms: hpProgramsRouter,
+  upload: uploadRouter,
+  whatsapp: whatsappRouter,
+  ai: aiRouter,
 });
 
 export type AppRouter = typeof appRouter;

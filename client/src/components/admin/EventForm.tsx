@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ImageUpload } from "./ImageUpload";
 import {
   Select,
   SelectContent,
@@ -19,6 +20,7 @@ export interface EventFormData {
   slug: string;
   federationId: number;
   type?: string | null;
+  posterUrl?: string | null;
   startDate?: Date | string | null;
   endDate?: Date | string | null;
   location?: string | null;
@@ -67,6 +69,7 @@ export function EventForm({ mode, initialData, onSuccess }: Props) {
     eventType: (initialData?.type ?? "competition") as EventType,
     startDate: toDateInput(initialData?.startDate),
     endDate: toDateInput(initialData?.endDate),
+    posterUrl: initialData?.posterUrl ?? "",
     location: initialData?.location ?? "",
     region: initialData?.region ?? "",
     description: initialData?.description ?? "",
@@ -115,6 +118,7 @@ export function EventForm({ mode, initialData, onSuccess }: Props) {
       updateMut.mutate({
         id: initialData.id,
         name: form.name,
+        posterUrl: form.posterUrl || undefined,
         eventType: form.eventType,
         startDate: new Date(form.startDate),
         endDate: form.endDate ? new Date(form.endDate) : undefined,
@@ -198,6 +202,19 @@ export function EventForm({ mode, initialData, onSuccess }: Props) {
               </SelectContent>
             </Select>
           </div>
+        </div>
+      )}
+
+      {mode === "edit" && (
+        <div className="space-y-1.5">
+          <ImageUpload
+            label="Poster Image"
+            entity="event"
+            entityId={initialData?.id ?? 0}
+            value={form.posterUrl}
+            onChange={(url) => setForm((p) => ({ ...p, posterUrl: url ?? "" }))}
+            variant="poster"
+          />
         </div>
       )}
 

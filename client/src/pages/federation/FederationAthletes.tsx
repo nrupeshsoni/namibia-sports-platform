@@ -13,8 +13,8 @@ function avatarColor(name: string): string {
   return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
 }
 
-function calcAge(dob: string | null | undefined): number | null {
-  if (!dob) return null;
+function calcAge(dob: string | Date | null | undefined): number | null {
+  if (dob == null) return null;
   const diff = Date.now() - new Date(dob).getTime();
   return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
 }

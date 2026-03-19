@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ImageUpload } from "./ImageUpload";
 import {
   Select,
   SelectContent,
@@ -23,6 +24,7 @@ export interface AthleteFormData {
   gender?: "male" | "female" | "other" | null;
   email?: string | null;
   phone?: string | null;
+  photoUrl?: string | null;
   achievements?: string | null;
   isActive?: boolean | null;
 }
@@ -56,6 +58,7 @@ export function AthleteForm({ mode, initialData, onSuccess }: Props) {
     federationId: initialData?.federationId?.toString() ?? "",
     gender: (initialData?.gender ?? "") as Gender,
     dateOfBirth: toDateInput(initialData?.dateOfBirth),
+    photoUrl: initialData?.photoUrl ?? "",
     email: initialData?.email ?? "",
     phone: initialData?.phone ?? "",
     achievements: initialData?.achievements ?? "",
@@ -98,12 +101,25 @@ export function AthleteForm({ mode, initialData, onSuccess }: Props) {
     if (mode === "create") {
       createMut.mutate(payload);
     } else if (initialData) {
-      updateMut.mutate({ id: initialData.id, ...payload, isActive: form.isActive });
+      updateMut.mutate({ id: initialData.id, ...payload, photoUrl: form.photoUrl || undefined, isActive: form.isActive });
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+      {mode === "edit" && (
+        <div className="space-y-1.5">
+          <ImageUpload
+            label="Photo"
+            entity="athlete"
+            entityId={initialData!.id}
+            value={form.photoUrl}
+            onChange={(url) => setForm((p) => ({ ...p, photoUrl: url ?? "" }))}
+            variant="photo"
+          />
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label className={L}>First Name *</Label>

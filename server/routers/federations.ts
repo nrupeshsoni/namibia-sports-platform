@@ -85,6 +85,17 @@ export const federationsRouter = router({
         .where(ilike(federations.abbreviation, input.slug))
         .limit(1);
 
+      if (result[0]) return result[0];
+
+      const fedIdMatch = input.slug.match(/^fed-(\d+)$/);
+      if (fedIdMatch) {
+        result = await db
+          .select()
+          .from(federations)
+          .where(eq(federations.id, parseInt(fedIdMatch[1], 10)))
+          .limit(1);
+      }
+
       return result[0] || null;
     }),
 

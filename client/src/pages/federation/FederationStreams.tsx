@@ -8,7 +8,7 @@ import { useFederation } from "@/contexts/FederationContext";
 type StreamItem = {
   id: number;
   title: string;
-  description: string | null;
+  description?: string | null;
   federationId: number | null;
   streamUrl: string | null;
   embedUrl: string | null;
