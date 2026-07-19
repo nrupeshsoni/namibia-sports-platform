@@ -1,46 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase configuration
-const supabaseUrl = 'https://rbibqjgsnrueubrvyqps.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJiaWJxamdzbnJ1ZXVicnZ5cXBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNzQ5ODksImV4cCI6MjA4MTY1MDk4OX0.48aWw4w0XzDfK0k-Z32O9fMnKiom9EG6XqSDbTJYupI';
+// Supabase configuration — sourced from build-time env (see .env / hosting env vars)
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    'Missing Supabase configuration: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must both be set.'
+  );
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-// Type definitions matching the database schema
-export interface DbFederation {
-  id: number;
-  name: string;
-  abbreviation: string | null;
-  slug: string | null;
-  type: 'ministry' | 'commission' | 'umbrella' | 'federation';
-  description: string | null;
-  president: string | null;
-  secretary_general: string | null;
-  email: string | null;
-  phone: string | null;
-  website: string | null;
-  facebook: string | null;
-  instagram: string | null;
-  twitter: string | null;
-  youtube: string | null;
-  logo: string | null;
-  background_image: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-// Fetch all federations from Supabase
-export async function fetchFederations(): Promise<DbFederation[]> {
-  const { data, error } = await supabase
-    .from('sportsplatform_federations')
-    .select('*')
-    .order('id');
-  
-  if (error) {
-    console.error('Error fetching federations:', error);
-    throw error;
-  }
-  
-  return data || [];
-}
-

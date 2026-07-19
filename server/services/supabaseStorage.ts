@@ -4,6 +4,7 @@
  */
 
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { ENV } from "../_core/env";
 
 const BUCKETS = {
   federation: "sportsplatform_logos",
@@ -22,8 +23,8 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 let _client: SupabaseClient | null = null;
 
 function getClient(): SupabaseClient {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = ENV.supabaseUrl;
+  const key = ENV.supabaseServiceRoleKey;
   if (!url || !key) {
     throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for storage uploads");
   }

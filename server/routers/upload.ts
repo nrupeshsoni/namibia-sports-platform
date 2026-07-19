@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { uploadImage, type UploadEntity } from "../services/supabaseStorage";
-import { protectedProcedure, router } from "../_core/trpc";
+import { federationAdminProcedure, router } from "../_core/trpc";
 
 const entitySchema = z.enum(["federation", "club", "event", "athlete", "news", "venue"]);
 
 export const uploadRouter = router({
-  image: protectedProcedure
+  image: federationAdminProcedure
     .input(
       z.object({
         entity: entitySchema,
