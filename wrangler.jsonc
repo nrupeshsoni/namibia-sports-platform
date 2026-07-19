@@ -56,20 +56,16 @@
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
-      "id": "<YOUR_HYPERDRIVE_ID>",
+      "id": "dbfcf635ad4a475ba991743b94a5d6a2",
       "localConnectionString": "<DATABASE_URL_FOR_LOCAL_DEV>"
     }
   ],
 
-  // Apex Custom Domain. COMMENTED OUT until cutover.
-  //
-  // sports.com.na currently CNAMEs to namsdome.netlify.app and serves the DOME X
-  // marketing site. Cloudflare refuses to create a Custom Domain on a hostname
-  // that already has a CNAME, so that record must be deleted first — and doing
-  // so takes the current apex site down. Enabling this line before that DNS work
-  // is a failed deploy at best.
-  //
-  // "routes": [{ "pattern": "sports.com.na", "custom_domain": true }],
+  // Apex Custom Domain. Bound 2026-07-19: Hyperdrive (dbfcf635…) is live and a
+  // real DB query (federations.list) was verified through it on staging. The
+  // apex was released from the dome-x Worker first (a custom domain binds to
+  // only one Worker), so this add takes it over cleanly.
+  "routes": [{ "pattern": "sports.com.na", "custom_domain": true }],
 
   "vars": {
     "SUPABASE_URL": "https://rbibqjgsnrueubrvyqps.supabase.co"
@@ -110,7 +106,7 @@
       "hyperdrive": [
         {
           "binding": "HYPERDRIVE",
-          "id": "<YOUR_HYPERDRIVE_ID>",
+          "id": "dbfcf635ad4a475ba991743b94a5d6a2",
           "localConnectionString": "<DATABASE_URL_FOR_LOCAL_DEV>"
         }
       ],
