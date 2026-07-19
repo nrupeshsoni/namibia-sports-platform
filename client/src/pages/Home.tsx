@@ -6,7 +6,6 @@ import FederationModal from '../components/FederationModal';
 import NavDrawer from '../components/NavDrawer';
 import type { Federation as StaticFederation } from '../data/federations';
 import { ChevronDown, Search, Menu, Loader2, MapPin, Users, Calendar, Trophy, X, Filter, Clock, Newspaper } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 import { trpc } from '../lib/trpc';
 import { fadeUp, staggerContainer, scaleIn } from '../lib/animations';
 
@@ -20,18 +19,6 @@ const EVENT_TYPE_IMAGES: Record<string, string> = {
 };
 
 const NEWS_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80';
-
-// Venue type
-interface Venue {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-  photo_url: string | null;
-  city: string | null;
-  region: string | null;
-  capacity: number | null;
-}
 
 /** Federation row from tRPC (camelCase, matches getBySlug) */
 type TrpcFederation = {
@@ -88,7 +75,6 @@ export default function Home() {
   const [selectedFederation, setSelectedFederation] = useState<StaticFederation | null>(null);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [federations, setFederations] = useState<StaticFederation[]>(staticFederations);
-  const [venues, setVenues] = useState<Venue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
@@ -125,21 +111,12 @@ export default function Home() {
     setIsLoading(fedLoading);
   }, [fedList, fedError, fedLoading]);
 
-  // Fetch venues from Supabase
-  useEffect(() => {
-    async function loadVenues() {
-      try {
-        const { data: venuesData } = await supabase
-          .from('sportsplatform_venues')
-          .select('*')
-          .order('capacity', { ascending: false });
-        if (venuesData) setVenues(venuesData);
-      } catch (err) {
-        console.error('Failed to fetch venues:', err);
-      }
-    }
-    loadVenues();
-  }, []);
+  // Venues via tRPC (server orders by name — sort by capacity descending for display)
+  const venuesQuery = trpc.venues.list.useQuery();
+  const venues = useMemo(
+    () => [...(venuesQuery.data ?? [])].sort((a, b) => (b.capacity ?? 0) - (a.capacity ?? 0)),
+    [venuesQuery.data]
+  );
 
   const heroImages = [
     { 

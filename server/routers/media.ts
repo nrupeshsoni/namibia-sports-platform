@@ -2,7 +2,7 @@ import { z } from "zod";
 import { getDb } from "../db";
 import { media } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
-import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
+import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
 
 const entityTypeSchema = z.enum(["federation", "club", "event", "athlete", "venue", "coach"]);
 
@@ -56,7 +56,7 @@ export const mediaRouter = router({
       return result[0] || null;
     }),
 
-  create: protectedProcedure
+  create: federationAdminProcedure
     .input(
       z.object({
         title: z.string().optional(),
@@ -75,7 +75,7 @@ export const mediaRouter = router({
       return { success: true, id: result.id };
     }),
 
-  delete: protectedProcedure
+  delete: federationAdminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();

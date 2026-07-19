@@ -1,98 +1,131 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { InsertUser, users } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import type { Env } from "./_core/env";
 
-let _db: ReturnType<typeof drizzle> | null = null;
+type Drizzle = ReturnType<typeof drizzle>;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
-export async function getDb() {
-  // #region agent log
-  const hasUrl = !!process.env.DATABASE_URL;
-  const urlLen = process.env.DATABASE_URL?.length ?? 0;
-  fetch('http://127.0.0.1:7382/ingest/44978b4f-6913-4991-b97f-acca559f9e7c',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e82a61'},body:JSON.stringify({sessionId:'e82a61',location:'db.ts:getDb',message:'getDb entry',data:{hasUrl,urlLen},hypothesisId:'A',timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
-  if (!_db && process.env.DATABASE_URL) {
-    try {
-      // Supabase pooler (transaction mode) does not support prepared statements — causes 500 errors
-      const client = postgres(process.env.DATABASE_URL, { prepare: false });
-      _db = drizzle(client);
-      // #region agent log
-      fetch('http://127.0.0.1:7382/ingest/44978b4f-6913-4991-b97f-acca559f9e7c',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e82a61'},body:JSON.stringify({sessionId:'e82a61',location:'db.ts:getDb',message:'db created',data:{dbCreated:true},hypothesisId:'A',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
-    } catch (error) {
-      // #region agent log
-      fetch('http://127.0.0.1:7382/ingest/44978b4f-6913-4991-b97f-acca559f9e7c',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e82a61'},body:JSON.stringify({sessionId:'e82a61',location:'db.ts:getDb',message:'db connect failed',data:{err:String(error)},hypothesisId:'B',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
-      console.warn("[Database] Failed to connect:", error);
-      _db = null;
-    }
-  }
-  // #region agent log
-  fetch('http://127.0.0.1:7382/ingest/44978b4f-6913-4991-b97f-acca559f9e7c',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e82a61'},body:JSON.stringify({sessionId:'e82a61',location:'db.ts:getDb',message:'getDb exit',data:{dbNull:!_db},hypothesisId:'A',timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
-  return _db;
+type RequestDbStore = {
+  env: Env;
+  db: Drizzle | null;
+  /** Set once the connection attempt has run, so a failure is not retried on every call. */
+  resolved: boolean;
+};
+
+/**
+ * Per-request database state. A Workers isolate serves many requests
+ * concurrently, so the client cannot be a module-level singleton.
+ * AsyncLocalStorage scopes it to a single invocation while leaving `getDb()`'s
+ * call signature unchanged for the existing call sites.
+ */
+const requestDbStore = new AsyncLocalStorage<RequestDbStore>();
+
+/** Run a request handler with a request-scoped database client available to `getDb()`. */
+export function runWithDb<T>(env: Env, fn: () => Promise<T>): Promise<T> {
+  return requestDbStore.run({ env, db: null, resolved: false }, fn);
 }
 
-export async function upsertUser(user: InsertUser): Promise<void> {
+/**
+ * Resolve the request-scoped drizzle instance, connecting on first use.
+ *
+ * The client is deliberately never closed. Hyperdrive owns the underlying
+ * connection pool, and scheduling `sql.end()` — for example via
+ * `ctx.waitUntil(Promise.resolve().then(close))` — tears the socket down on the
+ * next microtask, before the awaited procedures have run, so every query then
+ * fails with CONNECTION_DESTROYED. The client is garbage collected when the
+ * request finishes.
+ */
+export async function getDb() {
+  const store = requestDbStore.getStore();
+  if (!store) {
+    console.warn("[Database] getDb() called outside of a request scope");
+    return null;
+  }
+
+  if (store.resolved) {
+    return store.db;
+  }
+  store.resolved = true;
+
+  const connectionString = store.env.HYPERDRIVE?.connectionString;
+  if (!connectionString) {
+    console.warn("[Database] HYPERDRIVE binding is not configured");
+    return null;
+  }
+
+  try {
+    const client = postgres(connectionString, {
+      // Workers limit the number of concurrent external connections.
+      max: 5,
+      // Skip the array-type round trip; nothing here needs custom type parsing.
+      fetch_types: false,
+      // Supabase's pooler runs in transaction mode and rejects prepared statements.
+      prepare: false,
+    });
+    store.db = drizzle(client);
+  } catch (error) {
+    console.warn("[Database] Failed to connect:", error);
+    store.db = null;
+  }
+
+  return store.db;
+}
+
+/** How stale a `lastSignedIn` value may get before it is refreshed. */
+const SIGN_IN_REFRESH_MS = 60 * 60 * 1000;
+
+/**
+ * Resolve the `sportsplatform_users` row for an authenticated Supabase user,
+ * creating it on first sight.
+ *
+ * Provisioning lives here rather than in a Postgres trigger on `auth.users`:
+ * that Supabase project is shared with unrelated products, so a trigger there
+ * would carry cross-product blast radius.
+ *
+ * New rows are always created at the lowest privilege in the `user_role` enum.
+ * The insert is a no-op on conflict, so an existing role is never overwritten.
+ */
+export async function ensureUser(user: InsertUser) {
   if (!user.openId) {
-    throw new Error("User openId is required for upsert");
+    throw new Error("User openId is required for provisioning");
   }
 
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot upsert user: database not available");
-    return;
+    console.warn("[Database] Cannot provision user: database not available");
+    return null;
   }
 
-  try {
-    const values: InsertUser = {
+  const existing = await getUserByOpenId(user.openId);
+
+  if (existing) {
+    const lastSignedIn = existing.lastSignedIn?.getTime() ?? 0;
+    if (Date.now() - lastSignedIn > SIGN_IN_REFRESH_MS) {
+      await db
+        .update(users)
+        .set({ lastSignedIn: new Date() })
+        .where(eq(users.openId, user.openId));
+    }
+    return existing;
+  }
+
+  await db
+    .insert(users)
+    .values({
       openId: user.openId,
-    };
-    const updateSet: Record<string, unknown> = {};
+      name: user.name ?? null,
+      email: user.email ?? null,
+      loginMethod: user.loginMethod ?? null,
+      // Lowest privilege in the user_role enum. Elevation is a deliberate,
+      // out-of-band action — self-signup never grants more than this.
+      role: "user",
+      lastSignedIn: new Date(),
+    })
+    .onConflictDoNothing({ target: users.openId });
 
-    const textFields = ["name", "email", "loginMethod"] as const;
-    type TextField = (typeof textFields)[number];
-
-    const assignNullable = (field: TextField) => {
-      const value = user[field];
-      if (value === undefined) return;
-      const normalized = value ?? null;
-      values[field] = normalized;
-      updateSet[field] = normalized;
-    };
-
-    textFields.forEach(assignNullable);
-
-    if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
-      updateSet.lastSignedIn = user.lastSignedIn;
-    }
-    if (user.role !== undefined) {
-      values.role = user.role;
-      updateSet.role = user.role;
-    } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
-    }
-
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
-    }
-
-    if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
-    }
-
-    await db.insert(users).values(values).onConflictDoUpdate({
-      target: users.openId,
-      set: updateSet,
-    });
-  } catch (error) {
-    console.error("[Database] Failed to upsert user:", error);
-    throw error;
-  }
+  return (await getUserByOpenId(user.openId)) ?? null;
 }
 
 export async function getUserByOpenId(openId: string) {

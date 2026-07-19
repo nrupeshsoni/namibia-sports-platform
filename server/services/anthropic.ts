@@ -4,13 +4,14 @@
  */
 
 import Anthropic from "@anthropic-ai/sdk";
+import { ENV } from "../_core/env";
 
 const MODEL = "claude-sonnet-4-20250514";
 
 let _client: Anthropic | null = null;
 
 function getClient(): Anthropic {
-  const key = process.env.ANTHROPIC_API_KEY;
+  const key = ENV.anthropicApiKey;
   if (!key) {
     throw new Error("ANTHROPIC_API_KEY is required for AI features");
   }

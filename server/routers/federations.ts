@@ -2,7 +2,7 @@ import { z } from "zod";
 import { getDb } from "../db";
 import { federations } from "../../drizzle/schema";
 import { eq, like, and, ilike } from "drizzle-orm";
-import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
+import { publicProcedure, adminProcedure, router } from "../_core/trpc";
 
 /** Derives URL slug from federation name: "Karate Namibia" → "karate-namibia" */
 function nameToSlug(name: string): string {
@@ -43,9 +43,6 @@ export const federationsRouter = router({
 
         return result;
       } catch (e) {
-        // #region agent log
-        fetch('http://127.0.0.1:7382/ingest/44978b4f-6913-4991-b97f-acca559f9e7c',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e82a61'},body:JSON.stringify({sessionId:'e82a61',location:'federations.ts:list',message:'query error',data:{err:String(e)},hypothesisId:'D',timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
         console.error("[federations.list]", e);
         return [];
       }
@@ -138,7 +135,7 @@ export const federationsRouter = router({
       }
     }),
 
-  create: protectedProcedure
+  create: adminProcedure
     .input(
       z.object({
         name: z.string(),
@@ -166,7 +163,7 @@ export const federationsRouter = router({
       return { success: true, id: result.id };
     }),
 
-  update: protectedProcedure
+  update: adminProcedure
     .input(
       z.object({
         id: z.number(),
@@ -195,7 +192,7 @@ export const federationsRouter = router({
       return { success: true };
     }),
 
-  delete: protectedProcedure
+  delete: adminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();

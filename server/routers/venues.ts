@@ -2,7 +2,7 @@ import { z } from "zod";
 import { getDb } from "../db";
 import { venues } from "../../drizzle/schema";
 import { eq, like, and } from "drizzle-orm";
-import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
+import { publicProcedure, adminProcedure, router } from "../_core/trpc";
 
 export const venuesRouter = router({
   list: publicProcedure
@@ -50,7 +50,7 @@ export const venuesRouter = router({
       return result[0] || null;
     }),
 
-  create: protectedProcedure
+  create: adminProcedure
     .input(
       z.object({
         name: z.string(),
@@ -73,7 +73,7 @@ export const venuesRouter = router({
       return { success: true, id: result.id };
     }),
 
-  update: protectedProcedure
+  update: adminProcedure
     .input(
       z.object({
         id: z.number(),
@@ -98,7 +98,7 @@ export const venuesRouter = router({
       return { success: true };
     }),
 
-  delete: protectedProcedure
+  delete: adminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();

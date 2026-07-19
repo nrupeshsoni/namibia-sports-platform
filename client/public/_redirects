@@ -1,0 +1,46 @@
+# Cloudflare Workers Static Assets redirect rules for sports.com.na.
+#
+# Parsed by the asset layer at deploy time — INVALID RULES FAIL THE DEPLOY.
+# Cloudflare syntax, not Netlify: no `!` force suffix, and no `/* /index.html`
+# catch-all (that is rejected as an infinite loop; the SPA fallback comes from
+# `not_found_handling: "single-page-application"` in wrangler.jsonc).
+#
+# ── Why this file exists ─────────────────────────────────────────────────────
+# Until the cutover, sports.com.na served the DOME X athlete system, not this
+# site. Existing bookmarks, and form links already emailed / WhatsApp'd to
+# athletes, point at DOME X paths on this apex. After the swap those paths mean
+# nothing here, so they are sent to system.sports.com.na instead.
+#
+# These MUST live in _redirects rather than Worker code: wrangler.jsonc sets
+# `run_worker_first: ["/api/*"]`, so a non-API path never invokes the Worker —
+# it would be answered by the SPA shell with HTTP 200 and the redirect would
+# never run.
+#
+# ── Deliberately NOT redirected (namespace collisions) ───────────────────────
+#   /admin   — this site routes /admin (super-admin dashboard). DOME X also has
+#              /admin and /admin/*. This site wins on the apex.
+#   /login   — both apps have /login. This site wins.
+# DOME X staff reach those directly on system.sports.com.na.
+
+# Athlete-facing form submission links. Highest priority: these are sent out in
+# email and WhatsApp messages and are already in the wild.
+/submit/*        https://system.sports.com.na/submit/:splat        301
+
+# Athlete portal.
+/portal          https://system.sports.com.na/portal               301
+/portal/*        https://system.sports.com.na/portal/:splat        301
+
+# Coach / staff application surfaces.
+/dashboard       https://system.sports.com.na/dashboard            301
+/hpc/*           https://system.sports.com.na/hpc/:splat           301
+/calendar        https://system.sports.com.na/calendar             301
+/reports         https://system.sports.com.na/reports              301
+/settings/*      https://system.sports.com.na/settings/:splat      301
+/federations     https://system.sports.com.na/federations          301
+/bot             https://system.sports.com.na/bot                  301
+
+# Help, legal and marketing pages that belonged to DOME X on this apex.
+/help/*          https://system.sports.com.na/help/:splat          301
+/presentation    https://system.sports.com.na/presentation         301
+/privacy         https://system.sports.com.na/privacy              301
+/terms           https://system.sports.com.na/terms                301

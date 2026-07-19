@@ -1,3 +1,4 @@
+import { supabase } from "@/lib/supabase";
 import { trpc } from "@/lib/trpc";
 import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -42,11 +43,28 @@ const trpcClient = trpc.createClient({
     httpBatchLink({
       url: "/api/trpc",
       transformer: superjson,
-      fetch(input, init) {
-        return globalThis.fetch(input, {
-          ...(init ?? {}),
-          credentials: "include",
-        });
+      // Auth is a Supabase JWT in the Authorization header, not a cookie.
+      //
+      // The server (server/_core/context.ts) builds a per-request Supabase
+      // client from the anon key with this exact header forwarded, so Postgres
+      // RLS evaluates as the signed-in user. Without this header every request
+      // is anonymous and all protected/admin procedures reject.
+      //
+      // getSession() reads from local storage and refreshes the token when it
+      // is close to expiry, so this stays valid across long sessions. It is
+      // resolved per request rather than captured once, because the token
+      // rotates.
+      //
+      // `credentials: "include"` was dropped along with the old cookie-based
+      // Manus/WebDev OAuth flow — there is no cookie to send.
+      async fetch(input, init) {
+        const { data } = await supabase.auth.getSession();
+        const token = data.session?.access_token;
+
+        const headers = new Headers(init?.headers);
+        if (token) headers.set("Authorization", `Bearer ${token}`);
+
+        return globalThis.fetch(input, { ...(init ?? {}), headers });
       },
     }),
   ],

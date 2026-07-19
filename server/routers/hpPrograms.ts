@@ -2,7 +2,7 @@ import { z } from "zod";
 import { getDb } from "../db";
 import { highPerformancePrograms } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
-import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
+import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
 
 const programTypeSchema = z.enum([
   "talent_identification",
@@ -61,7 +61,7 @@ export const hpProgramsRouter = router({
       return result[0] || null;
     }),
 
-  create: protectedProcedure
+  create: federationAdminProcedure
     .input(
       z.object({
         federationId: z.number(),
@@ -85,7 +85,7 @@ export const hpProgramsRouter = router({
       return { success: true, id: result.id };
     }),
 
-  update: protectedProcedure
+  update: federationAdminProcedure
     .input(
       z.object({
         id: z.number(),
@@ -111,7 +111,7 @@ export const hpProgramsRouter = router({
       return { success: true };
     }),
 
-  delete: protectedProcedure
+  delete: federationAdminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
