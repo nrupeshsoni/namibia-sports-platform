@@ -35,12 +35,14 @@ After running the migration, verify in Supabase:
 The platform requires the following environment variable:
 
 ```
-DATABASE_URL=postgresql://postgres:N@mibia!23Sports@db.rbibqjgsnrueubrvyqps.supabase.co:5432/postgres
+DATABASE_URL=postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true
 ```
+
+Copy the real value from Supabase Dashboard → Project Settings → Database (or from a private `.env` — never commit it). See `.env.example`.
 
 **For Netlify Deployment:**
 1. Go to Netlify Dashboard → Site Settings → Environment Variables
-2. Add `DATABASE_URL` with the Supabase connection string above
+2. Add `DATABASE_URL` with your private Supabase connection string (not from git history)
 
 ---
 

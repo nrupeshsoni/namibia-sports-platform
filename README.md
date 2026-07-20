@@ -43,7 +43,7 @@ Comprehensive sports management platform for Namibia with 65 sporting federation
    - Add the following:
    
    ```
-   DATABASE_URL=postgresql://postgres:N@mibia!23Sports@db.rbibqjgsnrueubrvyqps.supabase.co:5432/postgres
+   DATABASE_URL=<from Supabase Dashboard → Project Settings → Database → Connection string; see .env.example>
    NODE_VERSION=22
    ```
 

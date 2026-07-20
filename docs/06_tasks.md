@@ -2,9 +2,11 @@
 
 ## 🛑 CRITICAL BLOCKERS
 - [x] Federation pages broken (/federation/karate-namibia) — fixed getBySlug fallbacks, migration for slugs, Home→tRPC
+- [~] **CRITICAL credentials in git** — plaintext Postgres password + service_role JWT scrubbed from tree (2026-07-21); **human must rotate Supabase DB password + API keys + Hyperdrive/Worker secrets NOW** — see `docs/research/SECURITY_CREDENTIAL_ROTATION.md`
 - [ ] Verify .env.example is complete and matches actual usage
 - [~] Federation logos — ~49/83 active have logos; +Ice Stock/Boxing NABF (`20260720000038`); +Kickboxing/Sailing/NCRF/Jukskei (`000033`); still null: Karate/Golf/Handball/Badminton/PWFN/Dance/Horse Racing/Taekwondo — see `docs/research/federation_data_gap_list.md`
 - [x] **RLS write policies unsafe for prod** — hardened `20260720000030` + residual `20260720000034` (applied live): open writes dropped; public SELECT = published/active/visible only; staff draft SELECT; write GRANTs revoked from anon/authenticated
+- [x] **Auth/API gap hotfix** — `getRawInput()` tenant middleware; close `news.list`/`events.list` draft leak; Admin UI role gate; require federationId on athlete/coach create; ownership checks on coaches/media/hp mutations
 - [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated (`20260720000032`; no real upcoming live found); media: **61** rows (`20260720000044` + pass 2 `20260720000054`); news **59/59 images** / **37** feds (`000031` + `000047` + pass 3 `000052`); events pass 6 NHU upcoming (`20260720000053`) → **49** upcoming / NHU **5** forward-dated; clubs **131** across **26** feds (`20260720000048` + pass 4 `20260720000050`); athletes **92** active / **100%** photos + venues **28** (`20260720000046` + coaches/athletes depth `20260720000051`); coaches **35** active / **100%** photos — still ~57 feds with zero clubs; audit §8 action plan
 
 ## ⚠️ HIGH PRIORITY

@@ -4,6 +4,9 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Security
+- **CRITICAL:** Scrubbed plaintext Supabase Postgres password from tracked docs/scripts (`README.md`, `DEPLOYMENT_GUIDE.md`, `docs/design/NETLIFY_DEPLOYMENT.md`, `scripts/apply-seed.mjs`, `docs/scripts/test-db-connection.mjs`) and removed committed `SUPABASE_SERVICE_ROLE_KEY` from `scripts/seed-via-supabase.mjs`. Scripts now require env vars (see `.env.example`). **Human must rotate the live DB password + service_role key NOW** — scrubbing the tree does not revoke access. Checklist: `docs/research/SECURITY_CREDENTIAL_ROTATION.md`.
+
 ### Added
 - Migration `20260720000050_clubs_expansion_pass4.sql` — **+39** verified clubs → **131** total; feds-with-clubs **21→26** (new: chess, motorsport, equestrian, sailing, handball) + depth for swimming/NASFED, cycling, cricket, rugby, karate. Evidence: `docs/research/clubs_enrichment_batch.md` Pass 4.
 - Migration `20260720000052_news_enrichment_pass3.sql` — **12** paraphrased news articles with `/sports/*` images for previously zero-news federations (handball, karate, beach volleyball, taekwondo, motorsport, equestrian, archery, fencing, powerlifting, bodybuilding, angling, darts). Live: **59** published / **59** with images / **37** federations. Evidence: `docs/research/news_enrichment_batch.md` Pass 3.
@@ -64,6 +67,10 @@ All notable changes to this project are documented in this file.
 - Compressed NAWISA and Climbing logos (&lt;400KB / &lt;110KB).
 
 ### Fixed
+- **Security:** `federationAdminMiddleware` uses tRPC v11 `await opts.getRawInput()` (obsolete `rawInput` removed); platform admins bypass tenant check.
+- **Security:** closed public draft leaks — `news.list` / `events.list` ignore `includeUnpublished` unless admin or federation_admin (own federation); anonymous always published-only.
+- **Security:** `/admin` UI + nav/footer Admin links gated on `auth.me` role === `admin`.
+- **Security:** `athletes.create` / `coaches.create` require `federationId`; coaches/media/hp update-delete verify resource federation ownership (admin bypass).
 - Athletes: repaired stripped slugs, soft-deactivated 9 duplicate rows, moved Seidler→swimming and Nambala/Shikongo→NPC; materialized missing `/venues/*` static assets that previously 404'd.
 - Federation heroes: replaced 404 `/sports/*` paths and wrong-sport Unsplash covers (athletics→gym, netball→basketball, fencing→bowls) with local sport-correct photos; prefer null over wrong (**11** niche sports left null).
 - Events pass 2: removed duplicate WPP/boxing/hockey/triathlon/netball/golf/CAVB slugs; soft-deprecated unverified Welwitschias test 2025-07-15.

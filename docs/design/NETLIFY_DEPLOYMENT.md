@@ -55,9 +55,11 @@ GROUP BY category;
 In Netlify dashboard → **Site settings** → **Environment variables**, add:
 
 ```
-DATABASE_URL=postgresql://postgres:N@mibia!23Sports@db.rbibqjgsnrueubrvyqps.supabase.co:5432/postgres
+DATABASE_URL=postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true
 NODE_VERSION=22
 ```
+
+Use the connection string from Supabase Dashboard (or `.env`) — never commit real passwords. See `.env.example`.
 
 ### C. Deploy
 

@@ -4,8 +4,15 @@
  */
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = 'https://rbibqjgsnrueubrvyqps.supabase.co';
-const SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJiaWJxamdzbnJ1ZXVicnZ5cXBzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjA3NDk4OSwiZXhwIjoyMDgxNjUwOTg5fQ.37JuxxExgIxQ32oSPwuaJOB1g_Tt2KAcNn-XvdDQ-dM';
+const SUPABASE_URL = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+  console.error(
+    'ERROR: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set (see .env.example). Never hardcode secrets.',
+  );
+  process.exit(1);
+}
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 

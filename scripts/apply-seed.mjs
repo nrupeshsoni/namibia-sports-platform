@@ -6,14 +6,15 @@ import { dirname, join } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const seedSQL = readFileSync(join(__dirname, '../supabase/seed.sql'), 'utf8');
 
-// Use session pooler (port 5432) with URL-encoded password
-// Password: N@mibia!23Sports -> N%40mibia!23Sports
-const sql = postgres({
-  host: 'aws-0-eu-west-1.pooler.supabase.com',
-  port: 5432,
-  database: 'postgres',
-  username: 'postgres.rbibqjgsnrueubrvyqps',
-  password: 'N@mibia!23Sports',
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  console.error('ERROR: DATABASE_URL is not set. Copy .env.example → .env and fill in values.');
+  process.exit(1);
+}
+
+// Prefer DATABASE_URL (session pooler on 5432 or transaction pooler on 6543).
+// Special characters in the password must be URL-encoded in the connection string.
+const sql = postgres(DATABASE_URL, {
   ssl: 'require',
   max: 1,
   idle_timeout: 20,
@@ -23,9 +24,9 @@ const sql = postgres({
 console.log('Applying seed data to Supabase...');
 try {
   await sql.unsafe(seedSQL);
-  console.log('✅ Seed applied successfully!');
+  console.log('Seed applied successfully!');
 } catch (e) {
-  console.error('❌ Error:', e.message);
+  console.error('Error:', e.message);
   process.exitCode = 1;
 } finally {
   await sql.end();
