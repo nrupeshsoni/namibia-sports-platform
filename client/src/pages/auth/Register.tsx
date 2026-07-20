@@ -20,7 +20,14 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [federationId, setFederationId] = useState<string>("");
+  // "none" rather than "" — Radix Select throws on an empty-string SelectItem
+  // value, which crashed this whole page into the error boundary.
+  //
+  // NOTE: this selection is intentionally NOT sent to signUp(). Letting a user
+  // assign their own federation at registration is a privilege decision, not a
+  // form field; it must go through an invite/admin grant. Kept as a visible
+  // no-op until that flow exists.
+  const [federationId, setFederationId] = useState<string>("none");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { signUp, signInWithGoogle } = useAuth();
@@ -139,7 +146,7 @@ export default function Register() {
                   <SelectValue placeholder="Select federation" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {federations.map((fed) => (
                     <SelectItem key={fed.id} value={String(fed.id)}>
                       {fed.name}
