@@ -4,10 +4,10 @@
 - [x] Federation pages broken (/federation/karate-namibia) — fixed getBySlug fallbacks, migration for slugs, Home→tRPC
 - [~] **CRITICAL credentials in git** — plaintext Postgres password + service_role JWT scrubbed from tree (2026-07-21); **human must rotate Supabase DB password + API keys + Hyperdrive/Worker secrets NOW** — see `docs/research/SECURITY_CREDENTIAL_ROTATION.md`
 - [ ] Verify .env.example is complete and matches actual usage
-- [~] Federation logos — ~49/83 active have logos; +Ice Stock/Boxing NABF (`20260720000038`); +Kickboxing/Sailing/NCRF/Jukskei (`000033`); still null: Karate/Golf/Handball/Badminton/PWFN/Dance/Horse Racing/Taekwondo — see `docs/research/federation_data_gap_list.md`
+- [~] Federation logos — **53/83** active have logos (live 2026-07-21; pass 4 `20260720000055` +MMA/Fistball); still null: Karate/Golf/Badminton/PWFN/Dance/Horse Racing/Taekwondo + umbrellas NNSSU/NUFS/TISAN — see `docs/research/federation_data_gap_list.md` / `beta_readiness_data_audit.md`
 - [x] **RLS write policies unsafe for prod** — hardened `20260720000030` + residual `20260720000034` (applied live): open writes dropped; public SELECT = published/active/visible only; staff draft SELECT; write GRANTs revoked from anon/authenticated
 - [x] **Auth/API gap hotfix** — `getRawInput()` tenant middleware; close `news.list`/`events.list` draft leak; Admin UI role gate; require federationId on athlete/coach create; ownership checks on coaches/media/hp mutations
-- [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated (`20260720000032`; no real upcoming live found); media: **61** rows (`20260720000044` + pass 2 `20260720000054`); news **59/59 images** / **37** feds (`000031` + `000047` + pass 3 `000052`); events pass 6 NHU upcoming (`20260720000053`) → **49** upcoming / NHU **5** forward-dated; clubs **131** across **26** feds (`20260720000048` + pass 4 `20260720000050`); athletes **92** active / **100%** photos + venues **28** (`20260720000046` + coaches/athletes depth `20260720000051`); coaches **35** active / **100%** photos — still ~57 feds with zero clubs; audit §8 action plan
+- [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated (`20260720000032`; no real upcoming live found); media: **61** rows (`20260720000044` + pass 2 `20260720000054`); news **73/73 images** / **51** feds (`000031` + `000047` + `000052` + pass 4 `000058`); events pass 7 (`20260720000059`) → **230** events / **52** upcoming / **18** zero-event feds; clubs **165** across **34** feds (`20260720000048` + pass 4 `20260720000050` + pass 5 `20260720000057`); athletes **124** active / **100%** photos (`20260720000046` + `000051` + people pass 3 `20260720000061`); venues **42** / **100%** photos + HP programs **10** (`20260720000062`); coaches **47** active / **100%** photos — still ~49 feds with zero clubs; audit §8 action plan
 
 ## ⚠️ HIGH PRIORITY
 - [x] RLS enabled on all `sportsplatform_*` tables — write + SELECT harden complete (`20260720000030`, `20260720000034`)
@@ -20,28 +20,34 @@
 - [x] Priority crests: Ministry, Paralympic, NRU, Bowls (migration `20260720000004`)
 - [x] More crests: NSC, Volleyball, Chess, Judo + batch (migration `20260720000010`)
 - [x] Padel leadership + Ultimate/Billiards contacts from verified sources
-- [~] Research contacts for Footgolf, Western Mounted Games + remaining unverified federations — Footgolf leadership + Handball email/phone (`20260720000006`) + Surfing ISA contacts (`20260720000011`); 10 rows still null email+phone; see `docs/research/contacts_enrichment_batch.md`
+- [~] Research contacts for Footgolf, Western Mounted Games + remaining unverified federations — Footgolf/Handball/Surfing (`000006`/`000011`) + Pass 3 leadership wins (`20260720000056`); **10** rows still null email+phone (emerging codes); see `docs/research/contacts_enrichment_batch.md`
 - [x] Enrich federation metadata (unique abbrs + thin descriptions) — migration `20260720000007`; see `docs/research/metadata_enrichment_batch.md`
 - [x] Resolve Aquatics/Swimming + Power/Weightlifting duplicates + crest brand colors — migration `20260720000013`; see `docs/research/naming_duplicates_resolution.md`
+- [x] Crest brand colors pass 2 (≥40/83) — migration `20260720000060`; see `docs/research/crest_brand_colors_batch.md` (**47/83**)
 - [x] Soft-merge lifecycle: `is_active` + `merged_into_slug` + public list filter + slug redirect — migration `20260720000017`
 - [~] Schema: `established_year`, `international_affiliation`, city/region — still draft in `docs/research/proposed_federation_schema_extensions.md`
 - [~] Brand colors: 15/85 filled; continue as logos land
-- [x] Mark `client/src/data/federations.ts` FALLBACK-ONLY (67 vs DB 85); fix broken hero image paths
+- [x] Mark `client/src/data/federations.ts` FALLBACK-ONLY; shrunk to 12-entry error fallback (Home uses DB first)
+- [x] Federation Clubs/Athletes/News/Events empty states + initials image fallbacks (beta thin-data polish)
 
 ## 🟡 WARNINGS
 - [x] Athletes + venues beta depth — dedupe/slugs/photos + 36 notables; venues 15→28 (`20260720000046`); see `docs/research/athletes_venues_enrichment_batch.md`
+- [x] Venues ≥40 + HP programs seed — venues 28→42 (**100%** photos); `sportsplatform_hp_programs` 0→10 (`20260720000062`); see `docs/research/venues_hp_enrichment_batch.md`
 - [x] Coaches + athletes depth — coaches 16→35 active (100% photos); +21 athletes for netball/hockey/cycling/swim/judo/para (`20260720000051`); see `docs/research/coaches_athletes_depth_batch.md`
-- [ ] Athletes pass 3: more individual Wikimedia/official portraits; optional club_id links; residual judo depth
+- [x] People pass 3 (underrepresented sports) — athletes 92→124 active; coaches 35→47 active; volleyball/tennis/TT/boxing/gymnastics/wrestling/chess (`20260720000061`); see `docs/research/people_underrepresented_batch.md`
+- [ ] Athletes pass 4: more individual Wikimedia/official portraits; optional club_id links; residual judo/beach volleyball depth
 - [x] Events calendar enrichment pass 1 — corrections + 22 verified inserts (`20260720000020`/`021`); see `docs/research/events_enrichment_batch.md`
 - [x] Events pass 2 — dedupe 9 duplicates + gap federations (`20260720000035`); live **160** events, **40/83** feds, **99** posters, **43** still zero
 - [x] Events pass 3 — +26 verified zero-fed events (`20260720000037`); live **186** events, **50/83** feds, **117** posters, **33** still zero
 - [x] Events pass 4 — +19 verified (`20260720000039`); live **205** events, **62/83** feds, **131** posters, **21** still zero (see Pass 4 categorization)
 - [x] Events pass 5 — majors upcoming + poster backfill (`20260720000041`); live **217** events / **44** upcoming / **163** posters; NHU still 0 forward-dated (outdoor season start past)
 - [x] Events pass 6 — NHU SA women’s Cape Town tests (`20260720000053`); live **222** events / **49** upcoming; **21** zeros unchanged (no dated public fixtures)
-- [ ] Events pass 7 / NSC ask: remaining 21 zeros; thin tennis/archery/chess seeds; NSSU federation row
+- [x] Events pass 7 — zero-fed deep-research + CWG bowls/boxing/gymnastics upcoming (`20260720000059`); live **230** events / **52** upcoming / **18** zeros
+- [ ] Events pass 8 / NSC ask: remaining 18 zeros; thin tennis/archery/chess seeds; NSSU federation row
 - [x] News pass 3 — +12 zero-news feds (`20260720000052`); live **59** published / **37** feds / **46** still zero news
+- [x] News pass 4 — +14 zero-news feds (`20260720000058`); live **73** published / **51** feds / **32** still zero news
 - [ ] Admin page: connect to real tRPC, remove mock data
-- [ ] Empty states for all list views
+- [~] Empty states for all list views — federation Clubs/Athletes/News/Events done; remaining: admin lists, Home sections, Live
 - [ ] Loading states to prevent double-click submit
 - [ ] Error boundaries on page-level components
 

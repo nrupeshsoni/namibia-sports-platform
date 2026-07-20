@@ -4,6 +4,7 @@ import { Link, useLocation } from 'wouter';
 import { X, Facebook, Twitter, Instagram, LogOut, LogIn } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useShowLiveNav } from '@/hooks/useShowLiveNav';
+import { trpc } from '@/lib/trpc';
 
 interface NavDrawerProps {
   isOpen: boolean;
@@ -16,7 +17,6 @@ const BASE_NAV_LINKS = [
   { label: 'News', href: '/news' },
   { label: 'Live', href: '/live' },
   { label: 'Map', href: '/map' },
-  { label: 'Admin', href: '/admin' },
 ];
 
 const SOCIAL_LINKS = [
@@ -27,12 +27,18 @@ const SOCIAL_LINKS = [
 
 export default function NavDrawer({ isOpen, onClose }: NavDrawerProps) {
   const { user, signOut } = useAuth();
+  const meQuery = trpc.auth.me.useQuery(undefined, { retry: false });
   const [location] = useLocation();
   const showLive = useShowLiveNav();
-  const NAV_LINKS = useMemo(
-    () => (showLive ? BASE_NAV_LINKS : BASE_NAV_LINKS.filter((l) => l.href !== '/live')),
-    [showLive]
-  );
+  const NAV_LINKS = useMemo(() => {
+    const links = showLive
+      ? BASE_NAV_LINKS
+      : BASE_NAV_LINKS.filter((l) => l.href !== '/live');
+    if (meQuery.data?.role === 'admin') {
+      return [...links, { label: 'Admin', href: '/admin' }];
+    }
+    return links;
+  }, [showLive, meQuery.data?.role]);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {

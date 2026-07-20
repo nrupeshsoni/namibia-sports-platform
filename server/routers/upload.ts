@@ -8,6 +8,8 @@ export const uploadRouter = router({
   image: federationAdminProcedure
     .input(
       z.object({
+        /** Tenant scope — middleware enforces federation_admin match; admin bypasses */
+        federationId: z.number(),
         entity: entitySchema,
         entityId: z.union([z.number(), z.string()]),
         base64: z.string(), // data URL or raw base64

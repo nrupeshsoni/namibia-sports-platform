@@ -90,7 +90,11 @@ export function AthleteForm({ mode, initialData, onSuccess, federationIdLock }: 
     if (!form.firstName.trim()) { setError("First name is required"); return; }
     if (!form.lastName.trim()) { setError("Last name is required"); return; }
 
-    const createFedId = federationIdLock ?? (form.federationId ? parseInt(form.federationId, 10) : undefined);
+    const createFedId = federationIdLock ?? (form.federationId ? parseInt(form.federationId, 10) : NaN);
+    if (mode === "create" && (!Number.isFinite(createFedId) || createFedId <= 0)) {
+      setError("Federation is required");
+      return;
+    }
     const createPayload = {
       firstName: form.firstName,
       lastName: form.lastName,
@@ -103,7 +107,7 @@ export function AthleteForm({ mode, initialData, onSuccess, federationIdLock }: 
     };
 
     if (mode === "create") {
-      createMut.mutate(createPayload);
+      createMut.mutate({ ...createPayload, federationId: createFedId as number });
     } else if (initialData) {
       if (initialData.federationId == null) {
         setError("Athletes without a federation cannot be updated here.");
@@ -131,6 +135,7 @@ export function AthleteForm({ mode, initialData, onSuccess, federationIdLock }: 
         <div className="space-y-1.5">
           <ImageUpload
             label="Photo"
+            federationId={Number(lockedFedId ?? form.federationId)}
             entity="athlete"
             entityId={initialData!.id}
             value={form.photoUrl}

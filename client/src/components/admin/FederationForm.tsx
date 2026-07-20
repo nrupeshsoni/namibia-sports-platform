@@ -152,6 +152,7 @@ export function FederationForm({ mode, initialData, onSuccess }: Props) {
         <div className="grid grid-cols-2 gap-4">
           <ImageUpload
             label="Logo"
+            federationId={initialData.id}
             entity="federation"
             entityId={initialData.id}
             value={form.logo || null}
@@ -160,6 +161,7 @@ export function FederationForm({ mode, initialData, onSuccess }: Props) {
           />
           <ImageUpload
             label="Background Image"
+            federationId={initialData.id}
             entity="federation"
             entityId={initialData.id}
             value={form.backgroundImage || null}

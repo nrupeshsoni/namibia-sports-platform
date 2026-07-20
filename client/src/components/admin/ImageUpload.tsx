@@ -9,6 +9,8 @@ interface ImageUploadProps {
   label?: string;
   value?: string | null;
   onChange: (url: string | null) => void;
+  /** Tenant scope for upload.image (federation_admin must match) */
+  federationId: number;
   entity: "federation" | "club" | "event" | "athlete" | "news" | "venue";
   entityId: number | string;
   variant?: "logo" | "poster" | "photo";
@@ -19,6 +21,7 @@ export function ImageUpload({
   label = "Image",
   value,
   onChange,
+  federationId,
   entity,
   entityId,
   variant = "logo",
@@ -56,6 +59,7 @@ export function ImageUpload({
       const contentType = match ? match[1] : "image/jpeg";
 
       uploadMut.mutate({
+        federationId,
         entity,
         entityId,
         base64: data,

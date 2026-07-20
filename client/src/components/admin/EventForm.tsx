@@ -213,6 +213,7 @@ export function EventForm({ mode, initialData, onSuccess, federationIdLock }: Pr
         <div className="space-y-1.5">
           <ImageUpload
             label="Poster Image"
+            federationId={lockedFedId ?? Number(form.federationId)}
             entity="event"
             entityId={initialData?.id ?? 0}
             value={form.posterUrl}

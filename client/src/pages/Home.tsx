@@ -75,7 +75,7 @@ function toDisplayFederation(fed: TrpcFederation): StaticFederation {
 export default function Home() {
   const [selectedFederation, setSelectedFederation] = useState<StaticFederation | null>(null);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
-  const [federations, setFederations] = useState<StaticFederation[]>(staticFederations);
+  const [federations, setFederations] = useState<StaticFederation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
@@ -102,6 +102,8 @@ export default function Home() {
   const fedError = federationQuery.error;
   const fedLoading = federationQuery.isLoading;
   const showLiveNav = useShowLiveNav();
+  const meQuery = trpc.auth.me.useQuery(undefined, { retry: false });
+  const isPlatformAdmin = meQuery.data?.role === 'admin';
   const desktopNavLinks = useMemo(
     () =>
       [
@@ -112,14 +114,27 @@ export default function Home() {
       ].filter((link) => showLiveNav || link.href !== '/live'),
     [showLiveNav]
   );
+  const footerQuickLinks = useMemo(() => {
+    const links = [
+      { label: 'Federations', href: '#federations' },
+      { label: 'Venues', href: '#venues' },
+      { label: 'Events', href: '/events' },
+    ];
+    if (isPlatformAdmin) {
+      links.push({ label: 'Admin Portal', href: '/admin' });
+    }
+    return links;
+  }, [isPlatformAdmin]);
 
-  // Sync federations when tRPC succeeds; use fedLoading for grid
+  // Sync federations when tRPC succeeds; shrink static list only on API failure
   useEffect(() => {
     if (fedList.length > 0) {
       setFederations(fedList.map(toDisplayFederation));
       setError(null);
+    } else if (fedError) {
+      setFederations(staticFederations);
+      setError(fedError instanceof Error ? fedError : new Error(String(fedError)));
     }
-    if (fedError) setError(fedError instanceof Error ? fedError : new Error(String(fedError)));
     setIsLoading(fedLoading);
   }, [fedList, fedError, fedLoading]);
 
@@ -1073,12 +1088,7 @@ export default function Home() {
             <div>
               <h4 className="text-sm tracking-wider text-gray-300 mb-4">QUICK LINKS</h4>
               <ul className="space-y-3 text-sm">
-                {[
-                  { label: 'Federations', href: '#federations' },
-                  { label: 'Venues', href: '#venues' },
-                  { label: 'Events', href: '/events' },
-                  { label: 'Admin Portal', href: '/admin' },
-                ].map((link) => (
+                {footerQuickLinks.map((link) => (
                   <li key={link.label}>
                     <a 
                       href={link.href} 
