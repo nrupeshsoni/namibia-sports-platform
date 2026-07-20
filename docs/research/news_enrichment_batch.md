@@ -50,3 +50,40 @@ Football, rugby, cricket, athletics, netball, hockey, boxing, Olympic (NNOC), Pa
 - Featured images are sport-matched platform assets under `/sports/` (not press photo downloads).
 - Idempotent: `ON CONFLICT (slug) DO NOTHING`; image backfill only where null/empty.
 - Did not touch RLS or events migrations.
+
+---
+
+# Pass 2 — 2026-07-20
+
+**Migration:** `supabase/migrations/20260720000047_news_enrichment_pass2.sql`  
+**Remote MCP name:** `news_enrichment_pass2`  
+**DB mutated:** Yes
+
+## Baseline → after (Pass 2)
+
+| Metric | Before Pass 2 | After Pass 2 |
+|--------|--------------:|-------------:|
+| Published news | 35 | **47** |
+| With `featured_image` | 35 | **47** |
+| Distinct federations (linked) | 13 | **25** |
+
+## New articles (12) — all previously zero-news federations
+
+| # | Slug | Federation | Image | Primary source |
+|--:|------|------------|-------|----------------|
+| 1 | `unam-phoenix-fiba-africa-qualifiers-2025` | Basketball | `/sports/basketball-action.jpg` | [New Era](https://neweralive.na/unam-phoenix-narrowly-miss-finals/) |
+| 2 | `suren-greeff-nedbank-road-champs-2026` | Cycling | `/sports/cycling.jpg` | [The Namibian](https://www.namibian.com.na/suren-greeff-namibias-cycling-champions/) |
+| 3 | `junior-table-tennis-record-entry-2026` | Table Tennis | `/sports/table-tennis.jpg` | [The Namibian](https://www.namibian.com.na/record-entry-at-first-junior-table-tennis-tourney/) |
+| 4 | `namibia-bjk-cup-africa-group-iii-2026` | Tennis | `/sports/tennis.jpg` | [The Namibian](https://www.namibian.com.na/namibia-remain-in-africa-group-iii-3/) |
+| 5 | `parker-bredenhann-namibian-open-2026` | Golf | `/sports/golf.jpg` | [The Namibian](https://www.namibian.com.na/parker-bredenhann-win-namibian-open-titles/) |
+| 6 | `namibia-wrestlers-spain-grand-prix-2026` | Wrestling | `/sports/wrestling.jpg` | [The Namibian](https://www.namibian.com.na/top-wrestlers-off-to-spain/) |
+| 7 | `namibia-squash-jarvis-cup-2026` | Squash | `/sports/squash.jpg` | [The Namibian](https://www.namibian.com.na/namibian-squash-continues-to-grow/) |
+| 8 | `region-5-judo-games-windhoek-2025` | Judo | `/sports/judo.jpg` | [New Era](https://neweralive.na/judo-tournament-provides-exposure-to-young-athletes/) |
+| 9 | `ekandjo-rhythmic-gymnastics-worlds-2026` | Gymnastics | `/sports/gymnastics.jpg` | [New Era](https://neweralive.na/ekandjo-qualifies-for-rhythmic-gymnastics-world-championships/) |
+| 10 | `chase-brinkmann-africa-junior-triathlon-2026` | Triathlon | `/sports/triathlon.jpg` | [The Namibian](https://www.namibian.com.na/a-great-day-for-namibian-sport/) |
+| 11 | `namibia-national-closed-chess-2026` | Chess | `/sports/chess-tournament.jpg` | [New Era](https://neweralive.na/chess-players-battle-for-national-champ-title/) |
+| 12 | `bowls-commonwealth-games-squad-2026` | Bowls | `/sports/bowls.jpg` | [The Namibian](https://www.namibian.com.na/tough-act-to-follow-for-commonwealth-games-team/) |
+
+## Sport coverage added
+
+Basketball, cycling, table tennis, tennis, golf, wrestling, squash, judo, gymnastics, triathlon, chess, bowls.

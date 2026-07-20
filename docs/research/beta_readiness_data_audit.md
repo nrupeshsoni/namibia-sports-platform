@@ -16,11 +16,11 @@
 | Federations (active) | 83 / 85 | Meta **strong**; logos **59%**; heroes **100%**; contacts **good** | **B+** | Directory demo-ready; close P0 crests |
 | Events | **203** published / **32 upcoming** | Posters **64%** (129); **21** feds still zero events | **C+** | Calendar improved; Big-8 upcoming still patchy |
 | Clubs | 62 active / **16** feds only | Logos **0%**; contacts **0%**; 67 feds empty | **D** | Most federation Clubs pages empty |
-| News | 35 published / **13** feds | Featured images **100%** | **B−** | Home/News usable; many Fed News still empty |
+| News | 47 published / **25** feds | Featured images **100%** | **B** | Home/News usable; Pass 2 filled 12 more zero-news majors |
 | Live streams | **4** VODs (0 live / 0 scheduled) | Thumbnails **100%** | **D+** | Nav gated via `useShowLiveNav`; `/live` = Recent Coverage |
 | Media / photos | **0** | — | **F** | No gallery content anywhere |
-| Athletes | 44 / 11 feds | Photos **0%** | **D** | Thin; initials-only UI |
-| Venues | 15 | Photos **53%** | **C** | Enough for map/demo, not for depth |
+| Athletes | **71** active / **12** feds (80 total) | Photos **100%** | **B−** | Depth OK; most photos sport stock not portraits (`000046`) |
+| Venues | **28** | Photos **100%** | **B** | Major venues covered; capacities sparse on new rows |
 | Schools | 50 | N/A (seed) | **C** | Present; not wired as hero UX |
 | HP programs | 0 | — | **F** | Unused |
 | **Security / RLS** | 13 tables | Hardened (`000030` + `000034`); **0** sportsplatform advisor lints | **A-** | Write GRANTs revoked; residual: Hyperdrive bypass, media/schools open SELECT |
@@ -162,9 +162,9 @@ Ranked by importance band (Ministry/Commission → Umbrella → Big sports → r
 | News | **35** | **13** | All published + images (NEWS batch 2026-07-20); Big-8 + NNOC/NPC/NSC covered |
 | Streams | **4** | 4 | VODs only; nav hidden until live/scheduled |
 | Media | **24** | 6 | Flagship seed `20260720000044`; other feds still empty |
-| Athletes | 44 | 11 | No photos/contacts |
+| Athletes | **71** active (80 total) | **12** | Photos **100%** (`20260720000046`); most sport stock |
 | Coaches | 16 | — | Thin |
-| Venues | 15 | — | Demo-usable |
+| Venues | **28** | — | Photos **100%**; major venues covered (`000046`) |
 
 ---
 
@@ -175,7 +175,7 @@ Ranked by importance band (Ministry/Commission → Umbrella → Big sports → r
 | `/` Home | Federations OK; upcoming events (8); news (6) | Events/news sections often near-empty |
 | `/events` | `events.list` | Works but **poster-less**, calendar skewed past |
 | `/live` | `streams.list` | No live/scheduled now; shows **Recent Coverage** (4 VODs); nav hidden |
-| `/news` | `news.list` | ~35 items with featured images (majors); most feds still empty |
+| `/news` | `news.list` | ~47 items with featured images (25 feds); many Fed News still empty |
 | `/federation/:slug` home | events + news + streams + clubs + athletes | Most slugs: all five empty |
 | `…/events` | federation events | Empty for 48 feds; majors often past-only |
 | `…/clubs` | clubs | Empty for 67 feds |
@@ -236,7 +236,7 @@ tRPC federation admin procedures + revoked PostgREST write GRANTs: clients canno
 
 4. Seed **≥3 upcoming events each** for NFA, Cricket, Athletics, Basketball, Hockey, Aquatics, Netball, NRU (reuse real fixtures from federation sites/NSC calendar).  
 5. Add `poster_url` (even shared stock/sport imagery) for the current **16** upcoming events.  
-6. ~~Publish **8–12 news articles** with `featured_image` spanning NFA/NRU/Cricket/Athletics/NNOC/NSC.~~ **Done** — migration `20260720000031` (12 new + image backfill; see `docs/research/news_enrichment_batch.md`).
+6. ~~Publish **8–12 news articles** with `featured_image` spanning NFA/NRU/Cricket/Athletics/NNOC/NSC.~~ **Done** — migration `20260720000031` (12 new + image backfill) + Pass 2 `20260720000047` (+12 zero-news majors → **47** / **25** feds; see `docs/research/news_enrichment_batch.md`).
 
 ### Hour 16–28 — Stop empty Live / media void
 

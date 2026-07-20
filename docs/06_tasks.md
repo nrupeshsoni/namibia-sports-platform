@@ -5,7 +5,7 @@
 - [ ] Verify .env.example is complete and matches actual usage
 - [~] Federation logos — ~49/83 active have logos; +Ice Stock/Boxing NABF (`20260720000038`); +Kickboxing/Sailing/NCRF/Jukskei (`000033`); still null: Karate/Golf/Handball/Badminton/PWFN/Dance/Horse Racing/Taekwondo — see `docs/research/federation_data_gap_list.md`
 - [x] **RLS write policies unsafe for prod** — hardened `20260720000030` + residual `20260720000034` (applied live): open writes dropped; public SELECT = published/active/visible only; staff draft SELECT; write GRANTs revoked from anon/authenticated
-- [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated (`20260720000032`; no real upcoming live found); media: **24** flagship rows (`20260720000044`); news **35/35 images**; events pass 5 majors upcoming (`20260720000041`) → **44** upcoming / **0** missing posters (NHU still 0 forward-dated); clubs logos **62/62** + any-contact **22/62** (`20260720000042` + contacts pass 2 `20260720000045`); clubs still only across 16 feds — audit §8 action plan
+- [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated (`20260720000032`; no real upcoming live found); media: **24** flagship rows (`20260720000044`); news **47/47 images** / **25** feds (`20260720000031` + pass 2 `20260720000047`); events pass 5 majors upcoming (`20260720000041`) → **44** upcoming / **0** missing posters (NHU still 0 forward-dated); clubs **92** across **21** feds (`20260720000048`); athletes **71** active / **100%** photos + venues **28** (`20260720000046`) — still ~62 feds with zero clubs; audit §8 action plan
 
 ## ⚠️ HIGH PRIORITY
 - [x] RLS enabled on all `sportsplatform_*` tables — write + SELECT harden complete (`20260720000030`, `20260720000034`)
@@ -27,6 +27,8 @@
 - [x] Mark `client/src/data/federations.ts` FALLBACK-ONLY (67 vs DB 85); fix broken hero image paths
 
 ## 🟡 WARNINGS
+- [x] Athletes + venues beta depth — dedupe/slugs/photos + 36 notables; venues 15→28 (`20260720000046`); see `docs/research/athletes_venues_enrichment_batch.md`
+- [ ] Athletes pass 2: individual Wikimedia/official portraits beyond Frankie; netball/hockey depth; optional club_id links
 - [x] Events calendar enrichment pass 1 — corrections + 22 verified inserts (`20260720000020`/`021`); see `docs/research/events_enrichment_batch.md`
 - [x] Events pass 2 — dedupe 9 duplicates + gap federations (`20260720000035`); live **160** events, **40/83** feds, **99** posters, **43** still zero
 - [x] Events pass 3 — +26 verified zero-fed events (`20260720000037`); live **186** events, **50/83** feds, **117** posters, **33** still zero

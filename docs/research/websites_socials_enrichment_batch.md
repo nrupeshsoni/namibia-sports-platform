@@ -152,3 +152,36 @@
 | Petanque / Footgolf FIFG country page | No FIFG member-country page for Namibia yet |
 | Sailing World Sailing MNA deep-link | No stable Namibia-specific URL found (keep Facebook-only) |
 | Kickboxing dedicated website | None found beyond existing Facebook |
+
+---
+
+# Pass 3 — 2026-07-20
+
+**Migration:** `supabase/migrations/20260720000049_federations_websites_socials_pass3.sql`  
+**Remote MCP name:** `federations_websites_socials_pass3`  
+**DB mutated:** Yes
+
+## Wins (null-guarded)
+
+| Slug | Field | Value | Evidence |
+|------|-------|-------|----------|
+| `namibia-jukskei` | website | https://jukskei-nam.com/ | HTTP 200; title “Jukskei Namibia”; email `pro@jukskei-nam.com` already in DB; crest previously from same host |
+| `judo-namibia` | facebook | https://www.facebook.com/NamibiaJudoFederation | HTTP 200; NJF naming matches New Era Region 5 coverage |
+| `wrestling-namibia` | facebook | https://www.facebook.com/NamibiaWrestlingFederation | HTTP 200; NWF crest already from Graph; The Namibian cites NWF Facebook |
+| `namibia-darts` | facebook | https://www.facebook.com/namibiadarts | HTTP 200; handle aligns with namibiadarts.com |
+
+## Live active totals after Pass 3
+
+| Metric | Before | After |
+|--------|-------:|------:|
+| With website | 54 | **55** |
+| With facebook | 49 | **52** |
+
+## Pass 3 skipped
+
+| Candidate | Why |
+|-----------|-----|
+| Karate FB `NamibiaKarateFederation` | Prior crest research: NSC flag-wave / ambiguous ownership |
+| Bowls FB `BowlsNamibia` / `namibia.bowls` | Page identity not confirmed beyond generic Facebook chrome |
+| World Sailing Namibia MNA URL | 404 / no stable deep-link |
+| Padel / Footgolf / Petanque dedicated sites | Still club-or-unverified (unchanged rule) |

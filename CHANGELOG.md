@@ -5,6 +5,10 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- Migration `20260720000046_athletes_venues_enrichment.sql` — athletes **44→80** total / **71** active (**0%→100%** photos); +36 verified notables (football/rugby/cricket/athletics/boxing/para/canoe) with paraphrased bios + source links; venues **15→28** (**100%** photos). Assets: `client/public/athletes/`, `client/public/venues/` (Wikimedia Independence/Hage/Sam + Frankie Fredericks). Evidence: `docs/research/athletes_venues_enrichment_batch.md`.
+- Migration `20260720000047_news_enrichment_pass2.sql` — **12** paraphrased news articles with `/sports/*` images for previously zero-news federations (basketball, cycling, table tennis, tennis, golf, wrestling, squash, judo, gymnastics, triathlon, chess, bowls). Live: **47** published / **47** with images / **25** federations. Evidence: `docs/research/news_enrichment_batch.md` Pass 2.
+- Migration `20260720000049_federations_websites_socials_pass3.sql` — Jukskei website + Judo/Wrestling/Darts Facebook (null-guarded). Active: website **55**, facebook **52**. Evidence: `docs/research/websites_socials_enrichment_batch.md` Pass 3.
+- Migration `20260720000048_clubs_expansion_verified.sql` — **+30** verified clubs → **92** total; feds-with-clubs **16→21** (new: boxing, squash, bowls, wrestling, gymnastics) + expansions for hockey/basketball/tennis/volleyball/netball/athletics. Evidence: `docs/research/clubs_enrichment_batch.md` Pass 3.
 - Migration `20260720000043_federations_crests_deep_pass3.sql` — Handball (CAHB/Sportaview NHF crest) + NLAS/NALASRA (Wayback `nalasra.com/mobile_logo.png`); null-guarded → logos **51/83**. Sources in `docs/research/federation_data_gap_list.md`.
 - Migration `20260720000045_clubs_contacts_pass2.sql` — **+14** club websites/socials (NFA priority + United/Suburbs/Old Boys); any-contact **8→22/62**; no new emails/phones (none verified). Evidence appended in `docs/research/clubs_enrichment_batch.md` Pass 2.
 - Migration `20260720000041_events_pass5_majors_upcoming.sql` — **+12** verified upcoming events for majors (NFA AFCON 2027 qualifier windows, Cricket CWC L2 Utrecht, NASFED/Athletics Commonwealth Games Glasgow, KBA mid-season fixtures); poster backfill → **0** upcoming without posters; live **217** events / **44** upcoming. See `docs/research/events_enrichment_batch.md` Pass 5.
@@ -55,6 +59,7 @@ All notable changes to this project are documented in this file.
 - Compressed NAWISA and Climbing logos (&lt;400KB / &lt;110KB).
 
 ### Fixed
+- Athletes: repaired stripped slugs, soft-deactivated 9 duplicate rows, moved Seidler→swimming and Nambala/Shikongo→NPC; materialized missing `/venues/*` static assets that previously 404'd.
 - Federation heroes: replaced 404 `/sports/*` paths and wrong-sport Unsplash covers (athletics→gym, netball→basketball, fencing→bowls) with local sport-correct photos; prefer null over wrong (**11** niche sports left null).
 - Events pass 2: removed duplicate WPP/boxing/hockey/triathlon/netball/golf/CAVB slugs; soft-deprecated unverified Welwitschias test 2025-07-15.
 - Events: swimming nationals mislinked to skateboarding; fabricated “Bank Windhoek Marathon” replaced with Vivo Energy Windhoek Marathon 2025; NPFL/netball/WPP4/boxing/NASFED dates corrected; unverified June athletics nationals unpublished.

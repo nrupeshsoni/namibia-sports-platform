@@ -1,31 +1,33 @@
 # Federation Data Gap List — 2026-07-20 (updated session 9 — crests deep pass 3)
 
-**News (Agent NEWS, same day):** 35 published / 35 with `featured_image` / 13 federations linked — migration `20260720000031`. Details: `news_enrichment_batch.md`.
+**News (Agent NEWS, same day):** 47 published / 47 with `featured_image` / 25 federations linked — migrations `20260720000031` + Pass 2 `20260720000047`. Details: `news_enrichment_batch.md`.
 
 **Authoritative sources**
 - NSC Feb 2025 contact PDF → `federation-contacts-extracted.md`
 - Logo research CSV → `source_federation_logos.csv`
 - Official sites / Wikimedia / Logopedia (see table below)
-- Websites/socials batch → `websites_socials_enrichment_batch.md` (Pass 1 + Pass 2)
+- Websites/socials batch → `websites_socials_enrichment_batch.md` (Pass 1 + Pass 2 + Pass 3)
 
 **Entity counts:** 85 total (1 ministry + 1 commission + 8 umbrella + 75 federations)
 
 ## Website & social completeness (Agent WEBSITES/SOCIALS)
 
-| Metric | Pass 1 start | After Pass 1 | After Pass 2 |
-|--------|-------------:|-------------:|-------------:|
-| With website | 43 (51%) | 48 (56%) | **55 (64.7%)** |
-| Missing website | 42 | 37 | **30** |
-| With facebook | 29 | 49 | **51** |
-| With instagram | 11 | 28 | **28** |
-| With twitter/X | 6 | 9 | **9** |
-| With youtube | 0 | 2 | **2** |
+| Metric | Pass 1 start | After Pass 1 | After Pass 2 | After Pass 3 (active) |
+|--------|-------------:|-------------:|-------------:|----------------------:|
+| With website | 43 (51%) | 48 (56%) | **55 (64.7%)** | **55 active** (+Jukskei) |
+| Missing website | 42 | 37 | **30** | (jukskei filled) |
+| With facebook | 29 | 49 | **51** | **52 active** (+Judo/Wrestling/Darts) |
+| With instagram | 11 | 28 | **28** | **28** |
+| With twitter/X | 6 | 9 | **9** | **9** |
+| With youtube | 0 | 2 | **2** | **2** |
+
+Pass 3 migration: `20260720000049` — see `websites_socials_enrichment_batch.md`.
 
 ### Pass 2 websites added
 Archery (World Archery), DanceSport (WDSF), Ultimate (WFDF), Muaythai (IFMA Africa), Ice Stock (`detlef.iway.na/ean`), Badminton (BWF Wayback), Surfing (ISA directory).
 
-### Still missing websites (30)
-Baseball, Softball, Bodybuilding, Lacrosse, Taekwondo, Footgolf (FB only), Petanque, Korfball, Orienteering, Jukskei, Sailing (FB only), Kickboxing (FB only), Boxing Control Commission (FB only), Billiards (FB only), Padel, NLAS, NUFS, TISAN (traditional), Indigenous Combat, MMA, Horse Racing, Kendo, Practical Shooting, Speed Hiking, Teqball, Waterski, Western Mounted Games, Namibia Power & Weight Lifting Association, Weightlifting Namibia (merged stub), Fistball.
+### Still missing websites (~29)
+Baseball, Softball, Bodybuilding, Lacrosse, Taekwondo, Footgolf (FB only), Petanque, Korfball, Orienteering, Sailing (FB only), Kickboxing (FB only), Boxing Control Commission (FB only), Billiards (FB only), Padel, NLAS, NUFS, TISAN (traditional), Indigenous Combat, MMA, Horse Racing, Kendo, Practical Shooting, Speed Hiking, Teqball, Waterski, Western Mounted Games, Namibia Power & Weight Lifting Association, Weightlifting Namibia (merged stub), Fistball. (Jukskei filled in Pass 3.)
 
 ## Sport photos / heroes (Agent PHOTOS — `000036` + Pass 2 `000040`)
 

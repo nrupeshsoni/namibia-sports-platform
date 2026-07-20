@@ -163,3 +163,71 @@ NFA crests with files: African Stars, Black Africa, Blue Waters, Civics, Eeshoke
 3. NRU: Coastal (Walvis Bay vs Kudus), Rehoboth, Reho Falcon, Rundu — social About scrape for email/phone.
 4. Cricket: Swakopmund CC / Dolphins — still no primary club contacts.
 5. Black Africa / King Kauluma / Julinho / Nampol / Rundu Chiefs / Okahandja / Tura Magic — hard gaps.
+
+---
+
+## Pass 3 — clubs expansion (2026-07-20)
+
+**Migration:** `supabase/migrations/20260720000048_clubs_expansion_verified.sql`  
+**Scope:** Insert **30** verified named clubs. **5** previously empty federations get first clubs. No fabricated contacts.
+
+### Baseline → after (live)
+
+| Metric | Before | After |
+|--------|-------:|------:|
+| Clubs total | 62 | **92** |
+| Federations with clubs | 16 | **21** |
+| New federations covered | — | boxing, squash, bowls, wrestling, gymnastics |
+
+### New federations (13 clubs)
+
+| Fed slug | Clubs | Sources |
+|----------|-------|---------|
+| `namibia-boxing` | Salute Boxing Academy; AC Boxing Gym; Chiappini Boxing Club | [saluteboxingacademy.com](https://saluteboxingacademy.com/); Namibia Daily News AC launch; Chiappini club (Windhoek) |
+| `squash-namibia` | Wanderers Squash; Klein Windhoek Squash; SFC Squash | [wanderers.org.na](https://www.wanderers.org.na/); [kwsquash.com.na](https://www.kwsquash.com.na/); [sfc1929.com/squash](https://www.sfc1929.com/squash) |
+| `bowls-namibia` | Windhoek / Eros / Trustco United Bowling | The Namibian + NBC National Bowls Week venues |
+| `wrestling-namibia` | Windhoek Wrestling Club | WIS / NWF Nationals 2024 |
+| `namibia-gymnastics` | Windhoek Rhythmic Club; SKW Gymnastics Academy; Elite Rhythmic | Namibian Sun WRC/Elite; [skw.com.na](http://www.skw.com.na/); NGF club list |
+
+### Expansions on existing feds (17 clubs)
+
+| Fed | Added | Sources |
+|-----|-------|---------|
+| `nhu` | Saints; School of Excellence; UNAM Hockey | [namibiahockey.org](https://namibiahockey.org/find-a-club/) club pages (+ Saints contact) |
+| `namibia-basketball` | QBC; UNAM Wolves; Afro Stars | KBA Premier League (Namibian Sun / Republikein 2026) |
+| `tennis-namibia` | Central Tennis Club | CAT/NTA host venue + Facebook CentralTennisClub |
+| `namibia-volleyball` | NDF; Khomas NamPol; Afrocat | NVF CVA affiliated list + MTC VNL press |
+| `namibia-netball` | NCS; Otjozondjupa NamPol; UNAM Ogongo; Afrocat Lions | MTC Netball Namibia Premier League (The Namibian / NBC) |
+| `athletics-namibia` | NUST Welwitschia; Windhoek Gymnasium AC; Dome Athletics Academy | Athletics Namibia Grand Prix club list (Namibia Economist) |
+
+### Contacts filled this pass (verified only)
+
+| Club | Website / contact | Notes |
+|------|-------------------|-------|
+| Salute Boxing Academy | site + email + phone + address | Primary club site |
+| Wanderers Squash | wanderers.org.na + club phone/address | Dedicated squash subdomain suspended |
+| Klein Windhoek Squash | kwsquash.com.na + email + phone + address | NSA-affiliated official site |
+| SFC Squash | sfc1929.com/squash | NSA-affiliated section page |
+| SKW Gymnastics | skw.com.na | Club site |
+| Saints Hockey | namibiahockey.org page + email + phone | NHU club page |
+| SOE / UNAM Hockey | namibiahockey.org club pages | Website only |
+| Central Tennis Club | Facebook + Olympia address | No primary email/phone applied |
+
+### Explicitly not applied
+
+| Claim | Why |
+|-------|-----|
+| acboxing-nam.com / directory phones for AC Boxing | Site 403 / aggregator — name+city only |
+| Chiappini Boxing contacts | LinkedIn location only — no public club site |
+| Bowls / most netball / volleyball / basketball / athletics phones | Press names clubs but no primary contact pages |
+| Coastal Raiders / Sparta / WOBSC hockey | Deferred; NHU site under maintenance at apply time |
+| Salty Jackal / surf schools as Surfing Namibia “clubs” | Commercial schools, not federation club register |
+| The Collective (athletics) | Development platform, not a named club in GP list |
+
+### Counts after Pass 3 (live)
+
+| Metric | Pass 2 | Pass 3 |
+|--------|-------:|-------:|
+| Clubs total | 62 | **92** (+30) |
+| Feds with clubs | 16 | **21** (+5) |
+| With website | 22 | **31** (+9 this pass) |
