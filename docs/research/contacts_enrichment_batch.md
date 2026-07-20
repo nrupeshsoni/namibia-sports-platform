@@ -174,3 +174,68 @@ Migration: `20260720000011_federations_contacts_enrichment_pass2.sql`
 10. Softball Namibia  
 
 **Blocked without:** post–Feb 2025 NSC contact PDF including new codes; FIP national member contact sheet; federation Facebook About pages with published email/phone.
+
+---
+
+## Pass 3 — leadership + easy contact wins (2026-07-21)
+
+**Targets:** 10 rows still null email AND null phone, plus active feds missing president/SG or with non-E.164 phones.  
+**Scope:** contacts/leadership only — no logo/website/facebook mutations.  
+**Migration:** `20260720000056_federations_contacts_enrichment_pass3.sql`
+
+### Applied this pass (verified)
+
+| Federation | Slug | Fields | Source |
+|------------|------|--------|--------|
+| Athletics Namibia | `athletics-namibia` | president **Leon Nienaber**; phone `+264 81 124 3550` | [NNOC Athletics](https://olympic.org.na/members/affiliated-members/athletics-namibia); [New Era](https://neweralive.na/nienaber-elected-new-an-president/); athletics-namibia.com.na board |
+| Chess Namibia | `chess-namibia` | president **Charles Eichab** | [New Era — Eichab outlines plans](https://neweralive.na/eichab-outlines-plans-for-namibian-chess/); Bank Windhoek sponsorship (Future Media News Mar 2026) |
+| Namibia Darts | `namibia-darts` | president **Jasper Blaauw**; SG **Ralph Ludwig**; email `ralph@namibiadarts.com`; phone `+264 81 214 7484` | [namibiadarts.com/structure](https://namibiadarts.com/structure) + [/contact](https://namibiadarts.com/contact) |
+| Handball | `namibia-handball` | president **Issy Nakamwe** | Confidente NHF regional tourney coverage (cites NHF president); LinkedIn self-claim aligned |
+| NIIHA | `namibia-ice-inline-hockey` | president **Matthew Jackman**; SG **Wiebke La Barrè** | [niiha.com/contacts](https://niiha.com/contacts/) |
+| Roller / Skateboarding | `roller-sports-namibia`, `skateboarding-namibia` | president **Matthew Jackman** | Same NIIHA `president@niiha.com` channel already on row |
+| Climbing / Mountaineering | `namibia-climbing`, `namibia-mountaineering` | president **Maarten Venter** | [mcnam.org/contact](https://www.mcnam.org/contact) — MCSA Namibia Chairman 2026 |
+| Triathlon | `triathlon-namibia` | president **Michiel Greeff**; phone `+264 81 246 2204` | [World Triathlon NF page](https://triathlon.org/federations/namibian-triathlon-association) |
+| Wrestling | `wrestling-namibia` | president **Colin Steytler** | [UWW NF](https://uww.org/about-uww/national-federation/namibia-wrestling-federation) + UWW Namib Storm article |
+| Powerlifting | `powerlifting-namibia` | president + SG **Marius Johannes** | [IPF Africa directory](https://www.powerlifting.sport/federation/regions/africa) |
+| Waterski | `namibia-waterski` | president **Nikolai Heger** | Informanté Von Bach season + Radiowave interview (NWSA Chairman) |
+| Beach Volleyball | `namibia-beach-volleyball` | president **Tobias Eden Mwatelulo**; SG **Festus Shituliipo Hamukwaya** | Mirror of live `namibia-volleyball` NVF leadership (shared `ceo@namibiavolleyball.org`) |
+
+### Explicitly not applied (unverified / wrong entity / conflict)
+
+| Claim | Why rejected |
+|-------|----------------|
+| Footgolf `fgna2025@gmail.com` / `footgolfnamibia@gmail.com` | Not in New Era articles (byline obfuscation only) |
+| Padel `info@namibiapadel.com` / club phones | Namibia Padel **club** legal notice — not NPF |
+| Martial Arts website `123-456-7890` | Template placeholder on namibia-martial-arts.com |
+| Fistball SKW / Economist historical mobiles | Club/person numbers; no current FAN directory phone tied to `secretary@fistballnamibia.com` |
+| Handball IHF president Sokaria Shakumu / `+264 61 24 82 10` | Conflicts with current local NHF press; phone not applied over CAHB mobile already set |
+| NIIHA news quote Heiko Lucks as president | Conflicts with official niiha.com/contacts (Matthew Jackman) |
+| Angling Max Pieper | Older Swiss forum article; namffa.com has no current board list |
+| Modern Pentathlon president | UIPM lists President blank; Ulrich Mackensen = Treasurer only |
+| Soft/baseball/lacrosse/korfball/orienteering/petanque/WMG emails | Still no national federation contact on IF directories |
+| Bodybuilding Namibia email/phone | WFF Namibia president already set; no public NF email/phone |
+
+### Pass 3 counts
+
+| Metric | Count |
+|--------|------:|
+| Federations touched | **14** rows (12 orgs; climbing+mountaineering + roller+skate) |
+| Emails newly/updated | **1** (Darts → official ralph@) |
+| Phones newly normalized | **3** (Athletics, Darts, Triathlon → E.164) |
+| Leadership fields newly applied | **16** (presidents + SG fixes) |
+| Still null email **and** null phone | **10** (unchanged — no verified public contacts) |
+
+### Still fully missing email+phone after Pass 3
+
+1. Baseball Namibia  
+2. Bodybuilding Namibia *(president only)*  
+3. Lacrosse Namibia  
+4. Namibia Footgolf Federation *(leadership only)*  
+5. Namibia Korfball  
+6. Namibia Orienteering  
+7. Namibia Padel Tennis Federation *(leadership only)*  
+8. Namibia Western Mounted Games Federation  
+9. Petanque Namibia  
+10. Softball Namibia  
+
+**Blocked without:** post–Feb 2025 NSC contact PDF including new codes; FIP national member contact sheet; federation Facebook About pages with published email/phone.

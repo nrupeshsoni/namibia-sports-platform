@@ -18,6 +18,27 @@ function clubColor(name: string): string {
   return CLUB_COLORS[Math.abs(hash) % CLUB_COLORS.length];
 }
 
+function ClubLogo({ name, logoUrl, color }: { name: string; logoUrl: string | null; color: string }) {
+  const [broken, setBroken] = useState(false);
+  const showImg = Boolean(logoUrl) && !broken;
+
+  return showImg ? (
+    <img
+      src={logoUrl!}
+      alt={name}
+      className="w-14 h-14 object-contain rounded-xl"
+      onError={() => setBroken(true)}
+    />
+  ) : (
+    <div
+      className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-serif text-white"
+      style={{ background: `${color}33`, border: `1px solid ${color}66` }}
+    >
+      {name.charAt(0).toUpperCase()}
+    </div>
+  );
+}
+
 function SkeletonCard() {
   return (
     <div
@@ -67,43 +88,45 @@ export default function FederationClubs() {
         </span>
       </motion.div>
 
-      {/* Search + Region filters */}
-      <motion.div variants={fadeUp} className="flex flex-col gap-3">
-        <div
-          className="relative rounded-xl overflow-hidden max-w-md"
-          style={{
-            background: "rgba(255,255,255,0.05)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.1)",
-          }}
-        >
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by name, city or region..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-transparent text-white placeholder:text-gray-500 focus:outline-none"
-          />
-        </div>
+      {/* Search + Region filters (only when there is data to filter) */}
+      {!clubsQuery.isLoading && clubs.length > 0 && (
+        <motion.div variants={fadeUp} className="flex flex-col gap-3">
+          <div
+            className="relative rounded-xl overflow-hidden max-w-md"
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              backdropFilter: "blur(20px)",
+              border: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by name, city or region..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-transparent text-white placeholder:text-gray-500 focus:outline-none"
+            />
+          </div>
 
-        <div className="flex flex-wrap gap-2">
-          {["all", ...REGIONS].map((r) => (
-            <button
-              key={r}
-              onClick={() => setRegionFilter(r)}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-              style={{
-                background: regionFilter === r ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.05)",
-                border: regionFilter === r ? "1px solid rgba(59,130,246,0.5)" : "1px solid rgba(255,255,255,0.1)",
-                color: regionFilter === r ? "#93C5FD" : "#9CA3AF",
-              }}
-            >
-              {r === "all" ? "All Regions" : r}
-            </button>
-          ))}
-        </div>
-      </motion.div>
+          <div className="flex flex-wrap gap-2">
+            {["all", ...REGIONS].map((r) => (
+              <button
+                key={r}
+                onClick={() => setRegionFilter(r)}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                style={{
+                  background: regionFilter === r ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.05)",
+                  border: regionFilter === r ? "1px solid rgba(59,130,246,0.5)" : "1px solid rgba(255,255,255,0.1)",
+                  color: regionFilter === r ? "#93C5FD" : "#9CA3AF",
+                }}
+              >
+                {r === "all" ? "All Regions" : r}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Loading skeletons */}
       {clubsQuery.isLoading && (
@@ -143,24 +166,7 @@ export default function FederationClubs() {
                     borderBottom: "1px solid rgba(255,255,255,0.07)",
                   }}
                 >
-                  {club.logoUrl ? (
-                    <img
-                      src={club.logoUrl}
-                      alt={club.name}
-                      className="w-14 h-14 object-contain rounded-xl"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&q=80";
-                      }}
-                    />
-                  ) : (
-                    <div
-                      className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-serif text-white"
-                      style={{ background: `${color}33`, border: `1px solid ${color}66` }}
-                    >
-                      {club.name.charAt(0)}
-                    </div>
-                  )}
+                  <ClubLogo name={club.name} logoUrl={club.logoUrl} color={color} />
                   <span
                     className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium"
                     style={{
@@ -238,15 +244,18 @@ export default function FederationClubs() {
 
       {/* Empty: no clubs at all */}
       {!clubsQuery.isLoading && !clubsQuery.isError && clubs.length === 0 && (
-        <motion.div variants={fadeUp} className="text-center py-16">
+        <motion.div variants={fadeUp} className="text-center py-16 px-4">
           <div
             className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center"
             style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
           >
             <Users className="w-9 h-9 text-gray-600" />
           </div>
-          <h3 className="text-xl font-serif text-gray-400 mb-2">No Clubs Registered Yet</h3>
-          <p className="text-gray-500 text-sm">Clubs will appear here once added by the federation admin.</p>
+          <h3 className="text-xl font-serif text-gray-300 mb-2">Club directory coming soon</h3>
+          <p className="text-gray-500 text-sm max-w-sm mx-auto">
+            {federation.abbreviation || federation.name} has not published affiliated clubs yet.
+            Check back as the federation builds out its directory.
+          </p>
         </motion.div>
       )}
 

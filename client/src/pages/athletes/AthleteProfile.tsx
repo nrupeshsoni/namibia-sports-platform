@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useParams } from "wouter";
 import {
@@ -22,6 +23,7 @@ function calcAge(dob: string | Date | null | undefined): number | null {
 export default function AthleteProfile() {
   const params = useParams<{ slug: string }>();
   const slug = params?.slug ?? "";
+  const [photoBroken, setPhotoBroken] = useState(false);
 
   const query = trpc.athletes.getBySlug.useQuery({ slug });
   const athlete = query.data ?? null;
@@ -99,15 +101,12 @@ export default function AthleteProfile() {
                     background: "rgba(239, 68, 68, 0.1)",
                   }}
                 >
-                  {a.photoUrl ? (
+                  {a.photoUrl && !photoBroken ? (
                     <img
                       src={a.photoUrl}
                       alt={`${a.firstName} ${a.lastName}`}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80";
-                      }}
+                      onError={() => setPhotoBroken(true)}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">

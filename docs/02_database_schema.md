@@ -47,17 +47,17 @@
 | phone | varchar(50) | |
 | website | text | |
 | facebook, instagram, twitter, youtube | text | |
-| logo | text | |
+| logo | text | Local `/logos/*` crest path; **53/83** active (`000055` pass 4) |
 | backgroundImage | text | |
 | slug | varchar(255) | UNIQUE |
-| primary_color | varchar(50) | |
-| secondary_color | varchar(50) | |
+| primary_color | varchar(50) | Crest-verified `#RRGGBB`; **47/83** active (`000013`+`000060`) |
+| secondary_color | varchar(50) | Paired with primary; same fill rate |
 | is_active | boolean | NOT NULL DEFAULT true |
 | merged_into_slug | varchar(255) | NULL — canonical slug when soft-merged |
 | createdAt | timestamp | |
 | updatedAt | timestamp | |
 
-**Live inventory (2026-07-20):** 85 rows total, **83 active** (2 soft-merged inactive: `namibia-aquatics` → `swimming-namibia`, `weightlifting-namibia` → `powerlifting-namibia`). Public `federations.list` / search filter `is_active=true`; `getBySlug` resolves merged slugs to canonical. Admin uses `federations.listAll`. Gap tracking: `docs/research/federation_data_gap_list.md`. Completeness: `docs/research/federation_completeness_snapshot.md`.
+**Live inventory (2026-07-21):** 85 rows total, **83 active** (2 soft-merged inactive: `namibia-aquatics` → `swimming-namibia`, `weightlifting-namibia` → `powerlifting-namibia`). Public `federations.list` / search filter `is_active=true`; `getBySlug` resolves merged slugs to canonical. Admin uses `federations.listAll`. Contacts Pass 3 (`20260720000056`): still **10** active with null email **and** null phone. Gap tracking: `docs/research/federation_data_gap_list.md`. Completeness: `docs/research/federation_completeness_snapshot.md`. Contacts evidence: `docs/research/contacts_enrichment_batch.md`.
 
 **Relations:** has many clubs, events, athletes, coaches, newsArticles, liveStreams, highPerformancePrograms, whatsappSubscriptions
 
@@ -82,6 +82,8 @@
 | member_count | integer | |
 | is_active | boolean | DEFAULT true |
 
+Live enrichment (2026-07-21 Pass 5): **165** clubs across **34** federations (`20260720000057`). See `docs/research/clubs_enrichment_batch.md`.
+
 ### sportsplatform_athletes
 | Column | Type | Constraints |
 |--------|------|-------------|
@@ -90,20 +92,23 @@
 | club_id | integer | FK → clubs |
 | first_name | varchar(255) | NOT NULL |
 | last_name | varchar(255) | NOT NULL |
-| slug | varchar(255) | UNIQUE (firstname-lastname-id) |
-| slug | varchar(255) | UNIQUE (firstname-lastname-id) |
-| slug | varchar(255) | UNIQUE (e.g. christine-mboma-1) |
+| slug | varchar(255) | UNIQUE |
 | date_of_birth | timestamp | |
 | gender | gender | |
 | photo_url | text | |
 | email | varchar(320) | |
 | phone | varchar(50) | |
+| nationality | varchar(100) | |
 | achievements | text | |
 | current_ranking | integer | |
 | is_active | boolean | DEFAULT true |
 
+**Live inventory (2026-07-21):** **133** total / **124** active (**100%** photos) via `20260720000046` + `20260720000051` + people pass 3 `20260720000061` (volleyball/tennis/TT/boxing/gymnastics/wrestling/chess). Evidence: `docs/research/people_underrepresented_batch.md`.
+
 ### sportsplatform_coaches
 Similar structure with certifications, specialization, years_experience.
+
+**Live inventory (2026-07-21):** **48** total / **47** active (**100%** photos) via `20260720000051` + `20260720000061`.
 
 ### sportsplatform_events
 | Column | Type | Constraints |
@@ -124,7 +129,7 @@ Similar structure with certifications, specialization, years_experience.
 | current_participants | integer | DEFAULT 0 |
 | is_published | boolean | DEFAULT false |
 
-Live enrichment (2026-07-20 Pass 2): **160** rows (158 published, 99 posters); sources in `description`. See `docs/research/events_enrichment_batch.md`.
+Live enrichment (2026-07-21 Pass 7): **230** rows (228 published, 176 posters, **52** upcoming); **65/83** active feds with ≥1 event; **18** zero-event. Sources in `description`. See `docs/research/events_enrichment_batch.md`.
 
 ### sportsplatform_venues
 | Column | Type | Constraints |
@@ -132,12 +137,16 @@ Live enrichment (2026-07-20 Pass 2): **160** rows (158 published, 99 posters); s
 | id | serial | PK |
 | name | varchar(255) | NOT NULL |
 | slug | varchar(255) | NOT NULL UNIQUE |
+| description | text | |
+| photo_url | text | |
 | address | text | |
 | city | varchar(100) | |
 | region | varchar(100) | |
 | capacity | integer | |
 | facilities | text[] | |
 | is_active | boolean | DEFAULT true |
+
+**Venue inventory (2026-07-21):** **42** active rows (**100%** photos) via `20260720000046` + pass `20260720000062` (+14 regional/specialty).
 
 ### sportsplatform_news_articles
 | Column | Type | Constraints |
@@ -154,6 +163,8 @@ Live enrichment (2026-07-20 Pass 2): **160** rows (158 published, 99 posters); s
 | featured_image | text | |
 | is_published | boolean | DEFAULT false |
 | published_at | timestamp | |
+
+**News inventory (2026-07-21):** **73** published (**100%** featured images) / **51** federations via `000031` + `000047` + `000052` + pass 4 `20260720000058` (+14 zero-news feds).
 
 ### sportsplatform_live_streams
 | Column | Type | Constraints |
@@ -186,6 +197,8 @@ Live enrichment (2026-07-20 Pass 2): **160** rows (158 published, 99 posters); s
 See `drizzle/schema.ts` and `drizzle/relations.ts` for full definitions.
 
 `sportsplatform_media` (beta seed `20260720000044` + pass 2 `20260720000054`): polymorphic `(entity_type, entity_id)`; **61** local image rows across flagship + netball/hockey/basketball/boxing/volleyball/tennis/aquatics/judo/handball/beach volleyball federations, plus venue/athlete galleries (`/sports/*`, `/logos/*`, `/venues/*`, `/athletes/*`). No FK to federations.
+
+`sportsplatform_hp_programs` (seed `20260720000062`): **10** active programmes (NSC PPP / Youth Games TID / AUSC R5 / UNAM HPC MoU; NNOC LA 2028; Athletics, NASFED, NRU, Cricket Namibia, NPC pathways). `program_type` enum: `talent_identification` | `training` | `development` | `elite`. Evidence: `docs/research/venues_hp_enrichment_batch.md`.
 
 ## Foreign Key Summary
 - users.federation_id → federations.id

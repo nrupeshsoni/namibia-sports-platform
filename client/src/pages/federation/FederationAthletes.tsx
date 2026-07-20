@@ -14,6 +14,40 @@ function avatarColor(name: string): string {
   return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
 }
 
+function AthleteAvatar({
+  firstName,
+  lastName,
+  photoUrl,
+  color,
+}: {
+  firstName: string;
+  lastName: string;
+  photoUrl: string | null;
+  color: string;
+}) {
+  const [broken, setBroken] = useState(false);
+  const showImg = Boolean(photoUrl) && !broken;
+  const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+
+  return (
+    <div
+      className="w-16 h-16 rounded-full mx-auto flex items-center justify-center overflow-hidden"
+      style={{ border: `2px solid ${color}55`, background: `${color}22` }}
+    >
+      {showImg ? (
+        <img
+          src={photoUrl!}
+          alt={`${firstName} ${lastName}`}
+          className="w-full h-full object-cover"
+          onError={() => setBroken(true)}
+        />
+      ) : (
+        <span className="text-lg font-serif text-white/80">{initials}</span>
+      )}
+    </div>
+  );
+}
+
 function calcAge(dob: string | Date | null | undefined): number | null {
   if (dob == null) return null;
   const diff = Date.now() - new Date(dob).getTime();
@@ -103,75 +137,77 @@ export default function FederationAthletes() {
         )}
       </motion.div>
 
-      {/* Controls */}
-      <motion.div variants={fadeUp} className="flex flex-col gap-3">
-        <div
-          className="relative rounded-xl overflow-hidden max-w-md"
-          style={{
-            background: "rgba(255,255,255,0.05)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.1)",
-          }}
-        >
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search athletes by name..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-transparent text-white placeholder:text-gray-500 focus:outline-none"
-          />
-        </div>
+      {/* Controls (only when there is data to filter) */}
+      {!athletesQuery.isLoading && athletes.length > 0 && (
+        <motion.div variants={fadeUp} className="flex flex-col gap-3">
+          <div
+            className="relative rounded-xl overflow-hidden max-w-md"
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              backdropFilter: "blur(20px)",
+              border: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search athletes by name..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-transparent text-white placeholder:text-gray-500 focus:outline-none"
+            />
+          </div>
 
-        <div className="flex flex-wrap gap-2 items-center">
-          <span className="text-xs text-gray-500 uppercase tracking-wider">Filter:</span>
-          {(["all", "male", "female", "active", "inactive"] as const).map((f) => {
-            const isGenderOpt = f === "male" || f === "female";
-            const isStatusOpt = f === "active" || f === "inactive";
-            const isActive =
-              f === "all"
-                ? genderFilter === "all" && statusFilter === "all"
-                : isGenderOpt
-                ? genderFilter === f
-                : statusFilter === f;
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-xs text-gray-500 uppercase tracking-wider">Filter:</span>
+            {(["all", "male", "female", "active", "inactive"] as const).map((f) => {
+              const isGenderOpt = f === "male" || f === "female";
+              const isStatusOpt = f === "active" || f === "inactive";
+              const isActive =
+                f === "all"
+                  ? genderFilter === "all" && statusFilter === "all"
+                  : isGenderOpt
+                  ? genderFilter === f
+                  : statusFilter === f;
 
-            return (
+              return (
+                <button
+                  key={f}
+                  onClick={() => {
+                    if (f === "all") { setGenderFilter("all"); setStatusFilter("all"); }
+                    else if (isGenderOpt) setGenderFilter(f as GenderFilter);
+                    else if (isStatusOpt) setStatusFilter(f as StatusFilter);
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all"
+                  style={{
+                    background: isActive ? "rgba(239,68,68,0.25)" : "rgba(255,255,255,0.05)",
+                    border: isActive ? "1px solid rgba(239,68,68,0.5)" : "1px solid rgba(255,255,255,0.1)",
+                    color: isActive ? "#EF4444" : "#9CA3AF",
+                  }}
+                >
+                  {f}
+                </button>
+              );
+            })}
+
+            <span className="text-xs text-gray-500 uppercase tracking-wider ml-2">Sort:</span>
+            {(["name", "ranking"] as const).map((s) => (
               <button
-                key={f}
-                onClick={() => {
-                  if (f === "all") { setGenderFilter("all"); setStatusFilter("all"); }
-                  else if (isGenderOpt) setGenderFilter(f as GenderFilter);
-                  else if (isStatusOpt) setStatusFilter(f as StatusFilter);
-                }}
+                key={s}
+                onClick={() => setSortBy(s)}
                 className="px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all"
                 style={{
-                  background: isActive ? "rgba(239,68,68,0.25)" : "rgba(255,255,255,0.05)",
-                  border: isActive ? "1px solid rgba(239,68,68,0.5)" : "1px solid rgba(255,255,255,0.1)",
-                  color: isActive ? "#EF4444" : "#9CA3AF",
+                  background: sortBy === s ? "rgba(251,191,36,0.2)" : "rgba(255,255,255,0.05)",
+                  border: sortBy === s ? "1px solid rgba(251,191,36,0.4)" : "1px solid rgba(255,255,255,0.1)",
+                  color: sortBy === s ? "#FBBF24" : "#9CA3AF",
                 }}
               >
-                {f}
+                By {s}
               </button>
-            );
-          })}
-
-          <span className="text-xs text-gray-500 uppercase tracking-wider ml-2">Sort:</span>
-          {(["name", "ranking"] as const).map((s) => (
-            <button
-              key={s}
-              onClick={() => setSortBy(s)}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all"
-              style={{
-                background: sortBy === s ? "rgba(251,191,36,0.2)" : "rgba(255,255,255,0.05)",
-                border: sortBy === s ? "1px solid rgba(251,191,36,0.4)" : "1px solid rgba(255,255,255,0.1)",
-                color: sortBy === s ? "#FBBF24" : "#9CA3AF",
-              }}
-            >
-              By {s}
-            </button>
-          ))}
-        </div>
-      </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Loading */}
       {athletesQuery.isLoading && (
@@ -208,26 +244,12 @@ export default function FederationAthletes() {
               >
                 {/* Avatar */}
                 <div className="relative inline-block mb-3">
-                  <div
-                    className="w-16 h-16 rounded-full mx-auto flex items-center justify-center overflow-hidden"
-                    style={{ border: `2px solid ${color}55`, background: `${color}22` }}
-                  >
-                    {athlete.photoUrl ? (
-                      <img
-                        src={athlete.photoUrl}
-                        alt={`${athlete.firstName} ${athlete.lastName}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80";
-                        }}
-                      />
-                    ) : (
-                      <span className="text-lg font-serif text-white/80">
-                        {athlete.firstName.charAt(0)}{athlete.lastName.charAt(0)}
-                      </span>
-                    )}
-                  </div>
+                  <AthleteAvatar
+                    firstName={athlete.firstName}
+                    lastName={athlete.lastName}
+                    photoUrl={athlete.photoUrl}
+                    color={color}
+                  />
                   <span
                     className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-[#111]"
                     style={{ background: athlete.isActive ? "#10B981" : "#4B5563" }}
@@ -288,15 +310,18 @@ export default function FederationAthletes() {
 
       {/* Empty: no athletes at all */}
       {!athletesQuery.isLoading && !athletesQuery.isError && athletes.length === 0 && (
-        <motion.div variants={fadeUp} className="text-center py-16">
+        <motion.div variants={fadeUp} className="text-center py-16 px-4">
           <div
             className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center"
             style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
           >
             <User className="w-9 h-9 text-gray-600" />
           </div>
-          <h3 className="text-xl font-serif text-gray-400 mb-2">No Athletes Registered Yet</h3>
-          <p className="text-gray-500 text-sm">Athletes will appear here once added by the federation admin.</p>
+          <h3 className="text-xl font-serif text-gray-300 mb-2">Athlete profiles coming soon</h3>
+          <p className="text-gray-500 text-sm max-w-sm mx-auto">
+            {federation.abbreviation || federation.name} has not published athlete profiles yet.
+            Check back as national and club athletes are added.
+          </p>
         </motion.div>
       )}
 

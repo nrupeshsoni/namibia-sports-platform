@@ -82,15 +82,57 @@ interface FederationEventCardProps {
   };
 }
 
+function EventPoster({
+  posterUrl,
+  type,
+  name,
+}: {
+  posterUrl: string | null;
+  type: string;
+  name: string;
+}) {
+  const [broken, setBroken] = useState(false);
+  const typeFallback = TYPE_IMAGES[type] ?? TYPE_IMAGES.other;
+  const showPoster = Boolean(posterUrl) && !broken;
+
+  if (!showPoster && broken) {
+    return (
+      <div
+        className="absolute inset-0 flex items-center justify-center"
+        style={{
+          background: 'linear-gradient(135deg, rgba(239,68,68,0.35), rgba(59,130,246,0.25))',
+        }}
+      >
+        <span className="text-5xl font-serif text-white/70">
+          {name.trim().charAt(0).toUpperCase() || 'E'}
+        </span>
+      </div>
+    );
+  }
+
+  const src = showPoster ? posterUrl! : typeFallback;
+
+  return (
+    <>
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+        style={{ backgroundImage: `url(${src})` }}
+      />
+      {posterUrl && !broken && (
+        <img src={posterUrl} alt="" className="hidden" onError={() => setBroken(true)} />
+      )}
+    </>
+  );
+}
+
 function FederationEventCard({ event }: FederationEventCardProps) {
   const colors = TYPE_COLORS[event.type] ?? TYPE_COLORS.other;
-  const image = event.posterUrl ?? (TYPE_IMAGES[event.type] ?? TYPE_IMAGES.other);
   const deadline = getDeadlineCountdown(event.registrationDeadline);
 
   return (
     <motion.div
       variants={fadeUp}
-      className="rounded-3xl overflow-hidden group hover:scale-[1.02] hover:-translate-y-1 transition-all duration-500 cursor-pointer flex flex-col"
+      className="rounded-3xl overflow-hidden group hover:scale-[1.02] hover:-translate-y-1 transition-all duration-500 flex flex-col"
       style={{
         background: 'rgba(255,255,255,0.04)',
         backdropFilter: 'blur(20px)',
@@ -100,10 +142,7 @@ function FederationEventCard({ event }: FederationEventCardProps) {
     >
       {/* Image */}
       <div className="relative h-48 overflow-hidden flex-shrink-0">
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-          style={{ backgroundImage: `url(${image})` }}
-        />
+        <EventPoster posterUrl={event.posterUrl} type={event.type} name={event.name} />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
         {/* Type badge */}
@@ -173,16 +212,6 @@ function FederationEventCard({ event }: FederationEventCardProps) {
         {event.description && (
           <p className="text-xs text-gray-500 mt-2 line-clamp-2">{event.description}</p>
         )}
-
-        <button
-          className="w-full mt-5 py-2.5 rounded-xl font-medium text-white transition-all duration-300 hover:scale-[1.02] text-sm"
-          style={{
-            background: 'linear-gradient(135deg, rgba(239,68,68,0.85), rgba(220,38,38,0.85))',
-            boxShadow: '0 8px 24px -8px rgba(239,68,68,0.5)',
-          }}
-        >
-          Register
-        </button>
       </div>
     </motion.div>
   );
@@ -222,11 +251,11 @@ export default function FederationEvents() {
     { enabled: !!federation?.id }
   );
 
-  const now = new Date();
+  const allEvents = eventsQuery.data ?? [];
 
   const filtered = useMemo(() => {
-    const all = eventsQuery.data ?? [];
-    return all.filter((e) => {
+    const now = new Date();
+    return allEvents.filter((e) => {
       const start = new Date(e.startDate);
       const isUpcoming = start >= now;
       if (tab === 'upcoming' && !isUpcoming) return false;
@@ -234,9 +263,12 @@ export default function FederationEvents() {
       if (typeFilter !== 'all' && e.type !== typeFilter) return false;
       return true;
     });
-  }, [eventsQuery.data, tab, typeFilter]);
+  }, [allEvents, tab, typeFilter]);
 
   if (!federation) return null;
+
+  const hasAnyEvents = allEvents.length > 0;
+  const filtersActive = typeFilter !== 'all' || tab === 'past';
 
   return (
     <motion.div
@@ -245,62 +277,63 @@ export default function FederationEvents() {
       animate="visible"
       className="space-y-6"
     >
-      {/* ── Controls ── */}
-      <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-3 justify-between">
-        {/* Upcoming / Past tabs */}
-        <div
-          className="flex rounded-xl overflow-hidden"
-          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-        >
-          {(['upcoming', 'past'] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className="px-5 py-2 text-sm font-medium capitalize transition-all duration-300"
-              style={{
-                background:
-                  tab === t
-                    ? 'linear-gradient(135deg, rgba(239,68,68,0.8), rgba(220,38,38,0.8))'
-                    : 'transparent',
-                color: 'white',
-              }}
+      {/* ── Controls (hide when federation has zero events) ── */}
+      {(eventsQuery.isLoading || hasAnyEvents) && (
+        <>
+          <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-3 justify-between">
+            <div
+              className="flex rounded-xl overflow-hidden"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
             >
-              {t}
-            </button>
-          ))}
-        </div>
+              {(['upcoming', 'past'] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className="px-5 py-2 text-sm font-medium capitalize transition-all duration-300"
+                  style={{
+                    background:
+                      tab === t
+                        ? 'linear-gradient(135deg, rgba(239,68,68,0.8), rgba(220,38,38,0.8))'
+                        : 'transparent',
+                    color: 'white',
+                  }}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
 
-        {/* Type filter pills */}
-        <div className="flex flex-wrap gap-1.5">
-          {EVENT_TYPES.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTypeFilter(t)}
-              className="px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-all duration-200 hover:scale-105"
-              style={{
-                background:
-                  typeFilter === t
-                    ? 'linear-gradient(135deg, rgba(239,68,68,0.8), rgba(220,38,38,0.8))'
-                    : 'rgba(255,255,255,0.06)',
-                border:
-                  typeFilter === t
-                    ? '1px solid rgba(239,68,68,0.5)'
-                    : '1px solid rgba(255,255,255,0.1)',
-                color: 'white',
-              }}
-            >
-              {TYPE_LABELS[t]}
-            </button>
-          ))}
-        </div>
-      </motion.div>
+            <div className="flex flex-wrap gap-1.5">
+              {EVENT_TYPES.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTypeFilter(t)}
+                  className="px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-all duration-200 hover:scale-105"
+                  style={{
+                    background:
+                      typeFilter === t
+                        ? 'linear-gradient(135deg, rgba(239,68,68,0.8), rgba(220,38,38,0.8))'
+                        : 'rgba(255,255,255,0.06)',
+                    border:
+                      typeFilter === t
+                        ? '1px solid rgba(239,68,68,0.5)'
+                        : '1px solid rgba(255,255,255,0.1)',
+                    color: 'white',
+                  }}
+                >
+                  {TYPE_LABELS[t]}
+                </button>
+              ))}
+            </div>
+          </motion.div>
 
-      {/* Result count */}
-      <motion.p variants={fadeUp} className="text-sm text-gray-500">
-        {eventsQuery.isLoading
-          ? 'Loading events…'
-          : `${filtered.length} event${filtered.length !== 1 ? 's' : ''} found`}
-      </motion.p>
+          <motion.p variants={fadeUp} className="text-sm text-gray-500">
+            {eventsQuery.isLoading
+              ? 'Loading events…'
+              : `${filtered.length} event${filtered.length !== 1 ? 's' : ''} found`}
+          </motion.p>
+        </>
+      )}
 
       {/* ── Loading ── */}
       {eventsQuery.isLoading && (
@@ -320,11 +353,11 @@ export default function FederationEvents() {
         </div>
       )}
 
-      {/* ── Empty state ── */}
-      {!eventsQuery.isLoading && filtered.length === 0 && (
+      {/* ── Empty: federation has no events ── */}
+      {!eventsQuery.isLoading && !hasAnyEvents && (
         <motion.div
           variants={fadeUp}
-          className="flex flex-col items-center justify-center py-20 text-center"
+          className="flex flex-col items-center justify-center py-20 text-center px-4"
         >
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
@@ -335,22 +368,63 @@ export default function FederationEvents() {
           >
             <Trophy className="w-9 h-9 text-gray-600" />
           </div>
-          <h3 className="font-serif text-xl text-gray-300 mb-2">No Events Found</h3>
-          <p className="text-gray-500 text-sm max-w-xs">
-            {tab === 'upcoming'
-              ? 'No upcoming events scheduled. Check back soon!'
-              : 'No past events to display.'}
+          <h3 className="font-serif text-xl text-gray-300 mb-2">No events published yet</h3>
+          <p className="text-gray-500 text-sm max-w-sm">
+            {federation.name} has not listed competitions or fixtures yet.
+            Check back as the calendar is updated.
           </p>
-          <button
-            onClick={() => { setTypeFilter('all'); setTab('upcoming'); }}
-            className="mt-5 px-5 py-2 rounded-xl text-sm font-medium text-white transition-all hover:scale-105"
+        </motion.div>
+      )}
+
+      {/* ── Empty: filters / tab returned nothing ── */}
+      {!eventsQuery.isLoading && hasAnyEvents && filtered.length === 0 && (
+        <motion.div
+          variants={fadeUp}
+          className="flex flex-col items-center justify-center py-20 text-center px-4"
+        >
+          <div
+            className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
             style={{
-              background: 'linear-gradient(135deg, rgba(239,68,68,0.7), rgba(220,38,38,0.7))',
-              border: '1px solid rgba(239,68,68,0.4)',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
             }}
           >
-            Clear Filters
-          </button>
+            <Calendar className="w-9 h-9 text-gray-600" />
+          </div>
+          <h3 className="font-serif text-xl text-gray-300 mb-2">
+            {tab === 'upcoming' ? 'No upcoming events' : 'No past events'}
+          </h3>
+          <p className="text-gray-500 text-sm max-w-xs">
+            {filtersActive
+              ? 'Nothing matches your current filters. Try another type or tab.'
+              : tab === 'upcoming'
+                ? 'No upcoming events scheduled. Browse past events or check back soon.'
+                : 'No past events to display yet.'}
+          </p>
+          {filtersActive && (
+            <button
+              onClick={() => { setTypeFilter('all'); setTab('upcoming'); }}
+              className="mt-5 px-5 py-2 rounded-xl text-sm font-medium text-white transition-all hover:scale-105"
+              style={{
+                background: 'linear-gradient(135deg, rgba(239,68,68,0.7), rgba(220,38,38,0.7))',
+                border: '1px solid rgba(239,68,68,0.4)',
+              }}
+            >
+              Clear Filters
+            </button>
+          )}
+          {!filtersActive && tab === 'upcoming' && (
+            <button
+              onClick={() => setTab('past')}
+              className="mt-5 px-5 py-2 rounded-xl text-sm font-medium text-white transition-all hover:scale-105"
+              style={{
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.15)',
+              }}
+            >
+              View past events
+            </button>
+          )}
         </motion.div>
       )}
     </motion.div>

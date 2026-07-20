@@ -364,3 +364,55 @@ Applied live to `rbibqjgsnrueubrvyqps` via Supabase MCP (`events_pass6_nhu_upcom
 Still **21** zeros. No new dated 2025–27 public fixtures found for: badminton, baseball, ice-stock, lacrosse, footgolf, kendo, korfball, nlas, martial-arts, modern-pentathlon, mountaineering, muaythai, orienteering, practical-shooting, speed-hiking, teqball, nufs, nawisa, petanque, roller-sports, softball.
 
 **Skipped / not used:** Junior Hockey Series Harare Aug 2026 (Namibia participation not verified); RCFA Namib War IV already in DB (`namibia-full-contact-martial-arts`); powerlifting nationals 25 Jul / archery AGA Botswana 12–15 Aug verified but those feds already had events (out of zero-fed scope).
+
+---
+
+## Pass 7 — 2026-07-21 (zeros deep-research + CWG upcoming)
+
+Migration: `supabase/migrations/20260720000059_events_pass7_zeros_upcoming.sql`  
+Applied live to `rbibqjgsnrueubrvyqps` via Supabase MCP (`events_pass7_zeros_upcoming`).
+
+### Platform totals
+
+| Metric | After Pass 6 | After Pass 7 |
+|--------|--------------|--------------|
+| Total events | 222 | **230** |
+| Published | 220 | **228** |
+| Upcoming (start ≥ CURRENT_DATE) | 49 | **52** |
+| With poster (all) | 168 | **176** |
+| Active feds with events | 62 / 83 | **65 / 83** |
+| Zero-event active feds | 21 | **18** |
+
+### Zero-fed inserts (5 verified → 3 federations cleared)
+
+| Federation slug | Events added |
+|-----------------|--------------|
+| `ice-stock-namibia` | IFI 11th Africa Cup Windhoek 19–21 Jun 2026 |
+| `namibia-footgolf` | Official launch 7 Jul 2025; Coastal Open Day Rossmund 28 Feb 2026 |
+| `nlas` | NALASRA Games Katima Mulilo 26–30 May 2025; Grootfontein 25 May–2 Jun 2026 |
+
+### Upcoming inserts (3 — named Glasgow 2026 squads)
+
+| Federation | Event |
+|------------|-------|
+| `bowls-namibia` | Commonwealth Games Glasgow 2026 (Bowls) 23 Jul–2 Aug |
+| `namibia-boxing` | Commonwealth Games Glasgow 2026 (Boxing) 23 Jul–2 Aug |
+| `namibia-gymnastics` | Commonwealth Games Glasgow 2026 (Gymnastics) 23 Jul–2 Aug |
+
+### Sources (Pass 7)
+
+- IFI Africa Cup: https://www.icestock.sport/en/event/afrika-cup-2026/ ; tender PDF `S26AusDuH_Afrika-Cup_EN.pdf`
+- FootGolf: Villager 7 Jul 2025 launch; AZ launch write-up; New Era coastal Open Day
+- NALASRA: NAMPA Katima 2025; NBC Grootfontein 2026 preview + kick-off
+- CWG squads: https://economist.com.na/107239/sport/23-athletes-to-participate-in-the-upcoming-2026-glasgow-commonwealth-games/
+
+### Remaining zeros (18)
+
+badminton-namibia, baseball-namibia, lacrosse-namibia, namibia-kendo, namibia-korfball, namibia-martial-arts, namibia-modern-pentathlon, namibia-mountaineering, namibia-muaythai, namibia-orienteering, namibia-practical-shooting, namibia-speed-hiking, namibia-teqball, nawisa, nufs, petanque-namibia, roller-sports-namibia, softball-namibia
+
+### Skipped (Pass 7)
+
+- Climb Namibia Spitzkoppe festival (GoodBETA / MCNAM community meet — not attributed to `namibia-mountaineering` without federation sanction evidence)
+- RCFA Namib War IV / PSA BDO Open 2026 already in DB
+- Local badminton/softball/baseball/petanque/kendo/korfball nationals — still no dated public host announcements
+- NUFS / NAWISA dated umbrella calendars — still absent

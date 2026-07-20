@@ -1,8 +1,8 @@
-# Federation Completeness Snapshot — 2026-07-20 (post duplicates + brand colors)
+# Federation Completeness Snapshot — 2026-07-21 (post crest brand colors pass 2)
 
 **Project:** `rbibqjgsnrueubrvyqps` (Sports)  
 **Table:** `sportsplatform_federations`  
-**Queried live after** migration `20260720000017_federations_is_active_merge.sql`
+**Queried live after** migration `20260720000060_federations_crest_brand_colors.sql`
 
 ## Entity mix
 
@@ -19,13 +19,13 @@
 | Field | Filled | Rate | Notes |
 |-------|-------:|-----:|-------|
 | name | 85/85 | 100% | |
-| abbreviation | 85/85 | 100% | 85 unique |
+| abbreviation | 85/85 | 100% | 85 unique; angling **NFFAA** (crest) |
 | type | 85/85 | 100% | |
 | slug | 85/85 | 100% | 85 unique; merge slugs kept |
 | description | 85/85 | 100% | 2 start with `[MERGED]` |
-| primary_color | **15/85** | **18%** | Crest-verified only |
-| secondary_color | **15/85** | **18%** | Crest-verified only |
-| logo | — | — | Sibling LOGOS (re-query if needed) |
+| primary_color | **47/83** active | **57%** | Crest-verified only (`000013` + `000060`) |
+| secondary_color | **47/83** active | **57%** | Paired with primary |
+| logo | — | — | Sibling LOGOS |
 | email / phone / website / socials | — | — | Sibling agents |
 
 ## Lifecycle columns (applied `20260720000017`)
@@ -41,30 +41,16 @@
 
 See `docs/research/proposed_federation_schema_extensions.md`.
 
-## Brand colors filled (15)
+## Brand colors
 
-| slug | primary | secondary | Source |
-|------|---------|-----------|--------|
-| nfa | #FFD700 | #000000 | Crest gold sun + black text |
-| nru | #2D8C3C | #FFDE00 | Welwitschia green + yellow |
-| cricket-namibia | #0047AB | #00AEEF | Logo swooshes |
-| swimming-namibia | #668BE5 | #4464AD | NASFED crest |
-| namibia-netball | #2E3192 | #ED1C24 | Wordmark + ribbon |
-| nhu | #1B418C | #D71920 | Logo navy + red |
-| nnoc | #003580 | #D21034 | Flag in logo |
-| namibia-paralympic | #003580 | #D21034 | NPC crest |
-| namibia-cycling | #2B3086 | #C42038 | SVG exact fills |
-| triathlon-namibia | #003399 | #E31B23 | Icon colors |
-| namibia-gymnastics | #1A237E | #B39DDB | NGF crest |
-| squash-namibia | #003580 | #D21034 | Flag-fill letters |
-| namibia-sports-commission | #1B3664 | #E31E24 | Eagle navy + swoosh |
-| ministry-sport | #003580 | #D21034 | Coat of arms flag |
-| bowls-namibia | #003580 | #000000 | Flag blue + black ring |
+Full inventory: `docs/research/crest_brand_colors_batch.md`.
 
-Left null: sport-photo logos, uncertain/photo-bg crests (e.g. tennis), rows without logos.
+**Active fill:** **47/83 (57%)**. Prior 15 from `000013` retained; +32 from `000060`.
+
+**Still null with logo path (4):** athletics (HTML stub), climbing + mountaineering (landscape photo), nawisa (promo collage).
 
 ## Recommended next
 
-1. Apply schema draft (`is_active`, year, affiliation, city/region) after agent freeze; hide merged rows from `list`.
-2. More crest-verified colors as logos land.
-3. Confirm Climbing vs Mountaineering (shared crest file).
+1. Replace athletics HTML stub + NAWISA collage with real crests, then color-fill.
+2. Dedicated climbing/mountaineering crests (not landscape heroes).
+3. Remaining rows without logos stay null until crest assets land.

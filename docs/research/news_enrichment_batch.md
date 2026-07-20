@@ -125,3 +125,43 @@ Basketball, cycling, table tennis, tennis, golf, wrestling, squash, judo, gymnas
 ## Sport coverage added
 
 Handball, karate, beach volleyball, taekwondo, motorsport, equestrian, archery, fencing, powerlifting, bodybuilding, angling, darts.
+
+---
+
+# Pass 4 — 2026-07-21
+
+**Migration:** `supabase/migrations/20260720000058_news_enrichment_pass4.sql`  
+**Remote MCP name:** `news_enrichment_pass4`  
+**DB mutated:** Yes
+
+## Baseline → after (Pass 4)
+
+| Metric | Before Pass 4 | After Pass 4 |
+|--------|--------------:|-------------:|
+| Published news | 59 | **73** |
+| With `featured_image` | 59 | **73** |
+| Distinct federations (linked) | 37 | **51** |
+| Active feds still at 0 news | 46 | **32** |
+
+## New articles (14) — all previously zero-news federations
+
+| # | Slug | Federation | Image | Primary source |
+|--:|------|------------|-------|----------------|
+| 1 | `ministry-sport-youth-budget-uplift-2025` | Ministry (MSYNS) | `/sports/athletics.jpg` | [The Namibian](https://www.namibian.com.na/government-boosts-youth-and-sport-funding-by-46-for-2025-26-financial-year/) |
+| 2 | `namibia-padel-nppl-league-launch-2026` | Padel (NPTF) | `/sports/padel.jpg` | [New Era](https://neweralive.na/first-ever-padel-league-starts-today/) |
+| 3 | `namibia-rowing-coastal-sprints-debut-2026` | Rowing | `/sports/rowing.jpg` | [Informanté](https://informante.web.na/?p=396782) |
+| 4 | `nesa-global-esports-games-qualifiers-2026` | Esports (NESA) | `/sports/esports.jpg` | [Windhoek Express](https://www.we.com.na/local-news-we/nesa-opens-global-esports-qualifier-nmh012771-4-15638) |
+| 5 | `quality-fc-nfa-futsal-cup-champions-2026` | Futsal | `/sports/futsal.jpg` | [New Era](https://neweralive.na/quality-fc-crowned-nfa-futsal-cup-champions/) |
+| 6 | `junior-national-sailing-champions-walvis-bay-2026` | Sailing | `/sports/sailing.jpg` | [Namibian Sun](https://www.namibiansun.com/local/junior-national-sailing-champions-crowned-nmh009153-11-10554) |
+| 7 | `boshoff-brothers-african-canoe-slalom-medals-2026` | Canoeing | `/sports/canoeing.jpg` | [New Era](https://neweralive.na/boshoff-brothers-paddle-namibia-into-history/) |
+| 8 | `spitzkoppe-rock-climbing-boom-namibia` | Climbing | `/sports/climbing.jpg` | [The Namibian](https://www.namibian.com.na/rock-climbing-booming-at-spitzkoppe/) |
+| 9 | `namibia-inline-hockey-world-skate-bronze-2025` | Ice & Inline Hockey | `/sports/ice-hockey.jpg` | [The Namibian](https://www.namibian.com.na/heroes-welcome-for-namibias-inline-hockey-team/) |
+| 10 | `namibia-national-surfing-championships-walvis-bay` | Surfing | `/sports/surfing.jpg` | [The Namibian](https://www.namibian.com.na/surfing-champs-in-big-waves/) |
+| 11 | `namibia-hunting-rifle-world-championships-otjiwa` | Shooting | `/sports/shooting.jpg` | [The Namibian](https://www.namibian.com.na/namibian-duo-shoots-to-top-of-the-world/) |
+| 12 | `ncsf-champ-of-champs-namshooters-2025` | Billiards & Snooker | `/sports/billiards-action.jpg` | [Namibian Sun](https://www.namibiansun.com/sport-wrap-main/top-cueists-crowned-at-ncsf-champ-of-champs2025-12-05179141) |
+| 13 | `nhra-independence-cup-gobabis-2026` | Horse Racing | `/sports/horse-racing.jpg` | [The Namibian](https://www.namibian.com.na/woodland-ridge-katiti-komambo-gallop-to-victory/) |
+| 14 | `fistball-cohen-cup-cfc-victory-2025` | Fistball | `/sports/fistball.jpg` | [Namibian Sun](https://www.namibiansun.com/sport-wrap-main/exciting-victories-at-the-cohen-cup-20252025-10-14173659) |
+
+## Sport coverage added
+
+Ministry, padel, rowing, esports, futsal, sailing, canoeing, climbing, ice/inline hockey, surfing, shooting, billiards, horse racing, fistball.

@@ -1,4 +1,4 @@
-# Federation Data Gap List — 2026-07-20 (updated session 9 — crests deep pass 3)
+# Federation Data Gap List — 2026-07-21 (updated — crests deep pass 4)
 
 **News (Agent NEWS, same day):** 47 published / 47 with `featured_image` / 25 federations linked — migrations `20260720000031` + Pass 2 `20260720000047`. Details: `news_enrichment_batch.md`.
 
@@ -44,14 +44,32 @@ Full write-up: `docs/research/federation_photos_batch.md`
 ### Still missing photos
 None (Pass 2 closed the prior 11).
 
-## Logo completeness (updated — migration `20260720000043` / Agent LOGOS-DEEP pass 3)
+## Logo completeness (updated — migration `20260720000055` / Agent LOGOS pass 4)
 
 | Metric | Count |
 |--------|------:|
-| Rows with logo set | **51 / 83 active (61%)** |
-| Logo null (initials UI) | **32** active |
-| Files in `client/public/logos/` | **45** (+ Handball, NALASRA) |
+| Rows with logo set | **53 / 83 active (64%)** |
+| Logo null (initials UI) | **30** active |
+| Files in `client/public/logos/` | **47** (+ MMA, Fistball) |
 | Interim `/sports/*` only | **0** |
+
+### Crests added (migration `20260720000055` — LOGOS pass 4)
+
+| Federation | File | Source |
+|------------|------|--------|
+| Mixed Martial Arts Namibia | `Mixed_Martial_Arts_Namibia_logo.png` | Hybrid Fitness Centre `mman_logo_top.png` (MMAN / IMMAF national body wordmark; UI chrome cropped) |
+| Fistball Namibia | `Fistball_Association_of_Namibia_logo.jpg` | Official `fistballnamibia.wordpress.com/.../logo_fan.jpg` (matches FB Graph `fistballassociationofnamibia`) |
+
+### Rejected this pass (`000055`)
+- Golf — FB Graph silhouette; Webnode favicon = platform “we” mark (not NGF crest)
+- Karate — Wayback/FB `nakulogo` = NSC/NNOC wave; NKKO/JKA = style branches only
+- Badminton / PWFN / Surfing / Taekwondo / Horse Racing — IF/directory pages text-only; no federation crest asset
+- Muaythai / Footgolf — FB Graph silhouettes (~1.8KB placeholders)
+- Dance Sport — WDSF member page text-only; FB Graph 400
+- Cue Sports (NCSF) — media photos only; FB Graph page 400
+- NUFS / TISAN (Traditional) — no verified crest
+- NNSSU — FISU flag download only; NSSU Schools eagle crest = wrong org (learners vs tertiary)
+- Ultimate — WFDF Namibia page = national flag only
 
 ### Crests added (migration `20260720000043` — LOGOS-DEEP pass 3)
 
@@ -123,7 +141,7 @@ Fencing, Archery, Wrestling, Esports (NESA), Padel — LOGOS-DEEP did not overwr
 | Futsal | (share NFA crest) | administered under NFA |
 
 ### Still null-logo (notable)
-Karate, Golf, Badminton, Weightlifting/PWFN, Horse Racing, Dance Sport, Taekwondo, MMA, Soft/Baseball, Surfing, Ultimate, umbrellas NUFS / TISAN (traditional) / NNSSU (students), most emerging federations.
+Karate, Golf, Badminton, Weightlifting/PWFN, Horse Racing, Dance Sport, Taekwondo, Soft/Baseball, Surfing, Ultimate, Cue Sports, umbrellas NUFS / TISAN (traditional) / NNSSU (students), most emerging federations.
 
 ### Rejected this pass (`000033` — LOGOS-DEEP)
 - Karate FB `NamibiaKarateFederation` = Namibian flag-wave graphic (not a karate crest); `fb-naku2` = JKA Shotokan branch only
@@ -189,3 +207,4 @@ Completeness: `docs/research/federation_completeness_snapshot.md`
 12. `federations_crests_deep` (`20260720000033` — Kickboxing, Sailing, NCRF, Jukskei)
 13. `federations_crests_deep_pass2` (`20260720000038` — Ice Stock, Boxing NABF)
 14. `federations_crests_deep_pass3` (`20260720000043` — Handball NHF, NLAS/NALASRA)
+15. `federations_crests_deep_pass4` (`20260720000055` — MMA Namibia, Fistball)

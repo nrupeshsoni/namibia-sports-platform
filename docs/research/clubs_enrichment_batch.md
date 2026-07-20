@@ -283,3 +283,69 @@ NFA crests with files: African Stars, Black Africa, Blue Waters, Civics, Eeshoke
 |--------|-------:|------:|
 | Clubs total | 92 | **131** (+39) |
 | Feds with clubs | 21 | **26** (+5) |
+
+---
+
+## Pass 5 — clubs expansion (2026-07-21)
+
+**Migration:** `supabase/migrations/20260720000057_clubs_expansion_pass5.sql`  
+**Scope:** Insert **34** verified named clubs. **8** previously empty federations get first clubs. Logos = sport-correct `/sports/*`. Contacts only from primary club/federation pages.
+
+### Baseline → after (live)
+
+| Metric | Before | After |
+|--------|-------:|------:|
+| Clubs total | 131 | **165** (+34) |
+| Federations with clubs | 26 | **34** (+8) |
+| New federations covered | — | archery, fencing, padel, jukskei, practical shooting, angling, canoeing, dance sport |
+
+### New federations (30 clubs)
+
+| Fed slug | Clubs | Sources |
+|----------|-------|---------|
+| `archery-namibia` | Windhoek Archery Club; Swakopmund Archery Club; SKW Archers; Atlantis Archery Club | SFC archery page; SKW Archers; Namibian Sun / Republikein Yellowstone / SA nationals prep |
+| `fencing-namibia` | Windhoek Fencing Club; Highlanders; Gobabis; Katima Mulilo | NBC Windhoek Fencing Club; NFF / historical club list (4 clubs) |
+| `namibia-padel-tennis` | Namibia Padel; Wanderers Padel; United Padel Namibia | namibiapadel.com; Wanderers/United Matchpoint booking sites |
+| `namibia-jukskei` | Auas; Olympus; Voorslag; Weermag; Vintage; Gobabis; Swakopmund; Walvis Bay; Henties Bay | [jukskei-nam.com Central](https://www.jukskei-nam.com/central_info.php) + Western region list |
+| `namibia-practical-shooting` | City of Windhoek Shooting Club; Swakopmund Practical Shooting Club; Luderitz Sport Shooting Club | napsa.info club links; cwsc.online; luderitzssc.org |
+| `angling-namibia` | Mako; Benguela; Henties Bay Angling Club | NSAA / Republikein Bachmus Nationals 2026 club names |
+| `namibia-canoeing` | Walvis Bay Canoe and Rowing Club | DKV / canoe-polo Walvis Bay coverage (WBYC training base) |
+| `dance-sport-namibia` | Dance Domain Namibia; Equipped Dance Academy; H2E Studio | The Namibian / Republikein Dance Sport nationals coverage |
+
+### Expansions on existing feds (4 clubs)
+
+| Fed | Added | Sources |
+|-----|-------|---------|
+| `golf-namibia` | Omeya Golf Club; Okahandja Golf Club; Walvis Bay Golf Club; Henties Bay Golf Club | omeyagolfclub.com (+ bookings contact); established course directories |
+
+### Contacts filled this pass (verified only)
+
+| Club | Website / contact | Notes |
+|------|-------------------|-------|
+| Swakopmund Archery Club | sfc1929.com/archery | SFC section page |
+| SKW Archers | skw.com.na + phone | Club contact page |
+| Windhoek Fencing Club | namibianfencing.com | NFF site (club named in NBC) |
+| Namibia Padel | namibiapadel.com + Olympia address | Operator site |
+| Wanderers Padel | Matchpoint + Wanderers phone/address | Same club phone as Wanderers |
+| United Padel Namibia | Matchpoint + email/phone/address | Booking site contact |
+| CWSC / SPSC / Luderitz SSC | club/NAPSA sites | Website only |
+| Mako / Benguela / Henties Bay angling | namshoreangling.com.na | NSAA hub (no club emails) |
+| Omeya Golf Club | omeyagolfclub.com + bookings email/phone | Pro Shop |
+
+### Explicitly not applied
+
+| Claim | Why |
+|-------|-----|
+| Atlantic / Penguin Angling Clubs | Named in secondary lists only — not confirmed in nationals press this pass |
+| Commercial gyms as PWFN “clubs” | Hybrid/Forge/Nucleus are gyms, not federation club register |
+| Taekwondo named clubs | NTF still building regional clubs; no public named register |
+| Triathlon named clubs | NTF constitution allows clubs; no public affiliated list |
+| Usakos Jukskei | Western region listed historically; deferred vs confirmed Central/coastal set |
+| Codesync / Rise Again as dance clubs | Crew names at nationals, not confirmed studio entities |
+
+### Counts after Pass 5 (live)
+
+| Metric | Pass 4 | Pass 5 |
+|--------|-------:|------:|
+| Clubs total | 131 | **165** (+34) |
+| Feds with clubs | 26 | **34** (+8) |

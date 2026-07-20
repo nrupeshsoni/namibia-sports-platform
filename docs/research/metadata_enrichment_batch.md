@@ -15,8 +15,8 @@
 | description | 85/85 | ~62 thin “National X federation” stubs |
 | type | 85/85 | Correct: 1 ministry / 1 commission / 8 umbrella / 75 federation |
 | slug | 85/85 | All unique; left unchanged |
-| primary_color | 0/85 | Deferred — no verified brand palette sheet |
-| secondary_color | 0/85 | Deferred |
+| primary_color | **47/83** active | Crest-verified (`000013` + `000060`); see `crest_brand_colors_batch.md` |
+| secondary_color | **47/83** active | Paired with primary |
 | established_year | — | **Column does not exist** |
 | international_affiliation | — | **Column does not exist** (folded into descriptions where known) |
 | address / city / region | — | **Not on federations table** (clubs only) |
@@ -69,6 +69,6 @@ International affiliations noted in prose where well-established (FIFA/CAF, Worl
 ## Deferred / next batch
 
 1. Add schema columns: `established_year`, `international_affiliation` (text/array), optional `city`/`region` on federations.
-2. Verified `primary_color` / `secondary_color` from official brand guidelines.
+2. ~~Verified `primary_color` / `secondary_color`~~ — crest-sampled pass done (`000060`, 47/83); remaining need real crests.
 3. Resolve naming duplicates (Swimming Namibia vs Namibia Aquatics / NASFED; Powerlifting vs Weightlifting vs combined Power & Weight Lifting Association).
 4. Enrich remaining short umbrella blurbs (NPC, NAWISA, TISAN) if product wants longer copy.
