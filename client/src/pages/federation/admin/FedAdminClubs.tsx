@@ -16,7 +16,10 @@ export default function FedAdminClubs({ federationId }: FedAdminClubsProps) {
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number } | null>(null);
 
   const utils = trpc.useUtils();
-  const clubsQuery = trpc.clubs.list.useQuery({ federationId });
+  const clubsQuery = trpc.clubs.list.useQuery({
+    federationId,
+    includeInactive: true,
+  });
   const deleteMut = trpc.clubs.delete.useMutation({
     onSuccess: () => {
       utils.clubs.list.invalidate();

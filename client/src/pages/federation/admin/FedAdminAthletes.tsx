@@ -16,7 +16,10 @@ export default function FedAdminAthletes({ federationId }: FedAdminAthletesProps
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; federationId: number | null } | null>(null);
 
   const utils = trpc.useUtils();
-  const athletesQuery = trpc.athletes.list.useQuery({ federationId });
+  const athletesQuery = trpc.athletes.list.useQuery({
+    federationId,
+    includeInactive: true,
+  });
   const deleteMut = trpc.athletes.delete.useMutation({
     onSuccess: () => {
       utils.athletes.list.invalidate();
@@ -139,12 +142,13 @@ export default function FedAdminAthletes({ federationId }: FedAdminAthletesProps
               <Button variant="ghost" className="flex-1" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
               <Button
                 className="flex-1 bg-red-600 hover:bg-red-700"
-                onClick={() =>
+                onClick={() => {
+                  if (deleteConfirm.federationId == null) return;
                   deleteMut.mutate({
                     id: deleteConfirm.id,
-                    federationId: deleteConfirm.federationId ?? undefined,
-                  })
-                }
+                    federationId: deleteConfirm.federationId,
+                  });
+                }}
                 disabled={deleteMut.isPending}
               >
                 {deleteMut.isPending ? "Deleting..." : "Delete"}

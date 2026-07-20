@@ -81,7 +81,7 @@ export const searchRouter = router({
             })
             .from(clubs)
             .innerJoin(federations, eq(clubs.federationId, federations.id))
-            .where(ilike(clubs.name, pattern))
+            .where(and(eq(clubs.isActive, true), ilike(clubs.name, pattern)))
             .limit(LIMIT_PER_TYPE),
 
           db
@@ -95,9 +95,12 @@ export const searchRouter = router({
             .from(athletes)
             .leftJoin(federations, eq(athletes.federationId, federations.id))
             .where(
-              or(
-                ilike(athletes.firstName, pattern),
-                ilike(athletes.lastName, pattern)
+              and(
+                eq(athletes.isActive, true),
+                or(
+                  ilike(athletes.firstName, pattern),
+                  ilike(athletes.lastName, pattern)
+                )
               )
             )
             .limit(LIMIT_PER_TYPE),

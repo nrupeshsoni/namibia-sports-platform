@@ -5,20 +5,28 @@ import { eq, and } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
 
 export const coachesRouter = router({
+  /** Public directory — active coaches only. Staff may pass `includeInactive`. */
   list: publicProcedure
     .input(
       z
         .object({
           federationId: z.number().optional(),
           clubId: z.number().optional(),
+          /** Ignored unless caller is admin or federation_admin. */
+          includeInactive: z.boolean().optional(),
         })
         .optional()
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) return [];
 
+      const staff =
+        ctx.user?.role === "admin" || ctx.user?.role === "federation_admin";
       const conditions = [];
+      if (!(input?.includeInactive === true && staff)) {
+        conditions.push(eq(coaches.isActive, true));
+      }
       if (input?.federationId) {
         conditions.push(eq(coaches.federationId, input.federationId));
       }
@@ -29,7 +37,7 @@ export const coachesRouter = router({
       const result = await db
         .select()
         .from(coaches)
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .where(and(...conditions))
         .orderBy(coaches.firstName);
 
       return result;

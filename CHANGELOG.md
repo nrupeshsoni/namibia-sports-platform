@@ -67,6 +67,7 @@ All notable changes to this project are documented in this file.
 - Compressed NAWISA and Climbing logos (&lt;400KB / &lt;110KB).
 
 ### Fixed
+- **Security:** public `athletes.list`, `coaches.list`, `clubs.list` default to `is_active = true`; `search.global` clubs/athletes are active-only. Staff may pass `includeInactive` (admin / federation_admin only); anonymous callers cannot bypass.
 - **Security:** `federationAdminMiddleware` uses tRPC v11 `await opts.getRawInput()` (obsolete `rawInput` removed); platform admins bypass tenant check.
 - **Security:** closed public draft leaks — `news.list` / `events.list` ignore `includeUnpublished` unless admin or federation_admin (own federation); anonymous always published-only.
 - **Security:** `/admin` UI + nav/footer Admin links gated on `auth.me` role === `admin`.

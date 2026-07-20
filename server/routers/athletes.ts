@@ -14,6 +14,7 @@ function athleteSlug(firstName: string, lastName: string, id: number): string {
 }
 
 export const athletesRouter = router({
+  /** Public directory — active athletes only. Staff may pass `includeInactive`. */
   list: publicProcedure
     .input(
       z
@@ -22,15 +23,22 @@ export const athletesRouter = router({
           clubId: z.number().optional(),
           nationality: z.string().optional(),
           search: z.string().optional(),
+          /** Ignored unless caller is admin or federation_admin. */
+          includeInactive: z.boolean().optional(),
         })
         .optional()
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       try {
         const db = await getDb();
         if (!db) return [];
 
+        const staff =
+          ctx.user?.role === "admin" || ctx.user?.role === "federation_admin";
         const conditions = [];
+        if (!(input?.includeInactive === true && staff)) {
+          conditions.push(eq(athletes.isActive, true));
+        }
         if (input?.federationId) {
           conditions.push(eq(athletes.federationId, input.federationId));
         }
@@ -52,7 +60,7 @@ export const athletesRouter = router({
         const result = await db
           .select()
           .from(athletes)
-          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .where(and(...conditions))
           .orderBy(athletes.firstName);
 
         return result;

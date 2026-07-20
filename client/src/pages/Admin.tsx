@@ -59,8 +59,9 @@ export default function Admin() {
   /** Admin sees inactive/merged rows; public Home uses federations.list (active only). */
   const federationsQuery = trpc.federations.listAll.useQuery();
   const eventsQuery = trpc.events.list.useQuery({});
-  const clubsQuery = trpc.clubs.list.useQuery({});
-  const athletesQuery = trpc.athletes.list.useQuery({});
+  /** Staff includeInactive — public lists default to active-only. */
+  const clubsQuery = trpc.clubs.list.useQuery({ includeInactive: true });
+  const athletesQuery = trpc.athletes.list.useQuery({ includeInactive: true });
   const newsQuery = trpc.news.list.useQuery({});
   const streamsQuery = trpc.streams.list.useQuery({});
 
