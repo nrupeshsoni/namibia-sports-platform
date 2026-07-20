@@ -44,6 +44,12 @@ export const adminProcedure = t.procedure.use(
   }),
 );
 
+function readFederationIdFromInput(raw: unknown): number | undefined {
+  if (raw == null || typeof raw !== "object") return undefined;
+  const value = (raw as { federationId?: unknown }).federationId;
+  return typeof value === "number" ? value : undefined;
+}
+
 const federationAdminMiddleware = t.middleware(async opts => {
   const { ctx, next } = opts;
 
@@ -55,9 +61,20 @@ const federationAdminMiddleware = t.middleware(async opts => {
     throw new TRPCError({ code: "FORBIDDEN", message: NOT_FEDERATION_ADMIN_ERR_MSG });
   }
 
-  const rawInput = "rawInput" in opts ? (opts as { rawInput?: unknown }).rawInput : undefined;
-  const federationId = (rawInput as { federationId?: number } | undefined)?.federationId;
-  if (federationId !== undefined && ctx.user.role === 'federation_admin' && ctx.user.federationId !== federationId) {
+  // Platform admins bypass tenant scoping
+  if (ctx.user.role === 'admin') {
+    return next({
+      ctx: { ...ctx, user: ctx.user },
+    });
+  }
+
+  // tRPC v11: prefer getRawInput() over obsolete rawInput
+  const rawInput = await opts.getRawInput();
+  const federationId = readFederationIdFromInput(rawInput);
+  if (
+    federationId !== undefined &&
+    ctx.user.federationId !== federationId
+  ) {
     throw new TRPCError({ code: "FORBIDDEN", message: NOT_FEDERATION_ADMIN_ERR_MSG });
   }
 

@@ -9,6 +9,7 @@ import {
   federationAdminProcedure,
   router,
 } from "../_core/trpc";
+import { canIncludeUnpublished } from "../_core/federationScope";
 
 export const newsRouter = router({
   list: publicProcedure
@@ -18,18 +19,22 @@ export const newsRouter = router({
           federationId: z.number().optional(),
           category: z.string().optional(),
           limit: z.number().optional(),
-          /** When true, returns unpublished articles as well (used by admin/federation admin views) */
+          /** Staff-only: ignored for public/anonymous; federation_admin limited to own federation */
           includeUnpublished: z.boolean().optional(),
         })
         .optional()
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       try {
         const db = await getDb();
         if (!db) return [];
 
+        const allowDrafts =
+          input?.includeUnpublished === true &&
+          canIncludeUnpublished(ctx.user, input.federationId);
+
         const conditions = [];
-        if (!input?.includeUnpublished) {
+        if (!allowDrafts) {
           conditions.push(eq(newsArticles.isPublished, true));
         }
         if (input?.federationId) {

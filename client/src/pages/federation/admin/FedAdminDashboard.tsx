@@ -7,7 +7,7 @@ interface FedAdminDashboardProps {
 }
 
 export default function FedAdminDashboard({ federationId, federationName }: FedAdminDashboardProps) {
-  const eventsQuery = trpc.events.list.useQuery({ federationId });
+  const eventsQuery = trpc.events.list.useQuery({ federationId, includeUnpublished: true });
   const clubsQuery = trpc.clubs.list.useQuery({ federationId, includeInactive: true });
   const athletesQuery = trpc.athletes.list.useQuery({ federationId, includeInactive: true });
   const newsQuery = trpc.news.list.useQuery({ federationId, includeUnpublished: true });

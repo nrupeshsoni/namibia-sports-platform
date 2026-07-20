@@ -3,6 +3,7 @@ import { getDb } from "../db";
 import { events } from "../../drizzle/schema";
 import { eq, desc, asc, like, and, gte } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
+import { canIncludeUnpublished } from "../_core/federationScope";
 
 export const eventsRouter = router({
   list: publicProcedure
@@ -14,15 +15,24 @@ export const eventsRouter = router({
           upcoming: z.boolean().optional(),
           search: z.string().optional(),
           limit: z.number().optional(),
+          /** Staff-only: ignored for public/anonymous; federation_admin limited to own federation */
+          includeUnpublished: z.boolean().optional(),
         })
         .optional()
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       try {
         const db = await getDb();
         if (!db) return [];
 
+        const allowDrafts =
+          input?.includeUnpublished === true &&
+          canIncludeUnpublished(ctx.user, input.federationId);
+
         const conditions = [];
+        if (!allowDrafts) {
+          conditions.push(eq(events.isPublished, true));
+        }
         if (input?.federationId) {
           conditions.push(eq(events.federationId, input.federationId));
         }

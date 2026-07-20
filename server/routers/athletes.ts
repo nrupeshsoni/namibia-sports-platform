@@ -1,8 +1,10 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { athletes, federations, clubs } from "../../drizzle/schema";
-import { eq, and, like, or, isNull } from "drizzle-orm";
+import { eq, and, like, or } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
+import { assertSameFederation } from "../_core/federationScope";
 
 /** Derives URL slug: "Christine Mboma" + id 1 → "christine-mboma-1" */
 function athleteSlug(firstName: string, lastName: string, id: number): string {
@@ -122,7 +124,7 @@ export const athletesRouter = router({
       z.object({
         firstName: z.string(),
         lastName: z.string(),
-        federationId: z.number().optional(),
+        federationId: z.number(),
         clubId: z.number().optional(),
         dateOfBirth: z.date().optional(),
         gender: z.enum(["male", "female", "other"]).optional(),
@@ -187,16 +189,25 @@ export const athletesRouter = router({
     }),
 
   delete: federationAdminProcedure
-    .input(z.object({ id: z.number(), federationId: z.number().nullish() }))
-    .mutation(async ({ input }) => {
+    .input(z.object({ id: z.number(), federationId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const whereClause =
-        input.federationId == null
-          ? and(eq(athletes.id, input.id), isNull(athletes.federationId))
-          : and(eq(athletes.id, input.id), eq(athletes.federationId, input.federationId));
-      await db.delete(athletes).where(whereClause);
+      const [existing] = await db
+        .select({ federationId: athletes.federationId })
+        .from(athletes)
+        .where(eq(athletes.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Athlete not found" });
+      }
+      assertSameFederation(ctx.user, existing.federationId);
+      assertSameFederation(ctx.user, input.federationId);
+
+      await db
+        .delete(athletes)
+        .where(and(eq(athletes.id, input.id), eq(athletes.federationId, input.federationId)));
       return { success: true };
     }),
 });

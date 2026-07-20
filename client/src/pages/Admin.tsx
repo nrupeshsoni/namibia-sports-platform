@@ -31,11 +31,20 @@ const CRUD_TABS: Tab[] = ["federations", "events", "clubs", "athletes"];
 
 export default function Admin() {
   const [, setLocation] = useLocation();
-  const { user, isLoading: authLoading, signOut } = useAuth();
+  const { signOut } = useAuth();
+  const meQuery = trpc.auth.me.useQuery(undefined, { retry: false });
+  const isPlatformAdmin = meQuery.data?.role === "admin";
 
   useEffect(() => {
-    if (!authLoading && !user) setLocation("/login");
-  }, [authLoading, user, setLocation]);
+    if (meQuery.isLoading) return;
+    if (!meQuery.data) {
+      setLocation("/login");
+      return;
+    }
+    if (meQuery.data.role !== "admin") {
+      setLocation("/");
+    }
+  }, [meQuery.isLoading, meQuery.data, setLocation]);
 
   const [activeTab, setActiveTab] = useState<Tab>("federations");
   const [searchQuery, setSearchQuery] = useState("");
@@ -57,13 +66,26 @@ export default function Admin() {
 
   const utils = trpc.useUtils();
   /** Admin sees inactive/merged rows; public Home uses federations.list (active only). */
-  const federationsQuery = trpc.federations.listAll.useQuery();
-  const eventsQuery = trpc.events.list.useQuery({});
-  /** Staff includeInactive — public lists default to active-only. */
-  const clubsQuery = trpc.clubs.list.useQuery({ includeInactive: true });
-  const athletesQuery = trpc.athletes.list.useQuery({ includeInactive: true });
-  const newsQuery = trpc.news.list.useQuery({});
-  const streamsQuery = trpc.streams.list.useQuery({});
+  const federationsQuery = trpc.federations.listAll.useQuery(undefined, {
+    enabled: isPlatformAdmin,
+  });
+  const eventsQuery = trpc.events.list.useQuery(
+    { includeUnpublished: true },
+    { enabled: isPlatformAdmin }
+  );
+  const clubsQuery = trpc.clubs.list.useQuery(
+    { includeInactive: true },
+    { enabled: isPlatformAdmin }
+  );
+  const athletesQuery = trpc.athletes.list.useQuery(
+    { includeInactive: true },
+    { enabled: isPlatformAdmin }
+  );
+  const newsQuery = trpc.news.list.useQuery(
+    { includeUnpublished: true },
+    { enabled: isPlatformAdmin }
+  );
+  const streamsQuery = trpc.streams.list.useQuery({}, { enabled: isPlatformAdmin });
 
   const deleteFed = trpc.federations.delete.useMutation({
     onSuccess: () => {
@@ -98,7 +120,9 @@ export default function Admin() {
     if (entity === "federations") deleteFed.mutate({ id });
     else if (entity === "events" && federationId != null) deleteEvt.mutate({ id, federationId });
     else if (entity === "clubs" && federationId != null) deleteClub.mutate({ id, federationId });
-    else if (entity === "athletes") deleteAth.mutate({ id, federationId: federationId ?? undefined });
+    else if (entity === "athletes" && federationId != null) {
+      deleteAth.mutate({ id, federationId });
+    }
   };
 
   const stats = [
@@ -108,7 +132,7 @@ export default function Admin() {
     { label: "Athletes", value: athletesQuery.data?.length ?? "—", color: "#FBBF24", icon: BarChart3 },
   ];
 
-  if (authLoading) {
+  if (meQuery.isLoading || !isPlatformAdmin) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500" />

@@ -1,8 +1,10 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { coaches } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
+import { assertSameFederation } from "../_core/federationScope";
 
 export const coachesRouter = router({
   /** Public directory — active coaches only. Staff may pass `includeInactive`. */
@@ -63,7 +65,7 @@ export const coachesRouter = router({
       z.object({
         firstName: z.string(),
         lastName: z.string(),
-        federationId: z.number().optional(),
+        federationId: z.number(),
         clubId: z.number().optional(),
         photoUrl: z.string().optional(),
         email: z.string().optional(),
@@ -98,20 +100,47 @@ export const coachesRouter = router({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const { id, ...data } = input;
-      await db.update(coaches).set(data).where(eq(coaches.id, id));
+      const [existing] = await db
+        .select({ federationId: coaches.federationId })
+        .from(coaches)
+        .where(eq(coaches.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Coach not found" });
+      }
+      assertSameFederation(ctx.user, existing.federationId);
+
+      const { id, federationId: nextFederationId, ...data } = input;
+      if (nextFederationId !== undefined) {
+        assertSameFederation(ctx.user, nextFederationId);
+      }
+
+      await db
+        .update(coaches)
+        .set(nextFederationId !== undefined ? { ...data, federationId: nextFederationId } : data)
+        .where(eq(coaches.id, id));
       return { success: true };
     }),
 
   delete: federationAdminProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      const [existing] = await db
+        .select({ federationId: coaches.federationId })
+        .from(coaches)
+        .where(eq(coaches.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Coach not found" });
+      }
+      assertSameFederation(ctx.user, existing.federationId);
 
       await db.delete(coaches).where(eq(coaches.id, input.id));
       return { success: true };

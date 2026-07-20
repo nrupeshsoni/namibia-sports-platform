@@ -1,8 +1,10 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { highPerformancePrograms } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
+import { assertSameFederation } from "../_core/federationScope";
 
 const programTypeSchema = z.enum([
   "talent_identification",
@@ -99,9 +101,19 @@ export const hpProgramsRouter = router({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      const [existing] = await db
+        .select({ federationId: highPerformancePrograms.federationId })
+        .from(highPerformancePrograms)
+        .where(eq(highPerformancePrograms.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Program not found" });
+      }
+      assertSameFederation(ctx.user, existing.federationId);
 
       const { id, ...updates } = input;
       await db
@@ -113,9 +125,19 @@ export const hpProgramsRouter = router({
 
   delete: federationAdminProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      const [existing] = await db
+        .select({ federationId: highPerformancePrograms.federationId })
+        .from(highPerformancePrograms)
+        .where(eq(highPerformancePrograms.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Program not found" });
+      }
+      assertSameFederation(ctx.user, existing.federationId);
 
       await db
         .delete(highPerformancePrograms)
