@@ -185,7 +185,7 @@ Live enrichment (2026-07-20 Pass 2): **160** rows (158 published, 99 posters); s
 ### sportsplatform_schools, sportsplatform_media, sportsplatform_hp_programs
 See `drizzle/schema.ts` and `drizzle/relations.ts` for full definitions.
 
-`sportsplatform_media` (beta seed `20260720000044`): polymorphic `(entity_type, entity_id)`; flagship federations hold **24** local `/sports/*` + `/logos/*` image rows. No FK to federations.
+`sportsplatform_media` (beta seed `20260720000044` + pass 2 `20260720000054`): polymorphic `(entity_type, entity_id)`; **61** local image rows across flagship + netball/hockey/basketball/boxing/volleyball/tennis/aquatics/judo/handball/beach volleyball federations, plus venue/athlete galleries (`/sports/*`, `/logos/*`, `/venues/*`, `/athletes/*`). No FK to federations.
 
 ## Foreign Key Summary
 - users.federation_id → federations.id

@@ -18,7 +18,7 @@
 | Clubs | 62 active / **16** feds only | Logos **0%**; contacts **0%**; 67 feds empty | **D** | Most federation Clubs pages empty |
 | News | 47 published / **25** feds | Featured images **100%** | **B** | Home/News usable; Pass 2 filled 12 more zero-news majors |
 | Live streams | **4** VODs (0 live / 0 scheduled) | Thumbnails **100%** | **D+** | Nav gated via `useShowLiveNav`; `/live` = Recent Coverage |
-| Media / photos | **0** | — | **F** | No gallery content anywhere |
+| Media / photos | **61** | Flagship + pass 2 galleries | **C+** | `000044`+`000054`; still not wired as rich UX |
 | Athletes | **71** active / **12** feds (80 total) | Photos **100%** | **B−** | Depth OK; most photos sport stock not portraits (`000046`) |
 | Venues | **28** | Photos **100%** | **B** | Major venues covered; capacities sparse on new rows |
 | Schools | 50 | N/A (seed) | **C** | Present; not wired as hero UX |
@@ -145,7 +145,7 @@ Ranked by importance band (Ministry/Commission → Umbrella → Big sports → r
 | News featured_image | **35/35** | Filled via `20260720000031` + `/sports/*` assets |
 | Athlete photos | **0/44** | Profiles initials-only |
 | Venue photos | 8/15 (53%) | Partial |
-| `sportsplatform_media` | **24 rows** | Flagship galleries (`20260720000044`); NFA/NRU/Cricket/Athletics/NNOC/NSC |
+| `sportsplatform_media` | **61 rows** | Flagship + pass 2 (`20260720000044`/`000054`); +netball/hockey/basketball/boxing/volleyball/tennis/aquatics/judo/handball + venues/athlete |
 | Live stream thumbnails | **4/4** | VODs have thumbs; none live/scheduled |
 
 **P0 crest still null (active):** Golf, Karate, Handball, Badminton, Powerlifting, Dance Sport, Horse Racing, Surfing, Taekwondo, Ultimate, + umbrellas NLAS/NUFS/TISAN/NNSSU, + long tail of emerging sports.

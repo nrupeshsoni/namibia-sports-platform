@@ -5,7 +5,7 @@
 - [ ] Verify .env.example is complete and matches actual usage
 - [~] Federation logos — ~49/83 active have logos; +Ice Stock/Boxing NABF (`20260720000038`); +Kickboxing/Sailing/NCRF/Jukskei (`000033`); still null: Karate/Golf/Handball/Badminton/PWFN/Dance/Horse Racing/Taekwondo — see `docs/research/federation_data_gap_list.md`
 - [x] **RLS write policies unsafe for prod** — hardened `20260720000030` + residual `20260720000034` (applied live): open writes dropped; public SELECT = published/active/visible only; staff draft SELECT; write GRANTs revoked from anon/authenticated
-- [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated (`20260720000032`; no real upcoming live found); media: **24** flagship rows (`20260720000044`); news **47/47 images** / **25** feds (`20260720000031` + pass 2 `20260720000047`); events pass 5 majors upcoming (`20260720000041`) → **44** upcoming / **0** missing posters (NHU still 0 forward-dated); clubs **92** across **21** feds (`20260720000048`); athletes **71** active / **100%** photos + venues **28** (`20260720000046`) — still ~62 feds with zero clubs; audit §8 action plan
+- [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated (`20260720000032`; no real upcoming live found); media: **61** rows (`20260720000044` + pass 2 `20260720000054`); news **59/59 images** / **37** feds (`000031` + `000047` + pass 3 `000052`); events pass 6 NHU upcoming (`20260720000053`) → **49** upcoming / NHU **5** forward-dated; clubs **131** across **26** feds (`20260720000048` + pass 4 `20260720000050`); athletes **92** active / **100%** photos + venues **28** (`20260720000046` + coaches/athletes depth `20260720000051`); coaches **35** active / **100%** photos — still ~57 feds with zero clubs; audit §8 action plan
 
 ## ⚠️ HIGH PRIORITY
 - [x] RLS enabled on all `sportsplatform_*` tables — write + SELECT harden complete (`20260720000030`, `20260720000034`)
@@ -28,13 +28,16 @@
 
 ## 🟡 WARNINGS
 - [x] Athletes + venues beta depth — dedupe/slugs/photos + 36 notables; venues 15→28 (`20260720000046`); see `docs/research/athletes_venues_enrichment_batch.md`
-- [ ] Athletes pass 2: individual Wikimedia/official portraits beyond Frankie; netball/hockey depth; optional club_id links
+- [x] Coaches + athletes depth — coaches 16→35 active (100% photos); +21 athletes for netball/hockey/cycling/swim/judo/para (`20260720000051`); see `docs/research/coaches_athletes_depth_batch.md`
+- [ ] Athletes pass 3: more individual Wikimedia/official portraits; optional club_id links; residual judo depth
 - [x] Events calendar enrichment pass 1 — corrections + 22 verified inserts (`20260720000020`/`021`); see `docs/research/events_enrichment_batch.md`
 - [x] Events pass 2 — dedupe 9 duplicates + gap federations (`20260720000035`); live **160** events, **40/83** feds, **99** posters, **43** still zero
 - [x] Events pass 3 — +26 verified zero-fed events (`20260720000037`); live **186** events, **50/83** feds, **117** posters, **33** still zero
 - [x] Events pass 4 — +19 verified (`20260720000039`); live **205** events, **62/83** feds, **131** posters, **21** still zero (see Pass 4 categorization)
 - [x] Events pass 5 — majors upcoming + poster backfill (`20260720000041`); live **217** events / **44** upcoming / **163** posters; NHU still 0 forward-dated (outdoor season start past)
-- [ ] Events pass 6 / NSC ask: remaining 21 zeros; NHU outdoor fixture dates; thin tennis/archery/chess seeds; NSSU federation row
+- [x] Events pass 6 — NHU SA women’s Cape Town tests (`20260720000053`); live **222** events / **49** upcoming; **21** zeros unchanged (no dated public fixtures)
+- [ ] Events pass 7 / NSC ask: remaining 21 zeros; thin tennis/archery/chess seeds; NSSU federation row
+- [x] News pass 3 — +12 zero-news feds (`20260720000052`); live **59** published / **37** feds / **46** still zero news
 - [ ] Admin page: connect to real tRPC, remove mock data
 - [ ] Empty states for all list views
 - [ ] Loading states to prevent double-click submit
@@ -61,3 +64,4 @@
 - 48h ROI: (1) ~~harden RLS writes~~ done `20260720000030`+`000034` (2) seed upcoming for Big-8 (3) news+images (4) ~~hide or seed Live~~ done — seed + nav gate (`20260720000032`) (5) P0 crests
 - [x] Seed verified Live streams + de-emphasize empty Live nav — migration `20260720000032`; `useShowLiveNav`; `/live` Recent Coverage
 - [x] Seed flagship `sportsplatform_media` (≥20) — migration `20260720000044` (**24** rows); scheduled live skipped (no verified upcoming URLs)
+- [x] Expand `sportsplatform_media` ≥50 — pass 2 `20260720000054` (**61** rows; +netball/hockey/basketball/boxing/volleyball/tennis/aquatics/judo/handball + venues/athlete); schools sport notes skipped (no verified per-school research)

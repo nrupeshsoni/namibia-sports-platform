@@ -325,3 +325,42 @@ Applied live to `rbibqjgsnrueubrvyqps` via Supabase MCP (`events_pass5_majors_up
 - NHU outdoor finals / next round — season ongoing in DB but no dated public fixture after 20 Jul
 - NNPL playoffs / Round 24+ — Round 23 reported 18 Jul; no next-round date published
 - NRU Gold Cup 2026 — 2025 edition verified; no 2026 edition announced
+
+---
+
+## Pass 6 — 2026-07-20 (NHU upcoming + zero-fed re-hunt)
+
+Migration: `supabase/migrations/20260720000053_events_pass6_nhu_upcoming.sql`  
+Applied live to `rbibqjgsnrueubrvyqps` via Supabase MCP (`events_pass6_nhu_upcoming`).
+
+### Platform totals
+
+| Metric | After Pass 5 | After Pass 6 |
+|--------|--------------|--------------|
+| Total events | 217 | **222** |
+| Published | 215 | **220** |
+| Upcoming (start ≥ 2026-07-20) | 44 | **49** |
+| With poster (all) | 163 | **168** |
+| Active feds with events | 62 / 83 | **62 / 83** |
+| Zero-event active feds | 21 | **21** |
+
+### NHU upcoming (was 0 forward-dated)
+
+| Event | Dates | Venue |
+|-------|-------|-------|
+| SA vs Namibia Women’s Hockey Test Series | 20–24 Jul 2026 | Cape Town (series) |
+| Test 1 | 20 Jul 2026, 10:00 | Elkanah House High School |
+| Test 2 | 21 Jul 2026, 17:00 | Elkanah House High School |
+| Test 3 | 23 Jul 2026, 17:00 | Elkanah House High School |
+| Test 4 | 24 Jul 2026, 14:00 | Hartleyvale Stadium |
+
+### Sources (Pass 6)
+
+- SA Hockey Association: https://sahockey.co.za/2026/07/08/south-africa-to-host-namibia-in-womens-test-series-as-fih-world-cup-preparation-continues/
+- gsport: https://gsport.co.za/cape-town-to-stage-south-africas-four-match-hockey-test-series-against-namibia/
+
+### Zero-event federations — re-hunt (no inserts)
+
+Still **21** zeros. No new dated 2025–27 public fixtures found for: badminton, baseball, ice-stock, lacrosse, footgolf, kendo, korfball, nlas, martial-arts, modern-pentathlon, mountaineering, muaythai, orienteering, practical-shooting, speed-hiking, teqball, nufs, nawisa, petanque, roller-sports, softball.
+
+**Skipped / not used:** Junior Hockey Series Harare Aug 2026 (Namibia participation not verified); RCFA Namib War IV already in DB (`namibia-full-contact-martial-arts`); powerlifting nationals 25 Jul / archery AGA Botswana 12–15 Aug verified but those feds already had events (out of zero-fed scope).

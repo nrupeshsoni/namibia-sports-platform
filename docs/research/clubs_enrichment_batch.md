@@ -231,3 +231,55 @@ NFA crests with files: African Stars, Black Africa, Blue Waters, Civics, Eeshoke
 | Clubs total | 62 | **92** (+30) |
 | Feds with clubs | 16 | **21** (+5) |
 | With website | 22 | **31** (+9 this pass) |
+
+---
+
+## Pass 4 — clubs expansion (2026-07-20)
+
+**Migration:** `supabase/migrations/20260720000050_clubs_expansion_pass4.sql`  
+**Scope:** Insert **39** verified named clubs. **5** previously empty federations get first clubs. Logos = sport-correct `/sports/*`. Contacts only from primary federation/club pages.
+
+### Baseline → after (live)
+
+| Metric | Before | After |
+|--------|-------:|------:|
+| Clubs total | 92 | **131** (+39) |
+| Federations with clubs | 21 | **26** (+5) |
+| New federations covered | — | chess, motorsport, equestrian, sailing, handball |
+
+### New federations (19 clubs)
+
+| Fed slug | Clubs | Sources |
+|----------|-------|---------|
+| `chess-namibia` | Capablanca Chess Club; Rubinstein Chess Academy; NUST Chess Club; Zandell Chess Academy | Africa Chess Media / New Era league; rubinstein.com.na; nust.na chess society |
+| `motorsport-namibia` | Windhoek Motor Club; Swakopmund Karters; Walvis Bay Motor Club; Namibian Enduro Club; Swakopmund Motor Club; Tsumeb Motor Club | NMSF affiliated clubs page |
+| `equestrian-namibia` | Gymkhana Club Windhoek; Reiter Verein Swakopmund; Walvis Bay Equestrian Club; Reit Club Okahandja; Auas View Equestrian Club | NAMEF affiliation / club pages |
+| `sailing-namibia` | Walvis Bay Yacht Club | wbyc.com.na + club PDFs (wbyc@iway.na) |
+| `namibia-handball` | Titans; City Pillars; Swallows Handball Club | The Namibian — Redzone Handball Clash |
+
+### Expansions on existing feds (20 clubs)
+
+| Fed | Added | Sources |
+|-----|-------|---------|
+| `swimming-namibia` | Marlins; Infinity Aquatic; Aqua Swimming & Fitness; Dolphins SC; Phoenix SC; Swakopmund SC; Flippers SC | NASFED 2024 AGM; infinity-aquatics.com; aquaswimmingclub.com.na |
+| `namibia-cycling` | Windhoek Pedal Power; Rock & Rut; Spoke Stars BMX | NCF affiliated clubs; windhoekpedalpower.com |
+| `cricket-namibia` | Welwitschia; Zebra; CCD; Blue Waters Cricket Club | cricketnamibia.com/clubs |
+| `nru` | Kudus; UNAM; Grootfontein; Dolphin Rugby Club | FNB Rugby League Republic |
+| `karate-namibia` | Namibia Japan Karate Association (JKA); Shotokan Karate Swakopmund | namjkakarate.com; Shotokan Swakopmund dojo |
+
+### Explicitly not applied
+
+| Claim | Why |
+|-------|-----|
+| Triathlon named clubs | NTF allows clubs but no public named club register |
+| Gymkhana personal emails | NAMEF page unreliable at fetch — website only |
+| Handball phones | Press names clubs; no primary club sites |
+| Athletics extras | No new verified named clubs beyond existing six |
+| Weekend Chess Academy / TWCA | Deferred vs Capablanca/Zandell |
+
+### Counts after Pass 4 (live)
+
+| Metric | Pass 3 | Pass 4 |
+|--------|-------:|------:|
+| Clubs total | 92 | **131** (+39) |
+| Feds with clubs | 21 | **26** (+5) |

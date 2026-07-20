@@ -87,3 +87,41 @@ Football, rugby, cricket, athletics, netball, hockey, boxing, Olympic (NNOC), Pa
 ## Sport coverage added
 
 Basketball, cycling, table tennis, tennis, golf, wrestling, squash, judo, gymnastics, triathlon, chess, bowls.
+
+---
+
+# Pass 3 — 2026-07-20
+
+**Migration:** `supabase/migrations/20260720000052_news_enrichment_pass3.sql`  
+**Remote MCP name:** `news_enrichment_pass3`  
+**DB mutated:** Yes
+
+## Baseline → after (Pass 3)
+
+| Metric | Before Pass 3 | After Pass 3 |
+|--------|--------------:|-------------:|
+| Published news | 47 | **59** |
+| With `featured_image` | 47 | **59** |
+| Distinct federations (linked) | 25 | **37** |
+| Active feds still at 0 news | 58 | **46** |
+
+## New articles (12) — all previously zero-news federations
+
+| # | Slug | Federation | Image | Primary source |
+|--:|------|------------|-------|----------------|
+| 1 | `handball-swakopmund-regional-tournament-2025` | Handball | `/sports/handball.jpg` | [Confidente](https://www.confidentenamibia.com/regional-handball-tourney-set-coast) |
+| 2 | `namibia-karate-ufak-angola-medals-2026` | Karate | `/sports/karate.jpg` | [NBC](https://www.nbcnews.na/node/116773) |
+| 3 | `namibia-zone-vi-beach-volleyball-tour-2026` | Beach Volleyball | `/sports/beach-volleyball.jpg` | [New Era](https://neweralive.na/namibia-stages-zone-vi-beach-volleyball-tour/) |
+| 4 | `mabuza-taekwondo-african-open-bronze-2025` | Taekwondo | `/sports/taekwondo.jpg` | [New Era](https://neweralive.na/namibias-taekwondo-federation-eyes-global-stage/) |
+| 5 | `weskus-4x4-vasbyt-motorsport-finale-2025` | Motorsport | `/sports/motorsport.jpg` | [The Namibian](https://www.namibian.com.na/weskus-4x4-vasbyt-wraps-up-2025-motorsport-season/) |
+| 6 | `fei-world-jumping-challenge-swakopmund-2026` | Equestrian | `/sports/equestrian.jpg` | [New Era](https://neweralive.na/nam-riders-eye-global-standards-at-fei-world-jumping-challenge/) |
+| 7 | `kambonde-archery-aga-botswana-2026` | Archery | `/sports/archery.jpg` | [New Era](https://neweralive.na/kambonde-takes-charge-namibia-targets-african-archery-glory/) |
+| 8 | `namibia-fencing-gaborone-easter-bronzes-2026` | Fencing | `/sports/fencing.jpg` | [New Era](https://neweralive.na/namibia-secures-bronze-in-gaborone/) |
+| 9 | `namibia-powerlifting-national-qualifier-2026` | Powerlifting | `/sports/powerlifting.jpg` | [New Era](https://neweralive.na/national-powerlifting-showdown-awaits/) |
+| 10 | `namibia-bodybuilding-wff-africa-medals-2025` | Bodybuilding | `/sports/bodybuilding.jpg` | [New Era](https://neweralive.na/namibian-bodybuilders-claim-gold-silver/) |
+| 11 | `namibia-bass-angling-world-championships-2025` | Angling | `/sports/fishing.jpg` | [New Era](https://neweralive.na/namibian-bass-anglers-cast-for-glory-on-world-stage/) |
+| 12 | `namibia-darts-region5-five-medals-2025` | Darts | `/sports/darts-action.jpg` | [New Era](https://neweralive.na/darts-team-collects-five-medals/) |
+
+## Sport coverage added
+
+Handball, karate, beach volleyball, taekwondo, motorsport, equestrian, archery, fencing, powerlifting, bodybuilding, angling, darts.
