@@ -3,14 +3,36 @@
 ## 🛑 CRITICAL BLOCKERS
 - [x] Federation pages broken (/federation/karate-namibia) — fixed getBySlug fallbacks, migration for slugs, Home→tRPC
 - [ ] Verify .env.example is complete and matches actual usage
+- [~] Federation logos — ~49/83 active have logos; +Ice Stock/Boxing NABF (`20260720000038`); +Kickboxing/Sailing/NCRF/Jukskei (`000033`); still null: Karate/Golf/Handball/Badminton/PWFN/Dance/Horse Racing/Taekwondo — see `docs/research/federation_data_gap_list.md`
+- [x] **RLS write policies unsafe for prod** — hardened `20260720000030` + residual `20260720000034` (applied live): open writes dropped; public SELECT = published/active/visible only; staff draft SELECT; write GRANTs revoked from anon/authenticated
+- [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated (`20260720000032`; no real upcoming live found); media: **24** flagship rows (`20260720000044`); news **35/35 images**; events pass 5 majors upcoming (`20260720000041`) → **44** upcoming / **0** missing posters (NHU still 0 forward-dated); clubs logos **62/62** + any-contact **22/62** (`20260720000042` + contacts pass 2 `20260720000045`); clubs still only across 16 feds — audit §8 action plan
 
 ## ⚠️ HIGH PRIORITY
-- [ ] Add RLS policies to all Supabase tables
+- [x] RLS enabled on all `sportsplatform_*` tables — write + SELECT harden complete (`20260720000030`, `20260720000034`)
 - [ ] Implement WhatsApp subscribe/unsubscribe routers
 - [ ] Add rate limiting to auth and public mutation endpoints
-- [ ] Ensure all list queries have .limit() (news: limit 50, verify others)
+- [ ] Ensure all list queries have .limit() (news: limit 50, audit others)
+- [x] Reconcile federation roster to NSC 2026 list (85 entities; migration `20260720000001`)
+- [x] Populate new federation descriptions/contacts from NSC Feb 2025 extract (migration `20260720000002`)
+- [x] Restore recoverable logos + null broken paths (migration `20260720000003`)
+- [x] Priority crests: Ministry, Paralympic, NRU, Bowls (migration `20260720000004`)
+- [x] More crests: NSC, Volleyball, Chess, Judo + batch (migration `20260720000010`)
+- [x] Padel leadership + Ultimate/Billiards contacts from verified sources
+- [~] Research contacts for Footgolf, Western Mounted Games + remaining unverified federations — Footgolf leadership + Handball email/phone (`20260720000006`) + Surfing ISA contacts (`20260720000011`); 10 rows still null email+phone; see `docs/research/contacts_enrichment_batch.md`
+- [x] Enrich federation metadata (unique abbrs + thin descriptions) — migration `20260720000007`; see `docs/research/metadata_enrichment_batch.md`
+- [x] Resolve Aquatics/Swimming + Power/Weightlifting duplicates + crest brand colors — migration `20260720000013`; see `docs/research/naming_duplicates_resolution.md`
+- [x] Soft-merge lifecycle: `is_active` + `merged_into_slug` + public list filter + slug redirect — migration `20260720000017`
+- [~] Schema: `established_year`, `international_affiliation`, city/region — still draft in `docs/research/proposed_federation_schema_extensions.md`
+- [~] Brand colors: 15/85 filled; continue as logos land
+- [x] Mark `client/src/data/federations.ts` FALLBACK-ONLY (67 vs DB 85); fix broken hero image paths
 
 ## 🟡 WARNINGS
+- [x] Events calendar enrichment pass 1 — corrections + 22 verified inserts (`20260720000020`/`021`); see `docs/research/events_enrichment_batch.md`
+- [x] Events pass 2 — dedupe 9 duplicates + gap federations (`20260720000035`); live **160** events, **40/83** feds, **99** posters, **43** still zero
+- [x] Events pass 3 — +26 verified zero-fed events (`20260720000037`); live **186** events, **50/83** feds, **117** posters, **33** still zero
+- [x] Events pass 4 — +19 verified (`20260720000039`); live **205** events, **62/83** feds, **131** posters, **21** still zero (see Pass 4 categorization)
+- [x] Events pass 5 — majors upcoming + poster backfill (`20260720000041`); live **217** events / **44** upcoming / **163** posters; NHU still 0 forward-dated (outdoor season start past)
+- [ ] Events pass 6 / NSC ask: remaining 21 zeros; NHU outdoor fixture dates; thin tennis/archery/chess seeds; NSSU federation row
 - [ ] Admin page: connect to real tRPC, remove mock data
 - [ ] Empty states for all list views
 - [ ] Loading states to prevent double-click submit
@@ -31,3 +53,9 @@
 ## API Vulnerabilities (Phase 2)
 - Add timeout to external API calls (Anthropic, WhatsApp)
 - Ensure Zod validation on all procedure inputs
+
+## Data / beta readiness (2026-07-20 audit)
+- Full scorecard: `docs/research/beta_readiness_data_audit.md` (~42/100; not public-beta ready)
+- 48h ROI: (1) ~~harden RLS writes~~ done `20260720000030`+`000034` (2) seed upcoming for Big-8 (3) news+images (4) ~~hide or seed Live~~ done — seed + nav gate (`20260720000032`) (5) P0 crests
+- [x] Seed verified Live streams + de-emphasize empty Live nav — migration `20260720000032`; `useShowLiveNav`; `/live` Recent Coverage
+- [x] Seed flagship `sportsplatform_media` (≥20) — migration `20260720000044` (**24** rows); scheduled live skipped (no verified upcoming URLs)

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { getDb } from "../db";
-import { federations } from "../../drizzle/schema";
+import { federations, type Federation } from "../../drizzle/schema";
 import { eq, like, and, ilike } from "drizzle-orm";
 import { publicProcedure, adminProcedure, router } from "../_core/trpc";
 
@@ -12,7 +12,28 @@ function nameToSlug(name: string): string {
     .replace(/[^a-z0-9-]/g, "");
 }
 
+type Db = NonNullable<Awaited<ReturnType<typeof getDb>>>;
+
+/**
+ * If the row is inactive and has merged_into_slug, return the canonical federation.
+ * Preserves old public URLs after soft-merges.
+ */
+async function resolveCanonical(db: Db, row: Federation | undefined): Promise<Federation | null> {
+  if (!row) return null;
+  if (row.isActive) return row;
+  if (!row.mergedIntoSlug) return null;
+
+  const [canonical] = await db
+    .select()
+    .from(federations)
+    .where(eq(federations.slug, row.mergedIntoSlug))
+    .limit(1);
+
+  return canonical ?? null;
+}
+
 export const federationsRouter = router({
+  /** Public directory — active federations only (hides soft-merged duplicates). */
   list: publicProcedure
     .input(
       z
@@ -27,7 +48,7 @@ export const federationsRouter = router({
         const db = await getDb();
         if (!db) return [];
 
-        const conditions = [];
+        const conditions = [eq(federations.isActive, true)];
         if (input?.search) {
           conditions.push(like(federations.name, `%${input.search}%`));
         }
@@ -35,32 +56,41 @@ export const federationsRouter = router({
           conditions.push(eq(federations.type, input.type));
         }
 
-        const result = await db
+        return await db
           .select()
           .from(federations)
-          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .where(and(...conditions))
           .orderBy(federations.id);
-
-        return result;
       } catch (e) {
         console.error("[federations.list]", e);
         return [];
       }
     }),
 
+  /**
+   * Admin-only full list including inactive/merged rows.
+   * Public `list` never returns inactive federations.
+   */
+  listAll: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    return await db.select().from(federations).orderBy(federations.id);
+  }),
+
+  /** Returns row by id as stored (including inactive). Admin CRUD relies on this. */
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) return null;
 
-      const result = await db
+      const [row] = await db
         .select()
         .from(federations)
         .where(eq(federations.id, input.id))
         .limit(1);
 
-      return result[0] || null;
+      return row ?? null;
     }),
 
   getByAbbreviation: publicProcedure
@@ -69,13 +99,13 @@ export const federationsRouter = router({
       const db = await getDb();
       if (!db) return null;
 
-      const result = await db
+      const [row] = await db
         .select()
         .from(federations)
         .where(eq(federations.abbreviation, input.abbreviation))
         .limit(1);
 
-      return result[0] || null;
+      return resolveCanonical(db, row);
     }),
 
   getBySlug: publicProcedure
@@ -94,7 +124,7 @@ export const federationsRouter = router({
           .where(eq(federations.slug, input.slug))
           .limit(1);
 
-        if (result[0]) return result[0];
+        if (result[0]) return resolveCanonical(db, result[0]);
 
         // 2. Case-insensitive slug match (handles "Karate" vs "karate")
         result = await db
@@ -103,7 +133,7 @@ export const federationsRouter = router({
           .where(ilike(federations.slug, input.slug))
           .limit(1);
 
-        if (result[0]) return result[0];
+        if (result[0]) return resolveCanonical(db, result[0]);
 
         // 3. Abbreviation match (e.g. "kna" for Karate Namibia)
         result = await db
@@ -112,7 +142,7 @@ export const federationsRouter = router({
           .where(ilike(federations.abbreviation, input.slug))
           .limit(1);
 
-        if (result[0]) return result[0];
+        if (result[0]) return resolveCanonical(db, result[0]);
 
         // 4. fed-{id} fallback
         const fedIdMatch = input.slug.match(/^fed-(\d+)$/);
@@ -122,13 +152,13 @@ export const federationsRouter = router({
             .from(federations)
             .where(eq(federations.id, parseInt(fedIdMatch[1], 10)))
             .limit(1);
-          if (result[0]) return result[0];
+          if (result[0]) return resolveCanonical(db, result[0]);
         }
 
         // 5. Name-derived slug: "Karate Namibia" → "karate-namibia"
         const all = await db.select().from(federations);
         const found = all.find((f) => nameToSlug(f.name) === slugLower);
-        return found ?? null;
+        return resolveCanonical(db, found);
       } catch (e) {
         console.error("[federations.getBySlug]", e);
         return null;
@@ -181,6 +211,8 @@ export const federationsRouter = router({
         instagram: z.string().optional(),
         twitter: z.string().optional(),
         youtube: z.string().optional(),
+        isActive: z.boolean().optional(),
+        mergedIntoSlug: z.string().nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {

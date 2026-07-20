@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 - Page Not Found</title>
+
+<style>
+
+:root{
+    --primary:#0b51a1;
+    --primary-dark:#083b75;
+    --accent:#ffed00;
+    --light:#f5f8ff;
+}
+
+body{
+    margin:0;
+    padding:0;
+    background:
+    radial-gradient(circle at top,
+        #2b7de0 0%,
+        #0b51a1 45%,
+        #083b75 100%);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:'Segoe UI',sans-serif;
+}
+
+.error-container{
+    width:90%;
+    max-width:900px;
+    text-align:center;
+    color:#fff;
+}
+
+.error-hda{
+    background:rgba(11,81,161,.25);
+    border:2px solid rgba(255,237,0,.25);
+    border-radius:20px;
+    padding:30px;
+    backdrop-filter:blur(10px);
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.25);
+}
+
+
+.error-center{
+    flex:1;
+}
+
+.error-code{
+    font-size:120px;
+    font-weight:900;
+    line-height:1;
+    color:var(--accent);
+     text-shadow:
+        0 0 10px rgba(255,237,0,.5),
+        0 0 30px rgba(255,237,0,.4);
+}
+
+.not-found{
+    font-size:18px;
+    letter-spacing:4px;
+    font-weight:700;
+    color:#dfe7ff;
+}
+
+.excl-icon{
+    font-size:70px;
+    margin-top:30px;
+    animation:bounce 2s infinite;
+}
+
+h2{
+    margin-top:20px;
+    font-size:34px;
+    font-weight:700;
+}
+
+p{
+    max-width:650px;
+    margin:15px auto 35px;
+    color:#d6dff8;
+    line-height:1.8;
+    font-size:16px;
+}
+
+.action-buttons{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.action-buttons a{
+    text-decoration:none;
+    padding:14px 35px;
+    border-radius:10px;
+    font-weight:700;
+    transition:.3s;
+}
+
+.btn-primary{
+    background:var(--accent);
+    color:#000;
+}
+
+.btn-primary:hover{
+    transform:translateY(-3px);
+}
+
+.btn-secondary{
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.2);
+    color:#fff;
+}
+
+.btn-secondary:hover{
+    background:rgba(255,255,255,.2);
+}
+
+@keyframes bounce{
+    0%,100%{
+        transform:translateY(0);
+    }
+    50%{
+        transform:translateY(-12px);
+    }
+}
+
+@media(max-width:768px){
+
+    .error-hda{
+        flex-direction:column;
+        gap:15px;
+    }
+
+    .error-code{
+        font-size:80px;
+    }
+
+    h2{
+        font-size:24px;
+    }
+
+    .excl-icon{
+        font-size:50px;
+    }
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="error-container">
+
+    <div class="error-hda">
+        <div class="error-center">
+            <div class="error-code">404</div>
+            <div class="not-found">ERROR</div>
+        </div>
+    </div>
+
+    <div class="excl-icon">
+        ⚠️
+    </div>
+
+    <h2>Oops! Page Not Found</h2>
+
+    <p>
+       The page, module, plugin, or resource you are looking for may have been removed,
+        renamed, or is temporarily unavailable.
+    </p>
+
+    <div class="action-buttons">
+        <a href="/" class="btn-primary">
+            Home
+        </a>
+
+        <a href="javascript:history.back()" class="btn-secondary">
+            Go Back
+        </a>
+    </div>
+
+</div>
+
+
+</body>
+</html>

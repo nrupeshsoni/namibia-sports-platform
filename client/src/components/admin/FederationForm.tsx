@@ -68,11 +68,19 @@ export function FederationForm({ mode, initialData, onSuccess }: Props) {
       setForm((p) => ({ ...p, [field]: e.target.value }));
 
   const createMut = trpc.federations.create.useMutation({
-    onSuccess: () => { utils.federations.list.invalidate(); onSuccess(); },
+    onSuccess: () => {
+      utils.federations.list.invalidate();
+      utils.federations.listAll.invalidate();
+      onSuccess();
+    },
     onError: (err) => setError(err.message),
   });
   const updateMut = trpc.federations.update.useMutation({
-    onSuccess: () => { utils.federations.list.invalidate(); onSuccess(); },
+    onSuccess: () => {
+      utils.federations.list.invalidate();
+      utils.federations.listAll.invalidate();
+      onSuccess();
+    },
     onError: (err) => setError(err.message),
   });
 

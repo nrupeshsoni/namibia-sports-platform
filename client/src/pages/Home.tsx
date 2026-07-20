@@ -8,6 +8,7 @@ import type { Federation as StaticFederation } from '../data/federations';
 import { ChevronDown, Search, Menu, Loader2, MapPin, Users, Calendar, Trophy, X, Filter, Clock, Newspaper } from 'lucide-react';
 import { trpc } from '../lib/trpc';
 import { fadeUp, staggerContainer, scaleIn } from '../lib/animations';
+import { useShowLiveNav } from '../hooks/useShowLiveNav';
 
 const EVENT_TYPE_IMAGES: Record<string, string> = {
   competition: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800&q=80',
@@ -58,7 +59,7 @@ function toDisplayFederation(fed: TrpcFederation): StaticFederation {
     category: fed.type,
     shortName: shortName || fed.name.toUpperCase(),
     description: fed.description || undefined,
-    image: fed.backgroundImage || fed.logo || '/hero/stadium.jpg',
+    image: fed.backgroundImage || fed.logo || '/sports/namibia-football.jpg',
     president: fed.president || undefined,
     secretary: fed.secretaryGeneral || undefined,
     email: fed.email || undefined,
@@ -100,6 +101,17 @@ export default function Home() {
   const fedList = federationQuery.data ?? [];
   const fedError = federationQuery.error;
   const fedLoading = federationQuery.isLoading;
+  const showLiveNav = useShowLiveNav();
+  const desktopNavLinks = useMemo(
+    () =>
+      [
+        { label: 'Events', href: '/events' },
+        { label: 'News', href: '/news' },
+        { label: 'Live', href: '/live' },
+        { label: 'Map', href: '/map' },
+      ].filter((link) => showLiveNav || link.href !== '/live'),
+    [showLiveNav]
+  );
 
   // Sync federations when tRPC succeeds; use fedLoading for grid
   useEffect(() => {
@@ -212,12 +224,7 @@ export default function Home() {
             <h1 className="text-white text-2xl font-serif tracking-[0.3em]">NAMIBIA</h1>
             {/* Desktop nav pills */}
             <nav className="hidden md:flex items-center gap-1">
-              {[
-                { label: 'Events', href: '/events' },
-                { label: 'News', href: '/news' },
-                { label: 'Live', href: '/live' },
-                { label: 'Map', href: '/map' },
-              ].map((link) => (
+              {desktopNavLinks.map((link) => (
                 <Link key={link.href} href={link.href}>
                   <span
                     className="px-4 py-1.5 rounded-full text-sm text-gray-300 hover:text-white cursor-pointer transition-all duration-200"

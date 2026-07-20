@@ -1,0 +1,285 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1"><title>World Athletics | Live Results</title><meta name="description" content="Follow competition results of your favourite athletes and countries lives"><link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300,400,400i,700,700i&display=swap" rel="stylesheet"><script src="/config.js"></script><script>if (/msie\ [0-9]{1}/i.test(navigator.userAgent)) {
+      alert('The CIS does not currently support Internet Explorer. Please switch to Chrome, Firefox or Edge');
+    }</script><script>const trackingId = window.GLOBAL_CONFIG.GA_TRACKING_ID || 'UA-17416596-20'
+
+    var script = document.createElement('script');
+    script.src = 'https://www.googletagmanager.com/gtag/js?id='+trackingId;
+    script.async = 'async';
+    document.getElementsByTagName('head')[0].appendChild(script);
+
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', trackingId);</script><style>[data-amplify-authenticator] [data-amplify-container] {
+      min-width: 233px;
+      z-index: 2;
+      position: relative;
+      margin: 0 auto;
+      font-family: 'World Athletics', sans-serif;
+    }
+
+    .amplify-heading {
+      color: black;
+    }
+
+    .amplify-radio {
+      color: #666;
+      padding: 15px 0;
+      display: flex;
+    }
+
+    .amplify-radiogroupfield .amplify-label {
+      display: block;
+      color: #666;
+    }
+
+    [data-amplify-authenticator] fieldset {
+      border-width: 0;
+      padding: 0;
+      margin: 0;
+    }
+
+    .amplify-label {
+      display: none;
+    }
+
+    .amplify-field-group__field-wrapper {
+      width: 100%;
+      display: flex;
+    }
+
+    .amplify-input {
+      min-height: 30px;
+      margin-bottom: 10px;
+      padding: 0 10px;
+      border: 1px solid #ccc !important;
+      flex: 1;
+      font-family: 'World Athletics', sans-serif;
+    }
+
+    .amplify-passwordfield .amplify-field-group {
+      display: flex;
+    }
+
+    .amplify-passwordfield .amplify-field-group button {
+      background-color: white;
+      padding: 3px 3px 0;
+      border: 1px solid #ccc;
+      background: none;
+      border-left: none;
+      min-height: 32px;
+      border-left: none;
+    }
+
+    .amplify-passwordfield .amplify-field-group button .amplify-icon svg {
+      height: 19px !important;
+      width: 16px !important;
+    }
+
+    [data-amplify-router] {
+      box-shadow: 0px 2px 6px hsla(210, 50%, 10%, 0.15);
+      padding: 15px;
+      background-color: #fff;
+    }
+
+    h3.amplify-heading {
+      margin: 0;
+      padding: 0 0 10px 0;
+      font-size: 18px;
+    }
+
+    .amplify-tabs {
+      display: none !important;
+    }
+
+    .amplify-button[data-variation=primary] {
+      background-color: #ff873c;
+      border: 1px solid #ff873c;
+      padding: 5px 10px;
+      margin-bottom: 10px;
+      clear: both;
+      display: block;
+    }
+
+    .amplify-button[data-variation=primary]:hover {
+      color: #ff873c;
+      border: 1px solid #0E0E0E;
+      background-color: #0E0E0E;
+    }
+
+    .amplify-button[data-variation=link] {
+      color: #ff873c;
+      border: none;
+      padding: 3px 10px 3px 0;
+      background: none;
+    }
+
+    #large-sign-in {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    #large-sign-in .amplify-button[data-variation=primary] {
+      font-family: 'World Athletics Bold', sans-serif;
+      background-color: #76FF03;
+      border: 1px solid #76FF03;
+    }
+
+    #large-sign-in .amplify-button[data-variation=link] {
+      color: #76FF03;
+      font-size: small;
+      display: flex;
+    }
+
+    #large-sign-in [data-amplify-authenticator] [data-amplify-container] {
+      padding: 20px 15px 20px;
+    }
+
+    #large-sign-in .amplify-heading {
+      color: #A5FB64;
+    }
+
+    @media only screen and (max-width: 600px) {
+      #large-sign-in [data-amplify-authenticator] [data-amplify-container] {
+        padding: 30px 10px 20px;
+      }
+    }
+
+    #large-sign-in [data-amplify-router] {
+      box-shadow: none;
+      padding: 15px 15px 20px;
+      background-color: inherit;
+    }
+
+    #large-sign-in .amplify-input {
+      padding: 12px 10px;
+      color:white;
+      font-size: 14px;
+      min-height: 19px;
+      border: 1px solid #BD94FF !important;
+    }
+
+    #large-sign-in .amplify-icon {
+      color: white;
+    }
+
+    #large-sign-in .amplify-passwordfield .amplify-field-group button {
+      height: calc(100% - 10px) !important;
+    }
+
+    #large-sign-in .amplify-passwordfield .amplify-field-group button .amplify-icon svg {
+      height: 19px !important;
+      width: 35px !important;
+    }
+
+    #large-sign-in .amplify-button[data-variation=primary] {
+      font-size: 16px;
+      margin: 10px 0;
+      padding: 6px 25px;
+      clear: both;
+      display: block;
+      cursor: pointer;
+    }
+
+    #large-sign-in .amplify-button[data-variation=link] {
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .amplify-button[data-variation=primary]:disabled {
+      position: relative;
+      background-color: rgba(255, 135, 60, 0.9);
+      color: #666;
+      border: 1px solid rgba(255, 135, 60, 0.9);
+    }
+
+    .amplify-button[data-variation=primary]:disabled:after {
+      animation: 1.5s linear infinite spinner;
+      animation-play-state: inherit;
+      border: solid 4px #cfd0d1;
+      border-bottom-color: #ff873c;
+      border-radius: 50%;
+      content: "";
+      height: 18px;
+      width: 18px;
+      position: absolute;
+      top: 50%;
+      right: -44px;
+      transform: translate3d(-50%, -50%, 0);
+      will-change: transform;
+    }
+
+    @keyframes spinner {
+      0% {
+        transform: translate3d(-50%, -50%, 0) rotate(0deg);
+      }
+
+      100% {
+        transform: translate3d(-50%, -50%, 0) rotate(360deg);
+      }
+    }
+
+    .amplify-alert {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #ccc;
+      padding: 10px;
+      margin: 0 0 10px;
+    }
+
+    .amplify-alert__heading {
+      display: block;
+    }
+
+    .amplify-alert__dismiss {
+      color: initial !important;
+      padding: 0 !important;
+    }
+
+    .amplify-alert .amplify-icon svg {
+      height: 20px;
+      width: 20px;
+    }
+
+    .amplify-alert__body {
+      padding: 0 0 0 12px;
+    }
+
+    .amplify-alert .amplify-icon {
+      height: 19px !important;
+    }
+
+    #large-sign-in .amplify-alert .amplify-button[data-variation=link] {
+      width: auto
+    }
+
+    .amplify-text[data-variation=error] {
+      color: #bd1414;
+      display: block;
+    }
+
+    .amplify-alert[data-variation=info] {
+      color: #425d99;
+      background-color: #b8cef9;
+    }
+
+    .amplify-alert[data-variation=error] {
+      color: #660000;
+      background-color: #f5bcbc;
+    }
+
+    .amplify-alert[data-variation=warning] {
+      color: #663401;
+      background-color: #f5d9bb;
+    }
+
+    .amplify-alert[data-variation=success] {
+      color: #365e3d;
+      background-color: #d6f5db;
+    }</style><script defer="defer" src="/common-2fcd9deea84a0c273b47.js?t=1777311852990"></script><script defer="defer" src="/react-2fcd9deea84a0c273b47.js?t=1777311852990"></script><script defer="defer" src="/main-2fcd9deea84a0c273b47.js?t=1777311852990"></script><link href="/main.css" rel="stylesheet"></head><body style="background-color:#333;"><main id="root"></main></body></html>

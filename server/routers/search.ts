@@ -43,9 +43,12 @@ export const searchRouter = router({
             })
             .from(federations)
             .where(
-              or(
-                ilike(federations.name, pattern),
-                ilike(federations.slug, pattern)
+              and(
+                eq(federations.isActive, true),
+                or(
+                  ilike(federations.name, pattern),
+                  ilike(federations.slug, pattern)
+                )
               )
             )
             .limit(LIMIT_PER_TYPE),

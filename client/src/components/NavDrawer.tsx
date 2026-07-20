@@ -1,15 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'wouter';
 import { X, Facebook, Twitter, Instagram, LogOut, LogIn } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useShowLiveNav } from '@/hooks/useShowLiveNav';
 
 interface NavDrawerProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const NAV_LINKS = [
+const BASE_NAV_LINKS = [
   { label: 'Home', href: '/' },
   { label: 'Events', href: '/events' },
   { label: 'News', href: '/news' },
@@ -27,6 +28,11 @@ const SOCIAL_LINKS = [
 export default function NavDrawer({ isOpen, onClose }: NavDrawerProps) {
   const { user, signOut } = useAuth();
   const [location] = useLocation();
+  const showLive = useShowLiveNav();
+  const NAV_LINKS = useMemo(
+    () => (showLive ? BASE_NAV_LINKS : BASE_NAV_LINKS.filter((l) => l.href !== '/live')),
+    [showLive]
+  );
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {

@@ -1,12 +1,14 @@
 /**
  * Mobile bottom navigation bar — visible on small screens only (md:hidden).
- * Provides quick access to Events, News, Live, Federations, Home.
+ * Provides quick access to Events, News, Live (when live/scheduled), Federations, Home.
  */
 
+import { useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { Home, Calendar, Newspaper, Radio, Users } from "lucide-react";
+import { useShowLiveNav } from "@/hooks/useShowLiveNav";
 
-const NAV_ITEMS = [
+const BASE_NAV_ITEMS = [
   { label: "Home", href: "/", icon: Home },
   { label: "Events", href: "/events", icon: Calendar },
   { label: "News", href: "/news", icon: Newspaper },
@@ -18,6 +20,11 @@ const HIDE_NAV_PATHS = ["/login", "/register", "/admin"];
 
 export default function MobileBottomNav() {
   const [location] = useLocation();
+  const showLive = useShowLiveNav();
+  const navItems = useMemo(
+    () => (showLive ? BASE_NAV_ITEMS : BASE_NAV_ITEMS.filter((i) => i.href !== "/live")),
+    [showLive]
+  );
   const hide = HIDE_NAV_PATHS.some((p) => location === p || location.startsWith(p + "/"));
 
   if (hide) return null;
@@ -34,7 +41,7 @@ export default function MobileBottomNav() {
       }}
     >
       <div className="flex items-center justify-around">
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const isActive =
             item.href === "/"
               ? location === "/"

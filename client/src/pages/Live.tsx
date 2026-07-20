@@ -238,6 +238,60 @@ function ScheduledStreamCard({ stream }: { stream: StreamItem }) {
   );
 }
 
+function RecentStreamCard({ stream, onWatch }: { stream: StreamItem; onWatch: (s: StreamItem) => void }) {
+  return (
+    <motion.div
+      variants={fadeUp}
+      className="rounded-xl p-4 flex gap-4 items-center cursor-pointer transition-colors hover:bg-white/[0.06]"
+      style={{
+        background: "rgba(255,255,255,0.04)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        backdropFilter: "blur(20px)",
+      }}
+      onClick={() => onWatch(stream)}
+    >
+      <div
+        className="w-20 h-14 rounded-lg flex-shrink-0 bg-cover bg-center flex items-center justify-center overflow-hidden"
+        style={{
+          backgroundImage: stream.thumbnailUrl ? `url(${stream.thumbnailUrl})` : undefined,
+          background: stream.thumbnailUrl ? undefined : "rgba(251,191,36,0.1)",
+          border: "1px solid rgba(251,191,36,0.25)",
+        }}
+      >
+        {!stream.thumbnailUrl && <Youtube className="w-6 h-6 text-amber-500/50" />}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h4 className="text-white text-sm font-medium line-clamp-1">{stream.title}</h4>
+        <div className="flex items-center gap-3 mt-1 flex-wrap">
+          <span className="text-xs text-gray-500 capitalize flex items-center gap-1">
+            {PLATFORM_ICONS[stream.platformType.toLowerCase()] ?? <Radio className="w-3 h-3" />}
+            {stream.platformType}
+          </span>
+          {stream.scheduledStart && (
+            <span className="text-xs text-gray-500">
+              {new Date(stream.scheduledStart).toLocaleDateString("en-NA", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
+          )}
+        </div>
+      </div>
+      <span
+        className="flex-shrink-0 text-xs font-medium px-2.5 py-1 rounded-lg"
+        style={{
+          background: "rgba(251,191,36,0.12)",
+          color: "#FCD34D",
+          border: "1px solid rgba(251,191,36,0.3)",
+        }}
+      >
+        Watch
+      </span>
+    </motion.div>
+  );
+}
+
 export default function Live() {
   const [platformFilter, setPlatformFilter] = useState("all");
   const [watchStream, setWatchStream] = useState<StreamItem | null>(null);
@@ -252,6 +306,11 @@ export default function Live() {
   const scheduled = allStreams.filter(
     (s) => !s.isLive && s.scheduledStart && new Date(s.scheduledStart).getTime() > now
   );
+  const recent = allStreams.filter(
+    (s) =>
+      !s.isLive &&
+      (!s.scheduledStart || new Date(s.scheduledStart).getTime() <= now)
+  );
 
   const platforms = Array.from(new Set(allStreams.map((s) => s.platformType.toLowerCase()))).sort();
 
@@ -259,6 +318,12 @@ export default function Live() {
     if (platformFilter === "all") return list;
     return list.filter((s) => s.platformType.toLowerCase() === platformFilter);
   }
+
+  const filteredLive = filterByPlatform(liveStreams);
+  const filteredScheduled = filterByPlatform(scheduled);
+  const filteredRecent = filterByPlatform(recent);
+  const hasAnyContent =
+    filteredLive.length > 0 || filteredScheduled.length > 0 || filteredRecent.length > 0;
 
   function handleWatch(stream: StreamItem) {
     if (stream.embedUrl) {
@@ -317,7 +382,9 @@ export default function Live() {
           <p className="text-white/70 text-sm md:text-base">
             {liveStreams.length > 0
               ? `${liveStreams.length} stream${liveStreams.length > 1 ? "s" : ""} live right now`
-              : "Namibian sports, live and on demand"}
+              : recent.length > 0
+                ? "Catch up on recent Namibian sports coverage"
+                : "Namibian sports, live and on demand"}
           </p>
         </div>
       </section>
@@ -354,25 +421,25 @@ export default function Live() {
         {!isLoading && (
           <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-10">
             {/* LIVE NOW section */}
-            {filterByPlatform(liveStreams).length > 0 && (
+            {filteredLive.length > 0 && (
               <section>
                 <div className="flex items-center gap-3 mb-5">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg" style={{ background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.4)" }}>
                     <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                     <span className="text-red-400 text-sm font-bold uppercase tracking-wider">LIVE NOW</span>
                   </span>
-                  <span className="text-gray-500 text-sm">{filterByPlatform(liveStreams).length} active</span>
+                  <span className="text-gray-500 text-sm">{filteredLive.length} active</span>
                 </div>
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {filterByPlatform(liveStreams).map((stream) => (
+                  {filteredLive.map((stream) => (
                     <LiveStreamCard key={stream.id} stream={stream} onWatch={handleWatch} />
                   ))}
                 </div>
               </section>
             )}
 
-            {/* No live streams right now */}
-            {filterByPlatform(liveStreams).length === 0 && filterByPlatform(scheduled).length === 0 && (
+            {/* True empty — nothing live, scheduled, or recent */}
+            {!hasAnyContent && (
               <motion.div variants={fadeUp} className="text-center py-20">
                 <div
                   className="w-24 h-24 rounded-full mx-auto mb-5 flex items-center justify-center"
@@ -380,26 +447,59 @@ export default function Live() {
                 >
                   <Radio className="w-10 h-10 text-red-800" />
                 </div>
-                <h3 className="text-2xl font-serif text-gray-400 mb-2">No Live Streams Right Now</h3>
+                <h3 className="text-2xl font-serif text-gray-400 mb-2">No Streams Yet</h3>
                 <p className="text-gray-500 max-w-sm mx-auto">
-                  Check back when events kick off. Scheduled streams will appear here automatically.
+                  Live and scheduled streams will appear here when federations go on air. Check Events for upcoming fixtures.
+                </p>
+                <Link href="/events">
+                  <span className="inline-block mt-6 text-sm text-red-400 hover:text-red-300 transition-colors">
+                    Browse upcoming events →
+                  </span>
+                </Link>
+              </motion.div>
+            )}
+
+            {/* Soft empty — no live/scheduled, but recent VODs exist */}
+            {hasAnyContent && filteredLive.length === 0 && filteredScheduled.length === 0 && (
+              <motion.div variants={fadeUp} className="text-center py-8">
+                <h3 className="text-lg font-serif text-gray-400 mb-1">Nothing live right now</h3>
+                <p className="text-gray-500 text-sm max-w-md mx-auto">
+                  Catch up on recent coverage below — live and scheduled streams will show here when events kick off.
                 </p>
               </motion.div>
             )}
 
             {/* SCHEDULED section */}
-            {filterByPlatform(scheduled).length > 0 && (
+            {filteredScheduled.length > 0 && (
               <section>
                 <div className="flex items-center gap-3 mb-5">
                   <div className="flex items-center gap-2">
                     <Clock className="w-5 h-5 text-blue-400" />
                     <h2 className="text-xl font-serif text-white tracking-wide">UPCOMING STREAMS</h2>
                   </div>
-                  <span className="text-gray-500 text-sm">{filterByPlatform(scheduled).length} scheduled</span>
+                  <span className="text-gray-500 text-sm">{filteredScheduled.length} scheduled</span>
                 </div>
                 <div className="space-y-3">
-                  {filterByPlatform(scheduled).map((stream) => (
+                  {filteredScheduled.map((stream) => (
                     <ScheduledStreamCard key={stream.id} stream={stream} />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* RECENT / on-demand VODs */}
+            {filteredRecent.length > 0 && (
+              <section>
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="flex items-center gap-2">
+                    <Youtube className="w-5 h-5 text-amber-400" />
+                    <h2 className="text-xl font-serif text-white tracking-wide">RECENT COVERAGE</h2>
+                  </div>
+                  <span className="text-gray-500 text-sm">{filteredRecent.length} videos</span>
+                </div>
+                <div className="space-y-3">
+                  {filteredRecent.map((stream) => (
+                    <RecentStreamCard key={stream.id} stream={stream} onWatch={handleWatch} />
                   ))}
                 </div>
               </section>

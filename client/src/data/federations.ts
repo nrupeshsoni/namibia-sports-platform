@@ -1,3 +1,17 @@
+/**
+ * FALLBACK-ONLY static federation catalogue (67 entries).
+ *
+ * Canonical source of truth is Supabase `sportsplatform_federations` (85 entities
+ * as of 2026-07-20) via tRPC `federations.list` / `getBySlug`. Home.tsx loads
+ * DB rows first and only uses this array while loading or if the API fails.
+ *
+ * Do NOT treat this file as complete or authoritative. Prefer updating the DB
+ * (migrations under supabase/migrations/) over expanding this list. Image paths
+ * here may be stale; logos live in `client/public/logos/` after the 2026-07-20 restore.
+ *
+ * @see docs/research/federation_data_gap_list.md
+ */
+
 /** Derive URL slug from name — matches server getBySlug resolution */
 export function getFederationSlug(f: { id: number; name: string; slug?: string | null }): string {
   if (f.slug) return f.slug;
@@ -32,7 +46,7 @@ export const federations: Federation[] = [
     name: 'Ministry of Sport, Youth and National Service',
     category: 'ministry',
     shortName: 'MINISTRY OF SPORT',
-    image: '/hero/stadium.jpg',
+    image: '/sports/namibia-football.jpg',
     description: 'Government ministry overseeing sports development in Namibia',
   },
   {
@@ -40,7 +54,7 @@ export const federations: Federation[] = [
     name: 'Namibia Sports Commission',
     category: 'commission',
     shortName: 'SPORTS COMMISSION',
-    image: '/hero/athletics.jpg',
+    image: '/logos/athletics-logo.png',
     description: 'National sports commission coordinating all sporting activities',
   },
 
@@ -76,7 +90,7 @@ export const federations: Federation[] = [
     name: 'Namibia National Olympic Committee (NNOC)',
     category: 'umbrella',
     shortName: 'NNOC',
-    image: '/hero/athletics.jpg',
+    image: '/logos/Namibia_National_Olympic_Committee_logo.png',
   },
   {
     id: 7,
@@ -141,7 +155,7 @@ export const federations: Federation[] = [
     name: 'Athletics Namibia',
     category: 'federation',
     shortName: 'ATHLETICS',
-    image: '/sports/bCLTLTx2ggc5.jpeg',
+    image: '/logos/athletics-logo.png',
     president: 'Mr. Erwin Naimhwaka',
     secretary: 'Ms. Leonie Scott',
     email: 'athletics@namibia.com',

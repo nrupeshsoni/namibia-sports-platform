@@ -52,8 +52,12 @@
 | slug | varchar(255) | UNIQUE |
 | primary_color | varchar(50) | |
 | secondary_color | varchar(50) | |
+| is_active | boolean | NOT NULL DEFAULT true |
+| merged_into_slug | varchar(255) | NULL — canonical slug when soft-merged |
 | createdAt | timestamp | |
 | updatedAt | timestamp | |
+
+**Live inventory (2026-07-20):** 85 rows total, **83 active** (2 soft-merged inactive: `namibia-aquatics` → `swimming-namibia`, `weightlifting-namibia` → `powerlifting-namibia`). Public `federations.list` / search filter `is_active=true`; `getBySlug` resolves merged slugs to canonical. Admin uses `federations.listAll`. Gap tracking: `docs/research/federation_data_gap_list.md`. Completeness: `docs/research/federation_completeness_snapshot.md`.
 
 **Relations:** has many clubs, events, athletes, coaches, newsArticles, liveStreams, highPerformancePrograms, whatsappSubscriptions
 
@@ -120,6 +124,8 @@ Similar structure with certifications, specialization, years_experience.
 | current_participants | integer | DEFAULT 0 |
 | is_published | boolean | DEFAULT false |
 
+Live enrichment (2026-07-20 Pass 2): **160** rows (158 published, 99 posters); sources in `description`. See `docs/research/events_enrichment_batch.md`.
+
 ### sportsplatform_venues
 | Column | Type | Constraints |
 |--------|------|-------------|
@@ -164,6 +170,8 @@ Similar structure with certifications, specialization, years_experience.
 | is_live | boolean | DEFAULT false |
 | viewer_count | integer | |
 
+**Live inventory (2026-07-20):** **4** rows (completed YouTube VODs; NFA/NRU/Cricket/NASFED) via `20260720000032`. Primary nav shows Live only when `is_live` or upcoming `scheduled_start` exists (`useShowLiveNav`).
+
 ### sportsplatform_whatsapp_subscriptions
 | Column | Type | Constraints |
 |--------|------|-------------|
@@ -176,6 +184,8 @@ Similar structure with certifications, specialization, years_experience.
 
 ### sportsplatform_schools, sportsplatform_media, sportsplatform_hp_programs
 See `drizzle/schema.ts` and `drizzle/relations.ts` for full definitions.
+
+`sportsplatform_media` (beta seed `20260720000044`): polymorphic `(entity_type, entity_id)`; flagship federations hold **24** local `/sports/*` + `/logos/*` image rows. No FK to federations.
 
 ## Foreign Key Summary
 - users.federation_id → federations.id
@@ -190,4 +200,21 @@ See `drizzle/schema.ts` and `drizzle/relations.ts` for full definitions.
 
 ## Missing Relationships / Notes
 - Ensure ON DELETE behavior is defined for all FKs when generating migrations
-- RLS policies must be added in Supabase for multi-tenant isolation
+
+## Row Level Security (RLS)
+
+Applied live via `20260720000030_harden_sportsplatform_rls.sql` + `20260720000034_rls_select_and_revoke_writes.sql`.
+
+| Access | Who | Tables |
+|--------|-----|--------|
+| SELECT public | `anon`, `authenticated` | **published/active/visible only** — news/events (`is_published`); federations/clubs/athletes/coaches/venues/hp (`is_active`); streams (live/URL/schedule); schools/media (no visibility column — still open SELECT) |
+| SELECT staff | `admin` / `federation_admin` (scoped) | drafts + inactive rows (`20260720000034` staff SELECT policies) |
+| SELECT scoped | own row or `admin` | `sportsplatform_users`, `sportsplatform_whatsapp_subscriptions` |
+| WRITE (RLS) | admin / federation_admin / own WhatsApp | same as `20260720000030` — but PostgREST **cannot** write: table GRANTs revoked |
+| Table GRANTs | `anon`/`authenticated` | **SELECT only** (`REVOKE` INSERT/UPDATE/DELETE/TRUNCATE in `20260720000034`) |
+
+Helpers (SECURITY DEFINER): `sportsplatform_private.is_admin()`, `is_federation_admin(int)`, `current_user_id()`.
+
+`user_role` enum labels: `user`, `admin`, `federation_admin`, `club_manager` (aligned with Drizzle).
+
+**Auth path:** Client uses Supabase Auth only; mutations go through tRPC + Hyperdrive (privileged role / bypasses RLS). PostgREST anon/authenticated: SELECT published catalog only; no write privileges. `service_role` still bypasses RLS.

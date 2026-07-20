@@ -56,7 +56,8 @@ export default function Admin() {
   } | null>(null);
 
   const utils = trpc.useUtils();
-  const federationsQuery = trpc.federations.list.useQuery({});
+  /** Admin sees inactive/merged rows; public Home uses federations.list (active only). */
+  const federationsQuery = trpc.federations.listAll.useQuery();
   const eventsQuery = trpc.events.list.useQuery({});
   const clubsQuery = trpc.clubs.list.useQuery({});
   const athletesQuery = trpc.athletes.list.useQuery({});
@@ -64,7 +65,11 @@ export default function Admin() {
   const streamsQuery = trpc.streams.list.useQuery({});
 
   const deleteFed = trpc.federations.delete.useMutation({
-    onSuccess: () => { utils.federations.list.invalidate(); setDeleteConfirm(null); },
+    onSuccess: () => {
+      utils.federations.listAll.invalidate();
+      utils.federations.list.invalidate();
+      setDeleteConfirm(null);
+    },
   });
   const deleteEvt = trpc.events.delete.useMutation({
     onSuccess: () => { utils.events.list.invalidate(); setDeleteConfirm(null); },

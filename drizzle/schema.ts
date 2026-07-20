@@ -64,6 +64,10 @@ export const federations = pgTable("sportsplatform_federations", {
   slug: varchar("slug", { length: 255 }).unique(),
   primaryColor: varchar("primary_color", { length: 50 }),
   secondaryColor: varchar("secondary_color", { length: 50 }),
+
+  // Lifecycle / soft-merge (merged duplicates stay for URL redirects)
+  isActive: boolean("is_active").default(true).notNull(),
+  mergedIntoSlug: varchar("merged_into_slug", { length: 255 }),
   
   // Timestamps (snake_case to match sportsplatform_ DB)
   createdAt: timestamp("created_at").defaultNow().notNull(),
