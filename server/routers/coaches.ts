@@ -6,8 +6,22 @@ import { eq, and } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
 import { assertSameFederation } from "../_core/federationScope";
 
+function isStaff(role: string | null | undefined): boolean {
+  return role === "admin" || role === "federation_admin";
+}
+
+/** Public responses never expose contact PII. */
+function stripCoachPii<T extends { email: unknown; phone: unknown }>(
+  row: T
+): Omit<T, "email" | "phone"> & { email: null; phone: null } {
+  return { ...row, email: null, phone: null };
+}
+
 export const coachesRouter = router({
-  /** Public directory — active coaches only. Staff may pass `includeInactive`. */
+  /**
+   * Public directory — active coaches only; PII stripped.
+   * Staff may pass `includeInactive` / `includePii`.
+   */
   list: publicProcedure
     .input(
       z
@@ -16,6 +30,8 @@ export const coachesRouter = router({
           clubId: z.number().optional(),
           /** Ignored unless caller is admin or federation_admin. */
           includeInactive: z.boolean().optional(),
+          /** Ignored unless caller is admin or federation_admin. */
+          includePii: z.boolean().optional(),
         })
         .optional()
     )
@@ -23,8 +39,7 @@ export const coachesRouter = router({
       const db = await getDb();
       if (!db) return [];
 
-      const staff =
-        ctx.user?.role === "admin" || ctx.user?.role === "federation_admin";
+      const staff = isStaff(ctx.user?.role);
       const conditions = [];
       if (!(input?.includeInactive === true && staff)) {
         conditions.push(eq(coaches.isActive, true));
@@ -42,22 +57,33 @@ export const coachesRouter = router({
         .where(and(...conditions))
         .orderBy(coaches.firstName);
 
-      return result;
+      if (input?.includePii === true && staff) return result;
+      return result.map(stripCoachPii);
     }),
 
+  /** Public profile by id — active only; PII stripped unless staff + includePii. */
   getById: publicProcedure
-    .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .input(
+      z.object({
+        id: z.number(),
+        /** Ignored unless caller is admin or federation_admin. */
+        includePii: z.boolean().optional(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) return null;
 
       const result = await db
         .select()
         .from(coaches)
-        .where(eq(coaches.id, input.id))
+        .where(and(eq(coaches.id, input.id), eq(coaches.isActive, true)))
         .limit(1);
 
-      return result[0] || null;
+      const row = result[0];
+      if (!row) return null;
+      if (input.includePii === true && isStaff(ctx.user?.role)) return row;
+      return stripCoachPii(row);
     }),
 
   create: federationAdminProcedure
@@ -75,9 +101,11 @@ export const coachesRouter = router({
         yearsExperience: z.number().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      assertSameFederation(ctx.user, input.federationId);
 
       const [result] = await db.insert(coaches).values(input).returning({ id: coaches.id });
       return { success: true, id: result.id };

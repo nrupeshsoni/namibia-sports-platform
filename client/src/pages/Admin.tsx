@@ -78,7 +78,7 @@ export default function Admin() {
     { enabled: isPlatformAdmin }
   );
   const athletesQuery = trpc.athletes.list.useQuery(
-    { includeInactive: true },
+    { includeInactive: true, includePii: true },
     { enabled: isPlatformAdmin }
   );
   const newsQuery = trpc.news.list.useQuery(

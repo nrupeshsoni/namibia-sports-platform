@@ -3,22 +3,13 @@ import { motion } from "framer-motion";
 import { Link, useParams } from "wouter";
 import {
   ChevronLeft,
-  Mail,
-  Phone,
   Trophy,
   Users,
   Building2,
-  Calendar,
   MapPin,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { fadeUp, staggerContainer } from "@/lib/animations";
-
-function calcAge(dob: string | Date | null | undefined): number | null {
-  if (dob == null) return null;
-  const diff = Date.now() - new Date(dob).getTime();
-  return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-}
 
 export default function AthleteProfile() {
   const params = useParams<{ slug: string }>();
@@ -58,7 +49,6 @@ export default function AthleteProfile() {
   }
 
   const a = athlete!;
-  const age = calcAge(a.dateOfBirth);
   const isMale = a.gender?.toLowerCase() === "male";
 
   return (
@@ -140,14 +130,6 @@ export default function AthleteProfile() {
                         {isMale ? "♂ Male" : "♀ Female"}
                       </span>
                     )}
-                    {age != null && (
-                      <span
-                        className="px-2.5 py-1 rounded-full text-xs text-gray-300"
-                        style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)" }}
-                      >
-                        {age} years old
-                      </span>
-                    )}
                     {a.nationality && (
                       <span
                         className="px-2.5 py-1 rounded-full text-xs flex items-center gap-1"
@@ -199,37 +181,6 @@ export default function AthleteProfile() {
                   )}
                 </motion.div>
 
-                {/* Contact */}
-                {(a.email || a.phone) && (
-                  <motion.div variants={fadeUp} className="flex flex-wrap gap-6">
-                    {a.email && (
-                      <a
-                        href={`mailto:${a.email}`}
-                        className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
-                      >
-                        <Mail className="w-5 h-5" />
-                        <span className="text-sm">{a.email}</span>
-                      </a>
-                    )}
-                    {a.phone && (
-                      <a
-                        href={`tel:${a.phone}`}
-                        className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
-                      >
-                        <Phone className="w-5 h-5" />
-                        <span className="text-sm">{a.phone}</span>
-                      </a>
-                    )}
-                  </motion.div>
-                )}
-
-                {/* Date of Birth */}
-                {a.dateOfBirth && (
-                  <motion.div variants={fadeUp} className="flex items-center gap-2 text-gray-400 text-sm">
-                    <Calendar className="w-4 h-4" />
-                    <span>Born {new Date(a.dateOfBirth).toLocaleDateString("en-NA", { day: "numeric", month: "long", year: "numeric" })}</span>
-                  </motion.div>
-                )}
               </div>
             </div>
 

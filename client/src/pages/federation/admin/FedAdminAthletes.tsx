@@ -19,6 +19,7 @@ export default function FedAdminAthletes({ federationId }: FedAdminAthletesProps
   const athletesQuery = trpc.athletes.list.useQuery({
     federationId,
     includeInactive: true,
+    includePii: true,
   });
   const deleteMut = trpc.athletes.delete.useMutation({
     onSuccess: () => {

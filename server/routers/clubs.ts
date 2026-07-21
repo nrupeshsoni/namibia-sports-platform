@@ -3,6 +3,11 @@ import { getDb } from "../db";
 import { clubs } from "../../drizzle/schema";
 import { eq, like, and } from "drizzle-orm";
 import { federationAdminProcedure, publicProcedure, router } from "../_core/trpc";
+import {
+  assertSameFederation,
+  canIncludeInactive,
+  canViewNonPublic,
+} from "../_core/federationScope";
 
 export const clubsRouter = router({
   /** Public directory — active clubs only. Staff may pass `includeInactive`. */
@@ -13,7 +18,7 @@ export const clubsRouter = router({
           federationId: z.number().optional(),
           region: z.string().optional(),
           search: z.string().optional(),
-          /** Ignored unless caller is admin or federation_admin. */
+          /** Staff-only; federation_admin must pass matching federationId */
           includeInactive: z.boolean().optional(),
         })
         .optional()
@@ -23,10 +28,11 @@ export const clubsRouter = router({
         const db = await getDb();
         if (!db) return [];
 
-        const staff =
-          ctx.user?.role === "admin" || ctx.user?.role === "federation_admin";
+        const allowInactive =
+          input?.includeInactive === true &&
+          canIncludeInactive(ctx.user, input.federationId);
         const conditions = [];
-        if (!(input?.includeInactive === true && staff)) {
+        if (!allowInactive) {
           conditions.push(eq(clubs.isActive, true));
         }
         if (input?.federationId) {
@@ -54,7 +60,7 @@ export const clubsRouter = router({
 
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) return null;
 
@@ -64,7 +70,12 @@ export const clubsRouter = router({
         .where(eq(clubs.id, input.id))
         .limit(1);
 
-      return result[0] || null;
+      const row = result[0];
+      if (!row) return null;
+      if (!row.isActive && !canViewNonPublic(ctx.user, row.federationId)) {
+        return null;
+      }
+      return row;
     }),
 
   create: federationAdminProcedure
@@ -86,9 +97,11 @@ export const clubsRouter = router({
         establishedYear: z.number().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      assertSameFederation(ctx.user, input.federationId);
 
       const [result] = await db.insert(clubs).values(input).returning({ id: clubs.id });
       return { success: true, id: result.id };
@@ -114,9 +127,11 @@ export const clubsRouter = router({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      assertSameFederation(ctx.user, input.federationId);
 
       const { id, federationId, ...data } = input;
       await db
@@ -128,9 +143,11 @@ export const clubsRouter = router({
 
   delete: federationAdminProcedure
     .input(z.object({ id: z.number(), federationId: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      assertSameFederation(ctx.user, input.federationId);
 
       await db
         .delete(clubs)

@@ -31,17 +31,17 @@
 | **events** | create | protected | |
 | **events** | update | protected | |
 | **events** | delete | protected | |
-| **athletes** | list | public | |
-| **athletes** | getById | public | |
-| **athletes** | getBySlug | public | Get by slug (e.g. christine-mboma-1) |
-| **athletes** | create | protected | |
-| **athletes** | update | protected | |
-| **athletes** | delete | protected | |
-| **coaches** | list | public | |
-| **coaches** | getById | public | |
-| **coaches** | create | protected | |
-| **coaches** | update | protected | |
-| **coaches** | delete | protected | |
+| **athletes** | list | public | Active-only by default; strips email/phone/DOB. Staff: `includeInactive`, `includePii` |
+| **athletes** | getById | public | Active-only; strips PII. Staff: `includePii` |
+| **athletes** | getBySlug | public | Active-only; strips PII (e.g. christine-mboma-1) |
+| **athletes** | create | federation_admin | |
+| **athletes** | update | federation_admin | |
+| **athletes** | delete | federation_admin | |
+| **coaches** | list | public | Active-only by default; strips email/phone. Staff: `includeInactive`, `includePii` |
+| **coaches** | getById | public | Active-only; strips PII. Staff: `includePii` |
+| **coaches** | create | federation_admin | |
+| **coaches** | update | federation_admin | |
+| **coaches** | delete | federation_admin | |
 | **venues** | list | public | |
 | **venues** | getById | public | |
 | **venues** | create | protected | |

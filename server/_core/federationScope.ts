@@ -44,3 +44,33 @@ export function canIncludeUnpublished(
   }
   return false;
 }
+
+/**
+ * Whether the caller may request inactive rows for a list query.
+ * Same staff gate as unpublished — federation_admin must pass matching federationId.
+ */
+export function canIncludeInactive(
+  user: ScopedUser | null | undefined,
+  federationId: number | undefined
+): boolean {
+  return canIncludeUnpublished(user, federationId);
+}
+
+/**
+ * Whether staff may view a single unpublished/inactive row for a resource's federation.
+ */
+export function canViewNonPublic(
+  user: ScopedUser | null | undefined,
+  resourceFederationId: number | null | undefined
+): boolean {
+  if (!user) return false;
+  if (user.role === "admin") return true;
+  if (
+    user.role === "federation_admin" &&
+    resourceFederationId != null &&
+    user.federationId === resourceFederationId
+  ) {
+    return true;
+  }
+  return false;
+}

@@ -56,7 +56,9 @@ export const searchRouter = router({
           db
             .select({ id: events.id, name: events.name, slug: events.slug })
             .from(events)
-            .where(ilike(events.name, pattern))
+            .where(
+              and(eq(events.isPublished, true), ilike(events.name, pattern))
+            )
             .limit(LIMIT_PER_TYPE),
 
           db

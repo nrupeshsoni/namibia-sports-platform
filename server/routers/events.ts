@@ -3,7 +3,11 @@ import { getDb } from "../db";
 import { events } from "../../drizzle/schema";
 import { eq, desc, asc, like, and, gte } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
-import { canIncludeUnpublished } from "../_core/federationScope";
+import {
+  assertSameFederation,
+  canIncludeUnpublished,
+  canViewNonPublic,
+} from "../_core/federationScope";
 
 export const eventsRouter = router({
   list: publicProcedure
@@ -68,7 +72,7 @@ export const eventsRouter = router({
 
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) return null;
 
@@ -78,7 +82,12 @@ export const eventsRouter = router({
         .where(eq(events.id, input.id))
         .limit(1);
 
-      return result[0] || null;
+      const row = result[0];
+      if (!row) return null;
+      if (!row.isPublished && !canViewNonPublic(ctx.user, row.federationId)) {
+        return null;
+      }
+      return row;
     }),
 
   create: federationAdminProcedure
@@ -98,9 +107,11 @@ export const eventsRouter = router({
         venueId: z.number().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      assertSameFederation(ctx.user, input.federationId);
 
       const { eventType, ...rest } = input;
       const values = { ...rest, type: eventType };
@@ -127,9 +138,11 @@ export const eventsRouter = router({
         isPublished: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      assertSameFederation(ctx.user, input.federationId);
 
       const { id, federationId, eventType, ...rest } = input;
       const data = eventType !== undefined ? { ...rest, type: eventType } : rest;
@@ -142,9 +155,11 @@ export const eventsRouter = router({
 
   delete: federationAdminProcedure
     .input(z.object({ id: z.number(), federationId: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      assertSameFederation(ctx.user, input.federationId);
 
       await db
         .delete(events)

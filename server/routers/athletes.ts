@@ -15,8 +15,26 @@ function athleteSlug(firstName: string, lastName: string, id: number): string {
   return base;
 }
 
+function isStaff(role: string | null | undefined): boolean {
+  return role === "admin" || role === "federation_admin";
+}
+
+/** Public responses never expose contact or birth-date PII. */
+function stripAthletePii<T extends { email: unknown; phone: unknown; dateOfBirth: unknown }>(
+  row: T
+): Omit<T, "email" | "phone" | "dateOfBirth"> & {
+  email: null;
+  phone: null;
+  dateOfBirth: null;
+} {
+  return { ...row, email: null, phone: null, dateOfBirth: null };
+}
+
 export const athletesRouter = router({
-  /** Public directory — active athletes only. Staff may pass `includeInactive`. */
+  /**
+   * Public directory — active athletes only; PII stripped.
+   * Staff may pass `includeInactive` / `includePii`.
+   */
   list: publicProcedure
     .input(
       z
@@ -27,6 +45,8 @@ export const athletesRouter = router({
           search: z.string().optional(),
           /** Ignored unless caller is admin or federation_admin. */
           includeInactive: z.boolean().optional(),
+          /** Ignored unless caller is admin or federation_admin. */
+          includePii: z.boolean().optional(),
         })
         .optional()
     )
@@ -35,8 +55,7 @@ export const athletesRouter = router({
         const db = await getDb();
         if (!db) return [];
 
-        const staff =
-          ctx.user?.role === "admin" || ctx.user?.role === "federation_admin";
+        const staff = isStaff(ctx.user?.role);
         const conditions = [];
         if (!(input?.includeInactive === true && staff)) {
           conditions.push(eq(athletes.isActive, true));
@@ -65,28 +84,40 @@ export const athletesRouter = router({
           .where(and(...conditions))
           .orderBy(athletes.firstName);
 
-        return result;
+        if (input?.includePii === true && staff) return result;
+        return result.map(stripAthletePii);
       } catch (e) {
         console.error("[athletes.list]", e);
         return [];
       }
     }),
 
+  /** Public profile by id — active only; PII stripped unless staff + includePii. */
   getById: publicProcedure
-    .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .input(
+      z.object({
+        id: z.number(),
+        /** Ignored unless caller is admin or federation_admin. */
+        includePii: z.boolean().optional(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) return null;
 
       const result = await db
         .select()
         .from(athletes)
-        .where(eq(athletes.id, input.id))
+        .where(and(eq(athletes.id, input.id), eq(athletes.isActive, true)))
         .limit(1);
 
-      return result[0] || null;
+      const row = result[0];
+      if (!row) return null;
+      if (input.includePii === true && isStaff(ctx.user?.role)) return row;
+      return stripAthletePii(row);
     }),
 
+  /** Public profile by slug — active only; PII always stripped. */
   getBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input }) => {
@@ -104,14 +135,15 @@ export const athletesRouter = router({
         .from(athletes)
         .leftJoin(federations, eq(athletes.federationId, federations.id))
         .leftJoin(clubs, eq(athletes.clubId, clubs.id))
-        .where(eq(athletes.slug, input.slug))
+        .where(and(eq(athletes.slug, input.slug), eq(athletes.isActive, true)))
         .limit(1);
 
       const row = rows[0];
       if (!row) return null;
 
+      const publicAthlete = stripAthletePii(row.athlete);
       return {
-        ...row.athlete,
+        ...publicAthlete,
         federationName: row.federationName ?? null,
         federationSlug: row.federationSlug ?? null,
         clubName: row.clubName ?? null,
@@ -136,9 +168,11 @@ export const athletesRouter = router({
         currentRanking: z.number().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      assertSameFederation(ctx.user, input.federationId);
 
       const [inserted] = await db.insert(athletes).values(input).returning({ id: athletes.id });
       const slug = athleteSlug(input.firstName, input.lastName, inserted.id);
@@ -164,9 +198,11 @@ export const athletesRouter = router({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      assertSameFederation(ctx.user, input.federationId);
 
       const { id, federationId, ...data } = input;
       if (data.firstName != null || data.lastName != null) {
