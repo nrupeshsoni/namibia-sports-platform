@@ -6,6 +6,7 @@ import OfflineBanner from "@/components/OfflineBanner";
 import PWAInstallBanner from "@/components/PWAInstallBanner";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { SearchCommandPalette } from "@/components/SearchCommandPalette";
+import { isAiChatEnabled } from "@/lib/features";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -65,7 +66,7 @@ function App() {
               <Router />
             </main>
             <SearchCommandPalette />
-            <AIChatAssistant />
+            {isAiChatEnabled() && <AIChatAssistant />}
             <PWAInstallBanner />
             <MobileBottomNav />
           </TooltipProvider>

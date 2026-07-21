@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file.
 
 ### Security
 - **CRITICAL:** Scrubbed plaintext Supabase Postgres password from tracked docs/scripts (`README.md`, `DEPLOYMENT_GUIDE.md`, `docs/design/NETLIFY_DEPLOYMENT.md`, `scripts/apply-seed.mjs`, `docs/scripts/test-db-connection.mjs`) and removed committed `SUPABASE_SERVICE_ROLE_KEY` from `scripts/seed-via-supabase.mjs`. Scripts now require env vars (see `.env.example`). **Human must rotate the live DB password + service_role key NOW** — scrubbing the tree does not revoke access. Checklist: `docs/research/SECURITY_CREDENTIAL_ROTATION.md`.
+- `ai.chatAssistant` now requires `protectedProcedure` (was `publicProcedure`) to block unauthenticated Anthropic spend.
 
 ### Added
 - Full platform gap analysis (features, DB, auth/RBAC, security, flows, API, frontend, ops, data) with 48h / 2-week plan: `docs/research/FULL_GAP_ANALYSIS.md` (synthesizes live DATA scorecard `docs/research/full_gap_analysis_data.md` + code spot-checks). Overall **~70/100** — soft/invite beta OK; not polished national launch. Score assumes credential rotation in `SECURITY_CREDENTIAL_ROTATION.md` is treated as P0 ops.
@@ -58,6 +59,7 @@ All notable changes to this project are documented in this file.
 - Migration `20260720000031_news_enrichment_batch.sql` — **12** published news articles with `/sports/*` featured images (football, rugby, cricket, athletics, netball, hockey, boxing, NNOC, NPC, NSC); backfill images on prior 23 rows. Evidence: `docs/research/news_enrichment_batch.md`. Live: **35** published / **35** with images / **13** federations.
 
 ### Changed
+- Public-ready: hide incomplete WhatsApp subscribe + AI chat UI behind feature flags (`VITE_SHOW_WHATSAPP_SUBSCRIBE`, `VITE_SHOW_AI_CHAT`; both default off). See `client/src/lib/features.ts` and `.env.example`.
 - `docs/research/beta_readiness_data_audit.md` executive scorecard re-queried live (~58/100): events **215** pub / **44** upcoming / **163** posters (pass 5); logos **51/83**; heroes **83/83**; streams **4** VODs (nav gated); zero-event feds **21**.
 - Live DB federations populated from NSC Feb 2025 contact extract.
 - Federation abbreviations now unique (85/85); thin “National X federation” stubs replaced (avg description length ~117).

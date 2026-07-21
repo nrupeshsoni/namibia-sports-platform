@@ -64,7 +64,7 @@ streams.setLive({ id, isLive: boolean })       // federationAdminProcedure
 ```typescript
 ai.generateSummary({ text: string })           // protectedProcedure
 ai.suggestTags({ content: string })            // protectedProcedure
-ai.chatAssistant({ message: string, history: Message[] }) // publicProcedure
+ai.chatAssistant({ message: string, history: Message[] }) // protectedProcedure (UI gated by VITE_SHOW_AI_CHAT)
 ```
 
 ### `whatsapp` (TO BE ADDED)

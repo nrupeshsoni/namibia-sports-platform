@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 import { useFederation } from "@/contexts/FederationContext";
 import WhatsAppSubscribe from "@/components/WhatsAppSubscribe";
+import { isWhatsAppSubscribeEnabled } from "@/lib/features";
 
 export default function FederationHome() {
   const { federation, slug } = useFederation();
@@ -167,13 +168,14 @@ export default function FederationHome() {
         </div>
       </motion.section>
 
-      {/* WhatsApp Subscribe */}
-      <motion.section variants={fadeUp}>
-        <WhatsAppSubscribe
-          federationId={federation.id}
-          federationName={federation.name}
-        />
-      </motion.section>
+      {isWhatsAppSubscribeEnabled() && (
+        <motion.section variants={fadeUp}>
+          <WhatsAppSubscribe
+            federationId={federation.id}
+            federationName={federation.name}
+          />
+        </motion.section>
+      )}
     </motion.div>
   );
 }

@@ -5,7 +5,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { generateSummary, suggestTags, chatAssistant } from "../services/anthropic";
-import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
+import { protectedProcedure, router } from "../_core/trpc";
 
 const messageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -35,7 +35,8 @@ export const aiRouter = router({
       }
     }),
 
-  chatAssistant: publicProcedure
+  /** Auth required — prevents unauthenticated Anthropic spend. */
+  chatAssistant: protectedProcedure
     .input(z.object({
       message: z.string().min(1).max(2000),
       history: z.array(messageSchema).optional().default([]),
