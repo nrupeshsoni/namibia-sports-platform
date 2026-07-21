@@ -21,6 +21,7 @@ import Privacy from "./pages/legal/Privacy";
 import Terms from "./pages/legal/Terms";
 import FederationRoute from "./pages/federation/FederationRoute";
 import AthleteProfile from "./pages/athletes/AthleteProfile";
+import { SeoHead } from "./components/SeoHead";
 
 const Admin = lazy(() => import("./pages/Admin"));
 const Map = lazy(() => import("./pages/Map"));
@@ -76,6 +77,7 @@ function App() {
       <ThemeProvider defaultTheme="dark">
         <AuthProvider>
           <TooltipProvider>
+            <SeoHead />
             <OfflineBanner />
             <Toaster />
             <main className={showMobileNav ? "pb-[72px] md:pb-0" : ""}>
