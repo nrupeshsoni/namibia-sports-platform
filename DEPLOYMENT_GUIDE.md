@@ -177,17 +177,24 @@ All API endpoints are available through tRPC:
 
 ## Next Steps
 
-### Immediate — open operational items (all need Nrupesh):
+### Immediate — still open (owner / ops):
 1. **Rotate the Postgres superuser credential** committed to this repo's public git
    history, create a role scoped to `sportsplatform_*` without `BYPASSRLS`, then
    `wrangler hyperdrive update`. Gap **B1** — everything else is downstream of it.
-2. **Add federation-scope tests** and confirm every federation-scoped mutation
-   asserts `federationId` (gap **A6**) — the tRPC layer is the only tenancy boundary.
-3. **Set `ANTHROPIC_API_KEY`** *after* the AI chat history caps and rate limit land
-   (gaps **A14**/**B10**), or keep the widget hidden — today every visitor's first
-   message returns a 500.
-4. **Fix `/register`** — it throws on render, so there is no working self-signup
-   path (gap **A2**), and decide the Google provider question (gap **B9**).
+2. **Keep AI chat hidden** (`VITE_SHOW_AI_CHAT` unset) unless you set
+   `ANTHROPIC_API_KEY` as a Worker secret. Caps + rate limit are already in code
+   (gap **A14**); without a key the widget 500s if forced on.
+3. **Google auth** stays off until the provider is enabled on the shared Supabase
+   project and `VITE_ENABLE_GOOGLE_AUTH=true` is set (gap **B9**). Email/password
+   signup works.
+
+### Closed in gap register section A (do not re-open):
+- **A2** — `/register` no longer crashes (Radix `SelectItem` uses `"none"`, not `""`).
+- **A6** — federation tenancy: `assertSameFederation` in each scoped mutation +
+  `server/federationScope.test.ts` (tRPC is the only tenancy boundary).
+- **A12** — signup shows email-confirmation state instead of a fake signed-in redirect.
+- **A14** — AI chat history/size caps + per-caller rate limit.
+- **A21** — unused runtime dependencies removed.
 
 ### Future Enhancements:
 1. **Source federation logos** - Add unique logos for each of the 65 federations

@@ -119,6 +119,8 @@ export default function Home() {
       { label: 'Federations', href: '#federations' },
       { label: 'Venues', href: '#venues' },
       { label: 'Events', href: '/events' },
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Use', href: '/terms' },
     ];
     if (isPlatformAdmin) {
       links.push({ label: 'Admin Portal', href: '/admin' });
@@ -1139,6 +1141,11 @@ export default function Home() {
           >
             <p className="text-sm text-gray-500 mb-3">
               © {new Date().getFullYear()} Namibia Sports Platform. All rights reserved.
+            </p>
+            <p className="text-xs text-gray-500 mb-3">
+              <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+              <span className="mx-2 text-gray-600">·</span>
+              <a href="/terms" className="hover:text-white transition-colors">Terms of Use</a>
             </p>
             <p className="text-xs text-gray-600">
               Website Designed and Developed by{' '}

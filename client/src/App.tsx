@@ -18,6 +18,8 @@ import Live from "./pages/Live";
 import Admin from "./pages/Admin";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import Privacy from "./pages/legal/Privacy";
+import Terms from "./pages/legal/Terms";
 import FederationRoute from "./pages/federation/FederationRoute";
 import AthleteProfile from "./pages/athletes/AthleteProfile";
 import Map from "./pages/Map";
@@ -32,6 +34,8 @@ function Router() {
       <Route path="/news" component={News} />
       <Route path="/live" component={Live} />
       <Route path="/map" component={Map} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/terms" component={Terms} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/admin" component={Admin} />
