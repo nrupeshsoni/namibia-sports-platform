@@ -2,6 +2,30 @@
 
 This directory follows the **Project Documentation Architecture** from the AI Audit governance system.
 
+## Current stack — read this before trusting any older doc
+
+Production is **Cloudflare Workers**, not Netlify. The apex **sports.com.na** is a
+Custom Domain on the Worker `namibia-sports-platform`, which serves the SPA (Static
+Assets from `dist/public`) and the API (`/api/*`) from one artifact. Postgres is
+reached through a **Hyperdrive** binding, not a `DATABASE_URL`. Deploy, secret and
+rollback procedure: [`CI.md`](CI.md) and [`../DEPLOYMENT_GUIDE.md`](../DEPLOYMENT_GUIDE.md).
+
+Two things that are easy to get wrong and are documented in full elsewhere:
+
+- **RLS is not a defence layer here.** All application queries run over Hyperdrive
+  as a role that bypasses RLS; the tRPC layer is the sole tenancy boundary.
+  See [`architecture/RLS_POLICIES.md`](architecture/RLS_POLICIES.md).
+- **Never run `drizzle-kit push`.** The Supabase instance is shared with 15+ other
+  products (~737 tables). Use `npm run db:generate` + `npm run db:migrate`.
+
+Several documents here still describe the Netlify architecture and an older
+`namibia_na_26_` table prefix — notably everything under **`design/`**
+(`NETLIFY_DEPLOYMENT.md`, `DEPLOYMENT_GUIDE_FINAL.md`, the project brief),
+`engineering/SCALE_CONSIDERATIONS.md`, `PLATFORM_ROADMAP.md` and
+`Namibia Sports Platform - TODO.md`. They are kept as a record of what was true when
+written and have **not** been rewritten. Treat any hosting, deploy, env-var or table-
+prefix detail in them as historical.
+
 ## Structure
 
 | Directory | Purpose |
