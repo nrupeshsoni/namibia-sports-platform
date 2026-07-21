@@ -159,7 +159,7 @@ export default function Home() {
       tagline: 'Home of International Cricket in Namibia' 
     },
     { 
-      url: 'https://images.unsplash.com/photo-1461896836934- voices-that-matter?w=1920&q=80', 
+      url: '/sports/athletics.jpg', 
       title: 'NAMIBIA', 
       subtitle: 'SPORTS', 
       tagline: 'Excellence in Athletics, Unity in Sport' 
@@ -173,12 +173,12 @@ export default function Home() {
   ];
 
   // Auto-rotate hero images
-  useState(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentHeroIndex((prev) => (prev + 1) % heroImages.length);
     }, 5000);
     return () => clearInterval(interval);
-  });
+  }, [heroImages.length]);
 
   const scrollToFederations = () => {
     document.getElementById('federations')?.scrollIntoView({ behavior: 'smooth' });
@@ -510,7 +510,7 @@ export default function Home() {
             >
               {newsArticles.map((article) => (
                 <motion.div key={article.id} variants={fadeUp}>
-                  <Link href="/news">
+                  <Link href={`/news/${article.slug}`}>
                     <div
                       className="h-full rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 hover:scale-[1.02] hover:shadow-xl"
                       style={{
@@ -955,7 +955,7 @@ export default function Home() {
                 Elite athlete development programs nurturing Namibia's next generation of champions across all sporting disciplines.
               </p>
               <a 
-                href="#" 
+                href="#federations" 
                 className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm text-white transition-all duration-300 hover:gap-4"
                 style={{
                   background: 'rgba(239, 68, 68, 0.2)',
@@ -1024,16 +1024,17 @@ export default function Home() {
               <p className="text-gray-400 mb-6 leading-relaxed">
                 Register as an athlete, coach, or official. Join Namibia's sporting community and access development programs.
               </p>
-              <a 
-                href="#" 
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm text-white transition-all duration-300 hover:gap-4"
-                style={{
-                  background: 'rgba(34, 197, 94, 0.2)',
-                  border: '1px solid rgba(34, 197, 94, 0.3)',
-                }}
-              >
-                REGISTER NOW <span>→</span>
-              </a>
+              <Link href="/register">
+                <span
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm text-white transition-all duration-300 hover:gap-4 cursor-pointer"
+                  style={{
+                    background: 'rgba(34, 197, 94, 0.2)',
+                    border: '1px solid rgba(34, 197, 94, 0.3)',
+                  }}
+                >
+                  REGISTER NOW <span>→</span>
+                </span>
+              </Link>
             </div>
           </div>
         </div>

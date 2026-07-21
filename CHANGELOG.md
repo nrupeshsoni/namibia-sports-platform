@@ -70,6 +70,7 @@ All notable changes to this project are documented in this file.
 - Compressed NAWISA and Climbing logos (&lt;400KB / &lt;110KB).
 
 ### Fixed
+- **Public-ready P0 (Home/Events):** hero auto-rotate uses `useEffect` with cleanup (was broken `useState` initializer); replaced broken Unsplash hero URL with `/sports/athletics.jpg`; Home news cards link to `/news/:slug`; High Performance CTA → `#federations`, Athlete Register CTA → `/register`; Events removes dead "Register" buttons and honors `?slug=` with scroll + highlight.
 - **Security:** public `athletes.list`, `coaches.list`, `clubs.list` default to `is_active = true`; `search.global` clubs/athletes are active-only. Staff may pass `includeInactive` (admin / federation_admin only); anonymous callers cannot bypass.
 - **Security:** `federationAdminMiddleware` uses tRPC v11 `await opts.getRawInput()` (obsolete `rawInput` removed); platform admins bypass tenant check.
 - **Security:** closed public draft leaks — `news.list` / `events.list` ignore `includeUnpublished` unless admin or federation_admin (own federation); anonymous always published-only.

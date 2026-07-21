@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -94,6 +94,7 @@ interface EventCardProps {
   event: {
     id: number;
     name: string;
+    slug: string;
     posterUrl: string | null;
     type: string;
     startDate: Date;
@@ -103,22 +104,31 @@ interface EventCardProps {
     region: string | null;
   };
   viewMode: 'grid' | 'list';
+  highlighted?: boolean;
 }
 
-function EventCard({ event, viewMode }: EventCardProps) {
+function EventCard({ event, viewMode, highlighted = false }: EventCardProps) {
   const colors = TYPE_COLORS[event.type] ?? TYPE_COLORS.other;
   const image = event.posterUrl ?? getTypeImage(event.type);
   const deadline = getDeadlineCountdown(event.registrationDeadline);
+  const highlightBorder = highlighted
+    ? '1px solid rgba(239,68,68,0.7)'
+    : '1px solid rgba(255,255,255,0.1)';
+  const highlightShadow = highlighted
+    ? '0 0 0 2px rgba(239,68,68,0.35), 0 25px 50px -12px rgba(0,0,0,0.3)'
+    : undefined;
 
   if (viewMode === 'list') {
     return (
       <motion.div
+        id={`event-${event.slug}`}
         variants={fadeUp}
         className="flex gap-0 rounded-2xl overflow-hidden group hover:scale-[1.01] transition-transform duration-300"
         style={{
           background: 'rgba(255,255,255,0.05)',
           backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.1)',
+          border: highlightBorder,
+          boxShadow: highlightShadow,
         }}
       >
         {/* Date column */}
@@ -144,7 +154,7 @@ function EventCard({ event, viewMode }: EventCardProps) {
         </div>
 
         {/* Details */}
-        <div className="flex-1 p-4 flex flex-col justify-between min-w-0">
+        <div className="flex-1 p-4 pr-5 flex flex-col justify-between min-w-0">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span
@@ -181,19 +191,6 @@ function EventCard({ event, viewMode }: EventCardProps) {
             )}
           </div>
         </div>
-
-        {/* CTA */}
-        <div className="flex-shrink-0 flex items-center pr-4">
-          <button
-            className="px-4 py-2 rounded-xl text-sm font-medium text-white transition-all duration-300 hover:scale-105"
-            style={{
-              background: 'linear-gradient(135deg, rgba(239,68,68,0.8), rgba(220,38,38,0.8))',
-              boxShadow: '0 8px 24px -8px rgba(239,68,68,0.5)',
-            }}
-          >
-            Register
-          </button>
-        </div>
       </motion.div>
     );
   }
@@ -201,13 +198,14 @@ function EventCard({ event, viewMode }: EventCardProps) {
   // Grid card
   return (
     <motion.div
+      id={`event-${event.slug}`}
       variants={fadeUp}
-      className="rounded-3xl overflow-hidden group hover:scale-[1.02] hover:-translate-y-1 transition-all duration-500 cursor-pointer flex flex-col"
+      className="rounded-3xl overflow-hidden group hover:scale-[1.02] hover:-translate-y-1 transition-all duration-500 flex flex-col"
       style={{
         background: 'rgba(255,255,255,0.04)',
         backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255,255,255,0.09)',
-        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.3)',
+        border: highlighted ? highlightBorder : '1px solid rgba(255,255,255,0.09)',
+        boxShadow: highlightShadow ?? '0 25px 50px -12px rgba(0,0,0,0.3)',
       }}
     >
       {/* Image */}
@@ -281,16 +279,6 @@ function EventCard({ event, viewMode }: EventCardProps) {
             </div>
           )}
         </div>
-
-        <button
-          className="w-full mt-5 py-2.5 rounded-xl font-medium text-white transition-all duration-300 hover:scale-[1.02] text-sm"
-          style={{
-            background: 'linear-gradient(135deg, rgba(239,68,68,0.85), rgba(220,38,38,0.85))',
-            boxShadow: '0 8px 24px -8px rgba(239,68,68,0.5)',
-          }}
-        >
-          Register
-        </button>
       </div>
     </motion.div>
   );
@@ -332,6 +320,11 @@ export default function Events() {
 
   const eventsQuery = trpc.events.list.useQuery({});
 
+  const highlightSlug = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    return new URLSearchParams(window.location.search).get('slug');
+  }, []);
+
   const now = new Date();
 
   const filtered = useMemo(() => {
@@ -353,6 +346,25 @@ export default function Events() {
       return true;
     });
   }, [eventsQuery.data, tab, typeFilter, regionFilter, search]);
+
+  // When linked with ?slug=, switch tab if needed then scroll/highlight the card
+  useEffect(() => {
+    if (!highlightSlug || !eventsQuery.data) return;
+    const match = eventsQuery.data.find((e) => e.slug === highlightSlug);
+    if (!match) return;
+    const isUpcoming = new Date(match.startDate) >= new Date();
+    setTab(isUpcoming ? 'upcoming' : 'past');
+  }, [highlightSlug, eventsQuery.data]);
+
+  useEffect(() => {
+    if (!highlightSlug || eventsQuery.isLoading || filtered.length === 0) return;
+    const el = document.getElementById(`event-${highlightSlug}`);
+    if (!el) return;
+    const timer = window.setTimeout(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+    return () => window.clearTimeout(timer);
+  }, [highlightSlug, eventsQuery.isLoading, filtered, viewMode, tab]);
 
   const TYPE_LABELS: Record<EventTypeFilter, string> = {
     all: 'All',
@@ -576,7 +588,12 @@ export default function Events() {
               }
             >
               {filtered.map((event) => (
-                <EventCard key={event.id} event={event} viewMode={viewMode} />
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  viewMode={viewMode}
+                  highlighted={highlightSlug === event.slug}
+                />
               ))}
             </motion.div>
           )}
