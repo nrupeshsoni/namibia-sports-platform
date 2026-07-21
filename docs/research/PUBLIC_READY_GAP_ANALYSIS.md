@@ -142,7 +142,7 @@ Ship **soft / invite public** for Home + Events + News + Big-8 federation sites 
 | Streams (live / future scheduled / total) | **0 / 0 / 4** |
 | WhatsApp subscriptions | **0** |
 
-Big-8 calendars + logos + clubs + news: **pass**. Residual: **NBF athletes = 0**.
+Big-8 calendars + logos + clubs + news: **pass**. Residual NBF athletes hole **closed** (2026-07-21 fill → **14** verified KBA/BAL pathway athletes; see `docs/research/hollow_federations_content_fill.md`).
 
 ---
 

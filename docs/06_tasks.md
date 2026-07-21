@@ -8,7 +8,7 @@
 - [x] **RLS write policies unsafe for prod** — hardened `20260720000030` + residual `20260720000034` (applied live): open writes dropped; public SELECT = published/active/visible only; staff draft SELECT; write GRANTs revoked from anon/authenticated
 - [x] **Auth/API gap hotfix** — `getRawInput()` tenant middleware; close `news.list`/`events.list` draft leak; Admin UI role gate; require federationId on athlete/coach create; ownership checks on coaches/media/hp mutations
 - [x] **Public athlete/coach PII stripped** — list/get omit email/phone/DOB; getById/getBySlug enforce `is_active`; staff `includePii` for admin forms
-- [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated (`20260720000032`; no real upcoming live found); media: **61** rows (`20260720000044` + pass 2 `20260720000054`); news **73/73 images** / **51** feds (`000031` + `000047` + `000052` + pass 4 `000058`); events pass 7 (`20260720000059`) → **230** events / **52** upcoming / **18** zero-event feds; clubs **165** across **34** feds (`20260720000048` + pass 4 `20260720000050` + pass 5 `20260720000057`); athletes **124** active / **100%** photos (`20260720000046` + `000051` + people pass 3 `20260720000061`); venues **42** / **100%** photos + HP programs **10** (`20260720000062`); coaches **47** active / **100%** photos — still ~49 feds with zero clubs; audit §8 action plan
+- [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated; media: **61**; news **79** (+ hollow fill `20260721140200`); clubs **169** (+ `20260721140100`); athletes **162** active incl. **NBF 14** (`20260721140000`); hollow core-5 **24** (was 26); venues **42** + HP **10**; coaches **47**; crests **30** null (no new verified); see `docs/research/hollow_federations_content_fill.md`
 
 ## ⚠️ HIGH PRIORITY
 - [x] RLS enabled on all `sportsplatform_*` tables — write + SELECT harden complete (`20260720000030`, `20260720000034`)
@@ -53,6 +53,7 @@
 - [ ] Error boundaries on page-level components
 
 ## 🟢 SAFE
+- [x] Production SEO + AIO — `SeoHead` route meta/OG/JSON-LD; build-time sitemap with all 83 active federation slugs (`scripts/generate-sitemap.mjs` + `scripts/data/`)
 - [x] Schema: slug, primaryColor, secondaryColor on federations
 - [x] Schema: news_articles, live_streams, whatsapp_subscriptions
 - [x] Relations defined in drizzle/relations.ts
