@@ -4,7 +4,11 @@ import { getDb } from "../db";
 import { athletes, federations, clubs } from "../../drizzle/schema";
 import { eq, and, like, or } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
-import { assertSameFederation } from "../_core/federationScope";
+import {
+  assertSameFederation,
+  canIncludeInactive,
+  canViewNonPublic,
+} from "../_core/federationScope";
 
 /** Derives URL slug: "Christine Mboma" + id 1 → "christine-mboma-1" */
 function athleteSlug(firstName: string, lastName: string, id: number): string {
@@ -43,7 +47,7 @@ export const athletesRouter = router({
           clubId: z.number().optional(),
           nationality: z.string().optional(),
           search: z.string().optional(),
-          /** Ignored unless caller is admin or federation_admin. */
+          /** Staff-only; federation_admin must pass matching federationId */
           includeInactive: z.boolean().optional(),
           /** Ignored unless caller is admin or federation_admin. */
           includePii: z.boolean().optional(),
@@ -56,8 +60,11 @@ export const athletesRouter = router({
         if (!db) return [];
 
         const staff = isStaff(ctx.user?.role);
+        const allowInactive =
+          input?.includeInactive === true &&
+          canIncludeInactive(ctx.user, input.federationId);
         const conditions = [];
-        if (!(input?.includeInactive === true && staff)) {
+        if (!allowInactive) {
           conditions.push(eq(athletes.isActive, true));
         }
         if (input?.federationId) {
@@ -92,7 +99,7 @@ export const athletesRouter = router({
       }
     }),
 
-  /** Public profile by id — active only; PII stripped unless staff + includePii. */
+  /** Public profile by id — active only (staff may see inactive); PII stripped unless staff + includePii. */
   getById: publicProcedure
     .input(
       z.object({
@@ -108,19 +115,22 @@ export const athletesRouter = router({
       const result = await db
         .select()
         .from(athletes)
-        .where(and(eq(athletes.id, input.id), eq(athletes.isActive, true)))
+        .where(eq(athletes.id, input.id))
         .limit(1);
 
       const row = result[0];
       if (!row) return null;
+      if (!row.isActive && !canViewNonPublic(ctx.user, row.federationId)) {
+        return null;
+      }
       if (input.includePii === true && isStaff(ctx.user?.role)) return row;
       return stripAthletePii(row);
     }),
 
-  /** Public profile by slug — active only; PII always stripped. */
+  /** Public profile by slug — active only (staff may see inactive); PII always stripped. */
   getBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) return null;
 
@@ -135,11 +145,17 @@ export const athletesRouter = router({
         .from(athletes)
         .leftJoin(federations, eq(athletes.federationId, federations.id))
         .leftJoin(clubs, eq(athletes.clubId, clubs.id))
-        .where(and(eq(athletes.slug, input.slug), eq(athletes.isActive, true)))
+        .where(eq(athletes.slug, input.slug))
         .limit(1);
 
       const row = rows[0];
       if (!row) return null;
+      if (
+        !row.athlete.isActive &&
+        !canViewNonPublic(ctx.user, row.athlete.federationId)
+      ) {
+        return null;
+      }
 
       const publicAthlete = stripAthletePii(row.athlete);
       return {

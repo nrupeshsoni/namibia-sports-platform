@@ -4,7 +4,11 @@ import { getDb } from "../db";
 import { coaches } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
-import { assertSameFederation } from "../_core/federationScope";
+import {
+  assertSameFederation,
+  canIncludeInactive,
+  canViewNonPublic,
+} from "../_core/federationScope";
 
 function isStaff(role: string | null | undefined): boolean {
   return role === "admin" || role === "federation_admin";
@@ -28,7 +32,7 @@ export const coachesRouter = router({
         .object({
           federationId: z.number().optional(),
           clubId: z.number().optional(),
-          /** Ignored unless caller is admin or federation_admin. */
+          /** Staff-only; federation_admin must pass matching federationId */
           includeInactive: z.boolean().optional(),
           /** Ignored unless caller is admin or federation_admin. */
           includePii: z.boolean().optional(),
@@ -40,8 +44,11 @@ export const coachesRouter = router({
       if (!db) return [];
 
       const staff = isStaff(ctx.user?.role);
+      const allowInactive =
+        input?.includeInactive === true &&
+        canIncludeInactive(ctx.user, input.federationId);
       const conditions = [];
-      if (!(input?.includeInactive === true && staff)) {
+      if (!allowInactive) {
         conditions.push(eq(coaches.isActive, true));
       }
       if (input?.federationId) {
@@ -61,7 +68,7 @@ export const coachesRouter = router({
       return result.map(stripCoachPii);
     }),
 
-  /** Public profile by id — active only; PII stripped unless staff + includePii. */
+  /** Public profile by id — active only (staff may see inactive); PII stripped unless staff + includePii. */
   getById: publicProcedure
     .input(
       z.object({
@@ -77,11 +84,14 @@ export const coachesRouter = router({
       const result = await db
         .select()
         .from(coaches)
-        .where(and(eq(coaches.id, input.id), eq(coaches.isActive, true)))
+        .where(eq(coaches.id, input.id))
         .limit(1);
 
       const row = result[0];
       if (!row) return null;
+      if (!row.isActive && !canViewNonPublic(ctx.user, row.federationId)) {
+        return null;
+      }
       if (input.includePii === true && isStaff(ctx.user?.role)) return row;
       return stripCoachPii(row);
     }),
