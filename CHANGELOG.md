@@ -5,10 +5,15 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Security
+- Worker responses now set security headers on all routes: `Content-Security-Policy` (Vite SPA + Supabase + YouTube embeds + Maps forge), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security`. Missing static assets under `/sports/`, `/logos/`, `/athletes/`, `/venues/`, and `/news/*` with a file extension return real **404** (not SPA `index.html`); app routes keep SPA fallback.
+- Public `athletes.list` / `getById` / `getBySlug` and `coaches.list` / `getById` omit `email`, `phone`, and (athletes) `dateOfBirth`; inactive rows hidden on get; staff may pass `includePii` for full rows. Public AthleteProfile no longer shows contact/DOB.
 - **CRITICAL:** Scrubbed plaintext Supabase Postgres password from tracked docs/scripts (`README.md`, `DEPLOYMENT_GUIDE.md`, `docs/design/NETLIFY_DEPLOYMENT.md`, `scripts/apply-seed.mjs`, `docs/scripts/test-db-connection.mjs`) and removed committed `SUPABASE_SERVICE_ROLE_KEY` from `scripts/seed-via-supabase.mjs`. Scripts now require env vars (see `.env.example`). **Human must rotate the live DB password + service_role key NOW** — scrubbing the tree does not revoke access. Checklist: `docs/research/SECURITY_CREDENTIAL_ROTATION.md`.
 - `ai.chatAssistant` now requires `protectedProcedure` (was `publicProcedure`) to block unauthenticated Anthropic spend.
 
 ### Added
+- Public-ready SEO seed: `client/public/robots.txt` (allow crawl + sitemap) and static `client/public/sitemap.xml` for `/`, `/events`, `/news`, `/live`, `/map`.
+- `client/index.html` Open Graph + Twitter Card meta (`og:title`, `og:description`, `og:image` → `/sports/football-action.jpg`).
+- Public-ready DB/schema snapshot (Agent 4): live Supabase vs Drizzle drift, orphan FKs, indexes, draft/inactive API gates, migration ledger hygiene — `docs/research/public_ready_db_snapshot.md` (~78/100 schema/DB).
 - Full platform gap analysis (features, DB, auth/RBAC, security, flows, API, frontend, ops, data) with 48h / 2-week plan: `docs/research/FULL_GAP_ANALYSIS.md` (synthesizes live DATA scorecard `docs/research/full_gap_analysis_data.md` + code spot-checks). Overall **~70/100** — soft/invite beta OK; not polished national launch. Score assumes credential rotation in `SECURITY_CREDENTIAL_ROTATION.md` is treated as P0 ops.
 - Migration `20260720000050_clubs_expansion_pass4.sql` — **+39** verified clubs → **131** total; feds-with-clubs **21→26** (new: chess, motorsport, equestrian, sailing, handball) + depth for swimming/NASFED, cycling, cricket, rugby, karate. Evidence: `docs/research/clubs_enrichment_batch.md` Pass 4.
 - Migration `20260720000052_news_enrichment_pass3.sql` — **12** paraphrased news articles with `/sports/*` images for previously zero-news federations (handball, karate, beach volleyball, taekwondo, motorsport, equestrian, archery, fencing, powerlifting, bodybuilding, angling, darts). Live: **59** published / **59** with images / **37** federations. Evidence: `docs/research/news_enrichment_batch.md` Pass 3.
@@ -59,6 +64,8 @@ All notable changes to this project are documented in this file.
 - Migration `20260720000031_news_enrichment_batch.sql` — **12** published news articles with `/sports/*` featured images (football, rugby, cricket, athletics, netball, hockey, boxing, NNOC, NPC, NSC); backfill images on prior 23 rows. Evidence: `docs/research/news_enrichment_batch.md`. Live: **35** published / **35** with images / **13** federations.
 
 ### Changed
+- Public-ready perf: VitePWA `workbox.globPatterns` narrowed to js/css/html/ico/svg/woff2 + `icons/*.png` (no bulk public jpg/png precache); same-origin sport/logo/media images use `runtimeCaching`.
+- Ignore + strip `client/public/logos/_candidates/` from git and production builds (research scratch only).
 - Public-ready: hide incomplete WhatsApp subscribe + AI chat UI behind feature flags (`VITE_SHOW_WHATSAPP_SUBSCRIBE`, `VITE_SHOW_AI_CHAT`; both default off). See `client/src/lib/features.ts` and `.env.example`.
 - `docs/research/beta_readiness_data_audit.md` executive scorecard re-queried live (~58/100): events **215** pub / **44** upcoming / **163** posters (pass 5); logos **51/83**; heroes **83/83**; streams **4** VODs (nav gated); zero-event feds **21**.
 - Live DB federations populated from NSC Feb 2025 contact extract.

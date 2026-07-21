@@ -1,5 +1,8 @@
 # CI/CD — Cloudflare Workers Builds
 
+> **Production hosting is Cloudflare Workers** (not Netlify). Ignore legacy
+> Netlify deploy docs elsewhere in the tree; this file is authoritative for CI/CD.
+
 The `namibia-sports-platform` Worker auto-deploys from GitHub via **Cloudflare
 Workers Builds**.
 

@@ -15,11 +15,105 @@ import { appRouter } from "./routers";
 
 const TRPC_ENDPOINT = "/api/trpc";
 
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
+/** Static asset trees that must 404 when missing (never SPA HTML). */
+const ASSET_ONLY_PREFIXES = [
+  "/sports/",
+  "/logos/",
+  "/athletes/",
+  "/venues/",
+] as const;
+
+/**
+ * `/news/*` is both an SPA route (`/news/:slug`) and a possible static tree.
+ * Only treat as a static asset when the path has a file extension.
+ */
+const NEWS_ASSET_PREFIX = "/news/";
+const STATIC_FILE_EXT =
+  /\.(?:avif|css|gif|ico|jpe?g|js|json|map|mp4|png|svg|txt|webm|webp|woff2?)$/i;
+
+/**
+ * CSP tuned for the Vite SPA + Supabase Auth/Storage + YouTube embeds +
+ * optional Maps (forge proxy). Inline styles are required (glassmorphism).
+ */
+const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://forge.butterfly-effect.dev https://maps.googleapis.com https://maps.gstatic.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://forge.butterfly-effect.dev https://maps.googleapis.com",
+  "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://youtube.com",
+  "media-src 'self' https: blob:",
+  "worker-src 'self' blob:",
+  "manifest-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+const SECURITY_HEADERS: Record<string, string> = {
+  "Content-Security-Policy": CONTENT_SECURITY_POLICY,
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  // Leave accelerometer/gyroscope unrestricted so YouTube embeds can use them.
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+};
+
+function withSecurityHeaders(response: Response): Response {
+  const headers = new Headers(response.headers);
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    headers.set(key, value);
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
   });
+}
+
+function jsonResponse(body: unknown, status = 200): Response {
+  return withSecurityHeaders(
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    })
+  );
+}
+
+function notFoundResponse(): Response {
+  return withSecurityHeaders(
+    new Response("Not Found", {
+      status: 404,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    })
+  );
+}
+
+/** True when the path is a static asset that must not fall back to the SPA. */
+function isStaticAssetPath(pathname: string): boolean {
+  const path = pathname.toLowerCase();
+  if (ASSET_ONLY_PREFIXES.some((prefix) => path.startsWith(prefix))) {
+    return true;
+  }
+  return path.startsWith(NEWS_ASSET_PREFIX) && STATIC_FILE_EXT.test(path);
+}
+
+/**
+ * Fetch a static asset; convert the SPA HTML fallback into a real 404.
+ * Cloudflare Assets with `not_found_handling: single-page-application` returns
+ * index.html (200 + text/html) for missing files — detect that here.
+ */
+async function fetchStaticAsset(request: Request, env: Env): Promise<Response> {
+  const assetResponse = await env.ASSETS.fetch(request);
+  const contentType = assetResponse.headers.get("content-type") ?? "";
+  if (assetResponse.status === 404 || contentType.includes("text/html")) {
+    return notFoundResponse();
+  }
+  return withSecurityHeaders(assetResponse);
 }
 
 export default {
@@ -39,7 +133,7 @@ export default {
     if (url.pathname.startsWith(TRPC_ENDPOINT)) {
       // runWithDb scopes one Hyperdrive-backed client to this invocation. The
       // client is never closed here — see the note in db.ts.
-      return runWithDb(env, () =>
+      const trpcResponse = await runWithDb(env, () =>
         fetchRequestHandler({
           endpoint: TRPC_ENDPOINT,
           req: request,
@@ -50,12 +144,18 @@ export default {
           },
         })
       );
+      return withSecurityHeaders(trpcResponse);
     }
 
     if (url.pathname.startsWith("/api/")) {
       return jsonResponse({ error: "Not found" }, 404);
     }
 
-    return env.ASSETS.fetch(request);
+    if (isStaticAssetPath(url.pathname)) {
+      return fetchStaticAsset(request, env);
+    }
+
+    // App routes: SPA fallback via Assets binding.
+    return withSecurityHeaders(await env.ASSETS.fetch(request));
   },
 };
