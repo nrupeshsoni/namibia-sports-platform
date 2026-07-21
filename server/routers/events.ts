@@ -108,10 +108,10 @@ export const eventsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-
-      assertSameFederation(ctx.user, input.federationId);
 
       const { eventType, ...rest } = input;
       const values = { ...rest, type: eventType };
@@ -139,10 +139,10 @@ export const eventsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-
-      assertSameFederation(ctx.user, input.federationId);
 
       const { id, federationId, eventType, ...rest } = input;
       const data = eventType !== undefined ? { ...rest, type: eventType } : rest;
@@ -156,10 +156,10 @@ export const eventsRouter = router({
   delete: federationAdminProcedure
     .input(z.object({ id: z.number(), federationId: z.number() }))
     .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-
-      assertSameFederation(ctx.user, input.federationId);
 
       await db
         .delete(events)

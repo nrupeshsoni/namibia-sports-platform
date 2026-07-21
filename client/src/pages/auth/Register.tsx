@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "wouter";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { ChevronLeft, Loader2, MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { trpc } from "@/lib/trpc";
+import { isGoogleAuthEnabled } from "@/lib/features";
 import { fadeUp } from "@/lib/animations";
 
 export default function Register() {
@@ -30,6 +31,8 @@ export default function Register() {
   const [federationId, setFederationId] = useState<string>("none");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  /** Set once Supabase has created the account but returned no session. */
+  const [confirmationSentTo, setConfirmationSentTo] = useState<string | null>(null);
   const { signUp, signInWithGoogle } = useAuth();
   const [, setLocation] = useLocation();
   const federationsQuery = trpc.federations.list.useQuery({});
@@ -39,10 +42,20 @@ export default function Register() {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
-    const { error: err } = await signUp(email, password, name || undefined);
+    const { error: err, needsEmailConfirmation } = await signUp(
+      email,
+      password,
+      name || undefined
+    );
     setIsSubmitting(false);
     if (err) {
       setError(err.message ?? "Failed to register");
+      return;
+    }
+    // Routing to "/" without a session used to leave the user silently
+    // unauthenticated, with the failure only surfacing at their next login.
+    if (needsEmailConfirmation) {
+      setConfirmationSentTo(email);
       return;
     }
     setLocation("/");
@@ -91,109 +104,135 @@ export default function Register() {
             padding: "2rem",
           }}
         >
-          <h1 className="text-2xl font-serif text-white mb-2 text-center">Create Account</h1>
-          <p className="text-gray-400 text-sm text-center mb-6">
-            Join the Namibia Sports community
-          </p>
+          {confirmationSentTo ? (
+            <div className="text-center">
+              <MailCheck className="w-10 h-10 mx-auto text-red-400" />
+              <h1 className="text-2xl font-serif text-white mt-4 mb-2">Check your email</h1>
+              <p className="text-gray-400 text-sm">
+                We sent a confirmation link to{" "}
+                <span className="text-white">{confirmationSentTo}</span>. Your account is
+                not active — and you are not signed in — until you open it.
+              </p>
+              <p className="text-gray-500 text-xs mt-4">
+                Nothing after a few minutes? Check your spam folder.
+              </p>
+              <p className="mt-6 text-gray-400 text-sm">
+                <Link href="/login">
+                  <a className="text-red-400 hover:text-red-300">Back to sign in</a>
+                </Link>
+              </p>
+            </div>
+          ) : (
+            <>
+              <h1 className="text-2xl font-serif text-white mb-2 text-center">Create Account</h1>
+              <p className="text-gray-400 text-sm text-center mb-6">
+                Join the Namibia Sports community
+              </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="name" className="text-gray-300">
-                Full Name
-              </Label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="mt-2 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
-                placeholder="Your name"
-              />
-            </div>
-            <div>
-              <Label htmlFor="email" className="text-gray-300">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="mt-2 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div>
-              <Label htmlFor="password" className="text-gray-300">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                className="mt-2 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
-                placeholder="••••••••"
-              />
-            </div>
-            <div>
-              <Label className="text-gray-300">Federation (optional)</Label>
-              <Select value={federationId} onValueChange={setFederationId}>
-                <SelectTrigger className="mt-2 bg-white/5 border-white/10 text-white">
-                  <SelectValue placeholder="Select federation" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {federations.map((fed) => (
-                    <SelectItem key={fed.id} value={String(fed.id)}>
-                      {fed.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            {error && <p className="text-red-400 text-sm">{error}</p>}
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))",
-                color: "white",
-              }}
-            >
-              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create Account"}
-            </Button>
-          </form>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="name" className="text-gray-300">
+                    Full Name
+                  </Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="mt-2 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                    placeholder="Your name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email" className="text-gray-300">
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="mt-2 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                    placeholder="you@example.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="password" className="text-gray-300">
+                    Password
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="mt-2 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div>
+                  <Label className="text-gray-300">Federation (optional)</Label>
+                  <Select value={federationId} onValueChange={setFederationId}>
+                    <SelectTrigger className="mt-2 bg-white/5 border-white/10 text-white">
+                      <SelectValue placeholder="Select federation" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {federations.map((fed) => (
+                        <SelectItem key={fed.id} value={String(fed.id)}>
+                          {fed.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {error && <p className="text-red-400 text-sm">{error}</p>}
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))",
+                    color: "white",
+                  }}
+                >
+                  {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create Account"}
+                </Button>
+              </form>
 
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-transparent text-gray-400">Or continue with</span>
-            </div>
-          </div>
+              {isGoogleAuthEnabled() && (
+                <>
+                  <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-white/10" />
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-transparent text-gray-400">Or continue with</span>
+                    </div>
+                  </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full border-white/20 text-white hover:bg-white/10"
-            onClick={handleGoogle}
-          >
-            Google
-          </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full border-white/20 text-white hover:bg-white/10"
+                    onClick={handleGoogle}
+                  >
+                    Google
+                  </Button>
+                </>
+              )}
 
-          <p className="mt-6 text-center text-gray-400 text-sm">
-            Already have an account?{" "}
-            <Link href="/login">
-              <a className="text-red-400 hover:text-red-300">Sign In</a>
-            </Link>
-          </p>
+              <p className="mt-6 text-center text-gray-400 text-sm">
+                Already have an account?{" "}
+                <Link href="/login">
+                  <a className="text-red-400 hover:text-red-300">Sign In</a>
+                </Link>
+              </p>
+            </>
+          )}
         </motion.div>
       </main>
     </div>

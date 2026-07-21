@@ -12,7 +12,7 @@ Each agent owns a set of directories and is responsible for changes within them.
 |-------|------|-------|
 | **Agent A — Frontend** | `client/src/pages/`, `client/src/components/` | UI, routing, user experience |
 | **Agent B — Backend** | `server/routers/`, `server/services/`, `drizzle/` | APIs, DB schema, business logic |
-| **Agent C — Infrastructure** | `netlify/`, `supabase/functions/`, `netlify.toml` | Deployment, edge functions, cron |
+| **Agent C — Infrastructure** | `wrangler.jsonc`, `server/worker.ts`, `server/_core/env.ts`, `supabase/functions/` | Worker config, deployment, edge functions, cron |
 | **Agent D — Content** | `docs/`, `docs/scripts/`, SQL data scripts | Data population, migrations, docs |
 
 ### Shared Files (require coordination)
@@ -113,7 +113,12 @@ git worktree add ../sports-infra feat/edge-functions
 ### When schema changes are needed
 
 1. Agent B updates `drizzle/schema.ts` on their branch
-2. Runs `npm run db:push` to generate migration
+2. Runs `npm run db:generate` to write the migration SQL into `drizzle/`, then
+   `npm run db:migrate` to apply it.
+   **Never `drizzle-kit push`, and never re-add a `db:push` script** — it was
+   deliberately removed. `push` diffs the whole database against
+   `drizzle/schema.ts`, and this Supabase project holds ~724 tables owned by 15+
+   other products; it would emit `DROP TABLE` for every one of them.
 3. Creates PR for review before other agents pull the changes
 4. All agents pull the latest schema before using new tables
 

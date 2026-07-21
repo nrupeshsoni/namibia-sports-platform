@@ -98,10 +98,10 @@ export const clubsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-
-      assertSameFederation(ctx.user, input.federationId);
 
       const [result] = await db.insert(clubs).values(input).returning({ id: clubs.id });
       return { success: true, id: result.id };
@@ -128,10 +128,10 @@ export const clubsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-
-      assertSameFederation(ctx.user, input.federationId);
 
       const { id, federationId, ...data } = input;
       await db
@@ -144,10 +144,10 @@ export const clubsRouter = router({
   delete: federationAdminProcedure
     .input(z.object({ id: z.number(), federationId: z.number() }))
     .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-
-      assertSameFederation(ctx.user, input.federationId);
 
       await db
         .delete(clubs)

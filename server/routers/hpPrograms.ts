@@ -76,7 +76,9 @@ export const hpProgramsRouter = router({
         coaches: z.array(z.number()).optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 

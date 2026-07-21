@@ -13,7 +13,16 @@ interface AuthContextValue {
   user: SupabaseUser | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, name?: string) => Promise<{ error: Error | null }>;
+  /**
+   * `needsEmailConfirmation` is true when Supabase created the account but
+   * returned no session (mailer autoconfirm is off). The caller must not treat
+   * that as being signed in.
+   */
+  signUp: (
+    email: string,
+    password: string,
+    name?: string
+  ) => Promise<{ error: Error | null; needsEmailConfirmation: boolean }>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
 }
@@ -47,12 +56,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = useCallback(
     async (email: string, password: string, name?: string) => {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: name ? { data: { full_name: name } } : undefined,
+        options: {
+          // The project's global Site URL serves 15+ products, so the
+          // confirmation link has to be told where to come back to.
+          emailRedirectTo: `${window.location.origin}/login`,
+          ...(name ? { data: { full_name: name } } : {}),
+        },
       });
-      return { error: error ?? null };
+      return {
+        error: error ?? null,
+        needsEmailConfirmation: !error && data.session === null,
+      };
     },
     []
   );

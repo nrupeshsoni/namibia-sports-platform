@@ -10,8 +10,11 @@ All notable changes to this project are documented in this file.
 - Public `athletes.list` / `getById` / `getBySlug` and `coaches.list` / `getById` omit `email`, `phone`, and (athletes) `dateOfBirth`; inactive rows hidden on get; staff may pass `includePii` for full rows. Public AthleteProfile no longer shows contact/DOB.
 - **CRITICAL:** Scrubbed plaintext Supabase Postgres password from tracked docs/scripts (`README.md`, `DEPLOYMENT_GUIDE.md`, `docs/design/NETLIFY_DEPLOYMENT.md`, `scripts/apply-seed.mjs`, `docs/scripts/test-db-connection.mjs`) and removed committed `SUPABASE_SERVICE_ROLE_KEY` from `scripts/seed-via-supabase.mjs`. Scripts now require env vars (see `.env.example`). **Human must rotate the live DB password + service_role key NOW** — scrubbing the tree does not revoke access. Checklist: `docs/research/SECURITY_CREDENTIAL_ROTATION.md`.
 - `ai.chatAssistant` now requires `protectedProcedure` (was `publicProcedure`) to block unauthenticated Anthropic spend.
+- **Gap A6 — federation tenancy was unenforced.** The `federationAdminProcedure` middleware inferred the tenant by sniffing `federationId` out of the raw tRPC input, which silently skipped the check for any input it could not read — every federation-scoped mutation was effectively "any federation_admin may write to any federation". The middleware now only checks the role; each mutation calls `assertSameFederation(ctx.user, …)` explicitly, before it touches the database (`athletes`, `clubs`, `coaches`, `events`, `hpPrograms`, `media`, `news`, `streams`, `upload`). Covered by `server/federationScope.test.ts` (one cross-tenant case per mutation, plus a same-tenant negative control).
+- **Gap A14 — AI chat cost caps.** `ai.chatAssistant` now caps history at 10 turns, each message at 2,000 characters and the whole conversation at 12,000, and rate limits to 10 messages/minute per caller (`server/_core/rateLimit.ts`). No API key was set — the widget stays behind `VITE_SHOW_AI_CHAT`.
 
 ### Added
+- Public-ready master gap analysis (Agent 15 SYNTHESIZER): `docs/research/PUBLIC_READY_GAP_ANALYSIS.md` — full public launch **65/100**, **NO-GO** with soft/invite conditional YES; P0/P1/P2, hide-or-ship flags, 48h plan. Synthesizes Agent 5 data (`public_ready_data_snapshot.md`, content **63**) + Agent 4 schema (`public_ready_db_snapshot.md`, **78**) + live SQL/code spot-checks. Caps ≤48 if credentials unrotated.
 - Public-ready SEO seed: `client/public/robots.txt` (allow crawl + sitemap) and static `client/public/sitemap.xml` for `/`, `/events`, `/news`, `/live`, `/map`.
 - `client/index.html` Open Graph + Twitter Card meta (`og:title`, `og:description`, `og:image` → `/sports/football-action.jpg`).
 - Public-ready DB/schema snapshot (Agent 4): live Supabase vs Drizzle drift, orphan FKs, indexes, draft/inactive API gates, migration ledger hygiene — `docs/research/public_ready_db_snapshot.md` (~78/100 schema/DB).
@@ -65,6 +68,7 @@ All notable changes to this project are documented in this file.
 - Migration `20260720000031_news_enrichment_batch.sql` — **12** published news articles with `/sports/*` featured images (football, rugby, cricket, athletics, netball, hockey, boxing, NNOC, NPC, NSC); backfill images on prior 23 rows. Evidence: `docs/research/news_enrichment_batch.md`. Live: **35** published / **35** with images / **13** federations.
 
 ### Changed
+- **Gap A12 — signup no longer fakes a signed-in state.** `signUp` returns `needsEmailConfirmation` when Supabase creates the account without a session (autoconfirm is off); `/register` then shows a "check your email" panel instead of routing to `/` as if the user were authenticated, and passes `emailRedirectTo` so the confirmation link returns to this site rather than the shared project Site URL. `/login` explains "Email not confirmed" instead of surfacing it raw, and sends an already-authenticated arrival (the confirmation link lands there with a session in the URL) home. The "Continue with Google" buttons are hidden behind `VITE_ENABLE_GOOGLE_AUTH` (default off) because the provider is disabled project-wide — enabling it stays an owner decision.
 - Public-ready perf: VitePWA `workbox.globPatterns` narrowed to js/css/html/ico/svg/woff2 + `icons/*.png` (no bulk public jpg/png precache); same-origin sport/logo/media images use `runtimeCaching`.
 - Ignore + strip `client/public/logos/_candidates/` from git and production builds (research scratch only).
 - Public-ready: hide incomplete WhatsApp subscribe + AI chat UI behind feature flags (`VITE_SHOW_WHATSAPP_SUBSCRIBE`, `VITE_SHOW_AI_CHAT`; both default off). See `client/src/lib/features.ts` and `.env.example`.
@@ -76,6 +80,9 @@ All notable changes to this project are documented in this file.
 - Brand colors: 15/85 federations with verified `#RRGGBB` primary/secondary from crests.
 - `client/src/data/federations.ts` marked FALLBACK-ONLY (67 vs DB 85).
 - Compressed NAWISA and Climbing logos (&lt;400KB / &lt;110KB).
+
+### Removed
+- **Gap A21** — five runtime dependencies with zero references anywhere in `client/`, `server/`, `shared/`, `scripts/` or `drizzle/`: `@aws-sdk/client-s3` and `@aws-sdk/s3-request-presigner` (leftovers from the storage approach Supabase Storage replaced), `axios`, `dotenv`, `nanoid`. The `overrides.tailwindcss.nanoid` pin stays. 118 packages removed; `check`, `build` and `test` verified after.
 
 ### Fixed
 - **Public-ready P0 (Home/Events):** hero auto-rotate uses `useEffect` with cleanup (was broken `useState` initializer); replaced broken Unsplash hero URL with `/sports/athletics.jpg`; Home news cards link to `/news/:slug`; High Performance CTA → `#federations`, Athlete Register CTA → `/register`; Events removes dead "Register" buttons and honors `?slug=` with scroll + highlight.

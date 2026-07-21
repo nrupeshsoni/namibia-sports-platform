@@ -1,48 +1,99 @@
 # Namibia Sports Platform - Deployment Guide
 
+**Last updated:** 2026-07-21
+**Platform:** Cloudflare Workers. Live on the apex **sports.com.na** since 2026-07-19.
+
 ## Overview
 Comprehensive sports management platform for Namibia with 65 sporting federations, clubs, events, athletes, and high-performance systems.
 
----
+Deployment is one Cloudflare Worker, `namibia-sports-platform`, serving both the SPA
+(Static Assets from `dist/public`) and the API (`/api/*` via `run_worker_first`).
+Config lives in `wrangler.jsonc`; the entry point is `server/worker.ts`.
+Pipeline detail: [`docs/CI.md`](docs/CI.md).
 
-## Database Setup (Supabase)
-
-### Step 1: Run SQL Migration Script
-
-1. Open your Supabase project dashboard
-2. Navigate to **SQL Editor**
-3. Open the file `supabase-migration.sql` in this project
-4. Copy the entire SQL script
-5. Paste it into the Supabase SQL Editor
-6. Click **Run** to execute the migration
-
-This will create:
-- All database tables with `namibia_na_26_` prefix
-- All 65 federations with contact data
-- Proper indexes and relationships
-
-### Step 2: Verify Database
-
-After running the migration, verify in Supabase:
-- Go to **Table Editor**
-- You should see all tables: `namibia_na_26_federations`, `namibia_na_26_clubs`, `namibia_na_26_events`, etc.
-- Check `namibia_na_26_federations` table - should have 65 rows
+> Netlify is not used. `netlify.toml` and the Netlify sections that used to be in
+> this guide are gone — that path holds no DNS and serves no traffic.
 
 ---
 
-## Environment Variables
+## Deploying
 
-The platform requires the following environment variable:
-
+```bash
+npm run cf:dryrun          # build + wrangler deploy --dry-run (resolves config, uploads nothing)
+npm run cf:deploy          # production — the apex
+npm run cf:deploy:staging  # namibia-sports-platform-staging on workers.dev
+npm run cf:tail            # live logs
 ```
-DATABASE_URL=postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+
+`main` also auto-deploys via **Cloudflare Workers Builds**, so the same Worker has
+two writers and last-writer-wins. After any deploy, confirm the version that is
+actually serving:
+
+```bash
+npx wrangler deployments status --name namibia-sports-platform
 ```
 
-Copy the real value from Supabase Dashboard → Project Settings → Database (or from a private `.env` — never commit it). See `.env.example`.
+### Rollback
 
-**For Netlify Deployment:**
-1. Go to Netlify Dashboard → Site Settings → Environment Variables
-2. Add `DATABASE_URL` with your private Supabase connection string (not from git history)
+Not a dashboard republish — a Worker **version** rollback. Assets ship inside the
+version, so this restores the SPA and API together.
+
+```bash
+npx wrangler versions list      --name namibia-sports-platform
+npx wrangler rollback [VERSION_ID] --name namibia-sports-platform --message "reason"
+```
+
+Limits: the 100 most recent versions only; rollback does **not** revert secrets or
+bindings, and is refused if a binding referenced by the target version no longer
+exists (this Worker binds `HYPERDRIVE` and `ASSETS`).
+
+---
+
+## Configuration
+
+### Secrets — Worker only
+
+```bash
+npx wrangler secret put SUPABASE_ANON_KEY           # verifies caller JWTs
+npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY   # storage uploads ONLY
+npx wrangler secret put ANTHROPIC_API_KEY           # ai router
+npx wrangler secret list --name namibia-sports-platform
+```
+
+`SUPABASE_URL` is a non-secret `var` in `wrangler.jsonc`. There is no hosting
+dashboard holding environment variables.
+
+> `SUPABASE_ANON_KEY` must never hold a service-role key. It would not improve
+> anything and would silently remove JWT-scoped access. See
+> [`docs/architecture/RLS_POLICIES.md`](docs/architecture/RLS_POLICIES.md).
+
+### Database — Hyperdrive, not DATABASE_URL
+
+Workers cannot open arbitrary TCP sockets, so Postgres is reached through the
+`HYPERDRIVE` binding declared in `wrangler.jsonc`. The committed pooler
+`DATABASE_URL` is **stale** (Supabase moved the pooler host) and is used for local
+development only.
+
+```bash
+# Update the origin connection string (after rotating credentials)
+npx wrangler hyperdrive update <ID> --connection-string="postgres://<role>:<pw>@<host>:5432/postgres"
+```
+
+> **Open critical issue (gap B1):** the Hyperdrive origin role is the `postgres`
+> superuser (`rolbypassrls = true`, full DDL over all ~737 tables on this shared
+> instance) and its password is in this repo's public git history, unrotated.
+> Rotate it, create a role scoped to `sportsplatform_*` without `BYPASSRLS`, then
+> `hyperdrive update`. Do this before anything else on this platform.
+
+### Database schema
+
+1. Open the Supabase project dashboard → **SQL Editor**
+2. Run `supabase-migration.sql`
+3. Verify the `sportsplatform_*` tables exist and `sportsplatform_federations` has 65 rows
+
+Ongoing changes: `npm run db:generate` then `npm run db:migrate`.
+**Never `drizzle-kit push`** — it would emit `DROP TABLE` for the ~724 tables on
+this shared instance belonging to other products.
 
 ---
 

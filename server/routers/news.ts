@@ -9,7 +9,7 @@ import {
   federationAdminProcedure,
   router,
 } from "../_core/trpc";
-import { canIncludeUnpublished } from "../_core/federationScope";
+import { assertSameFederation, canIncludeUnpublished } from "../_core/federationScope";
 
 export const newsRouter = router({
   list: publicProcedure
@@ -90,6 +90,8 @@ export const newsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
@@ -117,7 +119,9 @@ export const newsRouter = router({
         featuredImage: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
@@ -131,7 +135,9 @@ export const newsRouter = router({
 
   publish: federationAdminProcedure
     .input(z.object({ id: z.number(), federationId: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 

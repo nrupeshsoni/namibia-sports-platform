@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "wouter";
 import { ChevronLeft, Loader2 } from "lucide-react";
@@ -6,15 +6,34 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
+import { isGoogleAuthEnabled } from "@/lib/features";
 import { fadeUp } from "@/lib/animations";
+
+/**
+ * Supabase returns a bare "Email not confirmed" for an account that never
+ * followed its confirmation link — which reads as a system fault rather than
+ * something the user can act on.
+ */
+function friendlyAuthError(message: string): string {
+  if (/email not confirmed/i.test(message)) {
+    return "Your email address is not confirmed yet. Open the confirmation link we emailed you, then sign in.";
+  }
+  return message;
+}
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { signIn, signInWithGoogle } = useAuth();
+  const { user, signIn, signInWithGoogle } = useAuth();
   const [, setLocation] = useLocation();
+
+  // The email-confirmation link lands here and supabase-js consumes the session
+  // out of the URL, so an arriving user can already be signed in.
+  useEffect(() => {
+    if (user) setLocation("/");
+  }, [user, setLocation]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +42,7 @@ export default function Login() {
     const { error: err } = await signIn(email, password);
     setIsSubmitting(false);
     if (err) {
-      setError(err.message ?? "Failed to sign in");
+      setError(err.message ? friendlyAuthError(err.message) : "Failed to sign in");
       return;
     }
     setLocation("/");
@@ -122,23 +141,27 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-transparent text-gray-400">Or continue with</span>
-            </div>
-          </div>
+          {isGoogleAuthEnabled() && (
+            <>
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-transparent text-gray-400">Or continue with</span>
+                </div>
+              </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full border-white/20 text-white hover:bg-white/10"
-            onClick={handleGoogle}
-          >
-            Google
-          </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full border-white/20 text-white hover:bg-white/10"
+                onClick={handleGoogle}
+              >
+                Google
+              </Button>
+            </>
+          )}
 
           <p className="mt-6 text-center text-gray-400 text-sm">
             Don&apos;t have an account?{" "}

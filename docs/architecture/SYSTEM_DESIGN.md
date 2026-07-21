@@ -7,24 +7,27 @@ Browser / PWA
       │
       ├── React 19 SPA (Vite, Wouter, TanStack Query)
       │        │
-      │        ├── tRPC client → /api/trpc (Netlify Function)
+      │        ├── tRPC client → /api/trpc  (same origin — no CORS in production)
       │        └── Supabase Auth JS SDK → Supabase Auth
       │
-Netlify CDN (sports.com.na, Cloudflare DNS)
+Cloudflare Worker "namibia-sports-platform"  (apex sports.com.na, Custom Domain)
       │
-      ├── Static assets (dist/public) — served from CDN edge
+      ├── Static assets (dist/public) — Workers Static Assets, SPA fallback
       │
-      └── Netlify Functions (/api/*)
+      └── Worker code (/api/* only, via run_worker_first)
                │
-               ├── Express + tRPC server (serverless-http)
+               ├── tRPC v11 (server/worker.ts → server/_core)
                │        │
-               │        └── Drizzle ORM → Supabase PostgreSQL
+               │        └── Drizzle ORM → Hyperdrive → Supabase PostgreSQL
+               │            (Workers cannot open arbitrary TCP sockets, so the
+               │             pooled Hyperdrive connection string is the DB path.
+               │             Its origin role bypasses RLS — see RLS_POLICIES.md)
                │
                ├── POST /api/webhooks/whatsapp → WhatsApp Business API
                └── POST /api/webhooks/youtube  → YouTube Data API
 
 Supabase
-      ├── PostgreSQL (namibia_na_26_* tables)
+      ├── PostgreSQL (sportsplatform_* tables — shared instance, 15+ other products)
       ├── Auth (JWT, email/password, OAuth)
       ├── Storage (logos, images, documents)
       └── Edge Functions (cron jobs, heavy AI processing)
@@ -50,7 +53,7 @@ sports.com.na/federation/:slug  →  FederationLayout (fetches data by slug)
                                              athletes, news, streams, admin
 ```
 
-**Why not subdomains?** Subdomains (nfa.sports.com.na) require Cloudflare wildcard DNS + individual Netlify custom domain records per federation (57+ domains). Path-based routing achieves the same result with zero DNS configuration per federation. Subdomain support can be added later via a Cloudflare Worker proxy that rewrites `{slug}.sports.com.na` → `sports.com.na/federation/{slug}`.
+**Why not subdomains?** Subdomains (nfa.sports.com.na) would require wildcard DNS plus a Custom Domain record per federation (57+). Path-based routing achieves the same result with zero DNS configuration per federation. Subdomain support could be added later inside the existing Worker by rewriting `{slug}.sports.com.na` → `/federation/{slug}` — note that a Custom Domain binds to exactly one Worker, and `system.sports.com.na` already belongs to the DOME X Worker.
 
 **How new federation pages are created:** Adding a federation to the database automatically creates its page — no code deployment needed. The slug in the database becomes the URL path.
 
@@ -230,4 +233,4 @@ CREATE INDEX idx_whatsapp_active ON namibia_na_26_whatsapp_subscriptions(federat
 | WhatsApp subscribers | 0 | ~5,000 | ~50,000 |
 | Monthly users | ~100 | ~10,000 | ~100,000 |
 
-Supabase free tier handles up to 50,000 MAU. Pro tier ($25/mo) for 100k+. Netlify free tier handles 125k function invocations/month — sufficient until ~50k MAU.
+Supabase free tier handles up to 50,000 MAU. Pro tier ($25/mo) for 100k+. On Workers, only `/api/*` counts as an invocation — static asset requests are served by the asset layer and are not billed as invocations, so SPA traffic does not consume the request budget. `limits.subrequests` is raised to 50,000 in `wrangler.jsonc`.

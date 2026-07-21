@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { uploadImage, type UploadEntity } from "../services/supabaseStorage";
 import { federationAdminProcedure, router } from "../_core/trpc";
+import { assertSameFederation } from "../_core/federationScope";
 
 const entitySchema = z.enum(["federation", "club", "event", "athlete", "news", "venue"]);
 
@@ -8,7 +9,7 @@ export const uploadRouter = router({
   image: federationAdminProcedure
     .input(
       z.object({
-        /** Tenant scope — middleware enforces federation_admin match; admin bypasses */
+        /** Tenant scope — asserted below; admin bypasses */
         federationId: z.number(),
         entity: entitySchema,
         entityId: z.union([z.number(), z.string()]),
@@ -16,7 +17,9 @@ export const uploadRouter = router({
         contentType: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       let buffer: Buffer;
       let contentType = input.contentType || "image/jpeg";
 

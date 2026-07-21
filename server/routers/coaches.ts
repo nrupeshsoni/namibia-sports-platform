@@ -112,10 +112,10 @@ export const coachesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-
-      assertSameFederation(ctx.user, input.federationId);
 
       const [result] = await db.insert(coaches).values(input).returning({ id: coaches.id });
       return { success: true, id: result.id };

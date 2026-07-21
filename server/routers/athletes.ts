@@ -185,10 +185,10 @@ export const athletesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-
-      assertSameFederation(ctx.user, input.federationId);
 
       const [inserted] = await db.insert(athletes).values(input).returning({ id: athletes.id });
       const slug = athleteSlug(input.firstName, input.lastName, inserted.id);
@@ -215,10 +215,10 @@ export const athletesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-
-      assertSameFederation(ctx.user, input.federationId);
 
       const { id, federationId, ...data } = input;
       if (data.firstName != null || data.lastName != null) {

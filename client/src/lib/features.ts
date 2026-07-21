@@ -27,3 +27,14 @@ export function isWhatsAppSubscribeEnabled(): boolean {
 export function isAiChatEnabled(): boolean {
   return import.meta.env.VITE_SHOW_AI_CHAT === "true";
 }
+
+/**
+ * Show the "Continue with Google" buttons on login/register.
+ * Default: unset/false — the Google provider is disabled on the Supabase
+ * project, so the button can only ever return "Unsupported provider". Enabling
+ * the provider is a project-level decision (it is shared with other products);
+ * flip this flag only once it is actually on.
+ */
+export function isGoogleAuthEnabled(): boolean {
+  return import.meta.env.VITE_ENABLE_GOOGLE_AUTH === "true";
+}

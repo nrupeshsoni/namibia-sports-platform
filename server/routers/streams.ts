@@ -8,6 +8,7 @@ import {
   federationAdminProcedure,
   router,
 } from "../_core/trpc";
+import { assertSameFederation } from "../_core/federationScope";
 
 const platformTypeEnum = z.enum(["youtube", "facebook", "twitch", "other"]);
 
@@ -75,7 +76,9 @@ export const streamsRouter = router({
         scheduledEnd: z.date().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
@@ -100,7 +103,9 @@ export const streamsRouter = router({
         scheduledEnd: z.date().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
@@ -114,7 +119,9 @@ export const streamsRouter = router({
 
   setLive: federationAdminProcedure
     .input(z.object({ id: z.number(), federationId: z.number(), isLive: z.boolean() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 

@@ -13,66 +13,79 @@ Comprehensive sports management platform for Namibia with 65 sporting federation
 ## Tech Stack
 
 - **Frontend**: React 19 + TypeScript + TailwindCSS 4 + Framer Motion
-- **Backend**: tRPC + Express + Drizzle ORM
-- **Database**: Supabase (PostgreSQL)
-- **Hosting**: Netlify (Serverless Functions)
+- **Backend**: tRPC v11 on a Cloudflare Worker (`server/worker.ts`)
+- **Database**: Supabase (PostgreSQL), reached via a Cloudflare **Hyperdrive** binding
+- **Hosting**: **Cloudflare Workers** — one Worker serves the SPA (Static Assets from
+  `dist/public`) and the API at `/api/*`. Live on the apex **sports.com.na**.
 
-## Deployment to Netlify
+> Netlify is not used. `netlify.toml` is a retired leftover and serves no traffic.
 
-### 1. Database Setup
+## Deployment
 
-1. Open your Supabase project dashboard
-2. Go to **SQL Editor**
-3. Run the migration script from `supabase-migration.sql`
-4. Verify all tables are created with `namibia_na_26_` prefix
+`main` auto-deploys via **Cloudflare Workers Builds**; `npm run cf:deploy` does the
+same thing from a local checkout. See [`docs/CI.md`](docs/CI.md).
 
-### 2. Netlify Setup
+```bash
+npm run cf:dryrun          # build + wrangler deploy --dry-run
+npm run cf:deploy          # production (apex sports.com.na)
+npm run cf:deploy:staging  # namibia-sports-platform-staging on workers.dev
+npm run cf:tail            # live logs
+npm run cf:secret          # wrangler secret put <NAME>
+```
 
-1. **Connect Repository**
-   - Go to Netlify Dashboard
-   - Click "Add new site" → "Import an existing project"
-   - Connect to GitHub and select `namibia-sports-platform`
+Secrets (`SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`) live
+in the Worker and are injected at runtime — never in the repo, never in a hosting
+dashboard. `SUPABASE_URL` is a plain var in `wrangler.jsonc`.
 
-2. **Build Settings** (should auto-detect from netlify.toml)
-   - Build command: `pnpm install && pnpm run build`
-   - Publish directory: `dist/public`
-   - Functions directory: `netlify/functions`
+### Rollback
 
-3. **Environment Variables**
-   - Go to Site Settings → Environment Variables
-   - Add the following:
-   
-   ```
-   DATABASE_URL=<from Supabase Dashboard → Project Settings → Database → Connection string; see .env.example>
-   NODE_VERSION=22
-   ```
+```bash
+npx wrangler deployments status --name namibia-sports-platform
+npx wrangler versions list      --name namibia-sports-platform
+npx wrangler rollback [VERSION_ID] --name namibia-sports-platform --message "reason"
+```
 
-4. **Deploy**
-   - Click "Deploy site"
-   - Wait for build to complete
-   - Your site will be live!
+Assets ship inside the version, so a rollback restores the SPA and API together.
+It does **not** revert secrets or bindings.
 
-### 3. Custom Domain (Optional)
+### Database Setup
 
-1. Go to Site Settings → Domain Management
-2. Add your custom domain
-3. Configure DNS settings as instructed
+1. Open the Supabase project dashboard → **SQL Editor**
+2. Run `supabase-migration.sql`
+3. Verify the `sportsplatform_*` tables exist
+
+> This Supabase project is shared with 15+ unrelated products (~737 tables). Only
+> `sportsplatform_*` belongs to this app. Never run unscoped DDL.
+
+### Custom domain
+
+The apex `sports.com.na` is bound in `wrangler.jsonc` as a Custom Domain
+(`"routes": [{ "pattern": "sports.com.na", "custom_domain": true }]`). A Custom
+Domain binds to exactly one Worker — `system.sports.com.na` belongs to the separate
+DOME X Worker and must not be added here.
 
 ## Local Development
 
 ```bash
 # Install dependencies
-pnpm install
+npm install
 
 # Set up environment variables
-# Create .env file with DATABASE_URL
+cp .env.example .env    # local dev only; production uses Worker secrets + Hyperdrive
 
-# Push database schema
-pnpm db:push
+# Database: generate a migration from drizzle/schema.ts, then apply it
+npm run db:generate
+npm run db:migrate
 
-# Start development server
-pnpm dev
+# Start the Worker locally
+npm run dev
 ```
+
+> **Never run `drizzle-kit push`, and never re-add a `db:push` script.** It was
+> deliberately removed. `push` diffs the entire database against
+> `drizzle/schema.ts`, and this instance holds ~724 tables owned by 15+ other
+> products — it would emit `DROP TABLE` for all of them. Use `db:generate` +
+> `db:migrate`.
 
 ## Project Structure
 
@@ -84,15 +97,15 @@ namibia_sports_platform/
 │   │   └── components/     # Reusable components
 │   └── public/             # Static assets
 ├── server/                  # Backend API
-│   ├── routers.ts          # tRPC endpoints
-│   └── db.ts               # Database helpers
-├── netlify/
-│   └── functions/          # Serverless functions
-│       └── api.ts          # Main API handler
+│   ├── worker.ts           # Cloudflare Worker entry (fetch handler)
+│   ├── _core/              # tRPC init, auth middleware, env bindings, context
+│   ├── routers/            # tRPC endpoints, split by domain
+│   └── db.ts               # Request-scoped Drizzle client over Hyperdrive
 ├── drizzle/
-│   └── schema.ts           # Database schema
+│   └── schema.ts           # Database schema — source of truth
+├── wrangler.jsonc          # Worker config: apex domain, assets, Hyperdrive
 ├── supabase-migration.sql  # Database migration
-└── netlify.toml            # Netlify configuration
+└── netlify.toml            # DEAD — retired Netlify config, serves no traffic
 ```
 
 ## API Endpoints
@@ -108,22 +121,28 @@ All API endpoints are available through tRPC at `/api/trpc/*`:
 
 ## Database Schema
 
-All tables use the `namibia_na_26_` prefix:
+All tables use the **`sportsplatform_`** prefix (`drizzle/schema.ts` is the source of
+truth). An older `namibia_na_26_` prefix appears in some legacy docs and in
+`supabase-migration.sql` — it is **not** what the live schema uses.
 
-- `namibia_na_26_federations` - 65 sporting bodies
-- `namibia_na_26_clubs` - Clubs linked to federations
-- `namibia_na_26_events` - Competitions and events
-- `namibia_na_26_athletes` - Athlete profiles
-- `namibia_na_26_coaches` - Coach profiles
-- `namibia_na_26_venues` - Sports facilities
-- `namibia_na_26_schools` - Schools offering sports
-- `namibia_na_26_media` - Photos and videos
-- `namibia_na_26_hp_programs` - High-performance programs
+- `sportsplatform_federations` - 65 sporting bodies
+- `sportsplatform_clubs` - Clubs linked to federations
+- `sportsplatform_events` - Competitions and events
+- `sportsplatform_athletes` - Athlete profiles
+- `sportsplatform_coaches` - Coach profiles
+- `sportsplatform_venues` - Sports facilities
+- `sportsplatform_schools` - Schools offering sports
+- `sportsplatform_media` - Photos and videos
+- `sportsplatform_hp_programs` - High-performance programs
+
+Tenant isolation is enforced by the tRPC layer, **not** by RLS — see
+[`docs/architecture/RLS_POLICIES.md`](docs/architecture/RLS_POLICIES.md) before
+assuming otherwise.
 
 ## Support
 
 For deployment issues or questions, refer to:
-- [Netlify Documentation](https://docs.netlify.com/)
+- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
 - [Supabase Documentation](https://supabase.com/docs)
 - [tRPC Documentation](https://trpc.io/docs)
 

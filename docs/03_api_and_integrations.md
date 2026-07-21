@@ -62,7 +62,8 @@
 ### Auth Procedures
 - **publicProcedure** — No auth required
 - **protectedProcedure** — Any authenticated user
-- **federationAdminProcedure** — federation_admin or admin; federationId must match
+- **federationAdminProcedure** — federation_admin or admin (role check only). Each
+  mutation asserts the federation match itself via `assertSameFederation`
 - **adminProcedure** — admin only
 
 ## External Integrations

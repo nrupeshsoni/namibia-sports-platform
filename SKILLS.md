@@ -64,7 +64,9 @@ streams.setLive({ id, isLive: boolean })       // federationAdminProcedure
 ```typescript
 ai.generateSummary({ text: string })           // protectedProcedure
 ai.suggestTags({ content: string })            // protectedProcedure
-ai.chatAssistant({ message: string, history: Message[] }) // protectedProcedure (UI gated by VITE_SHOW_AI_CHAT)
+// protectedProcedure (UI gated by VITE_SHOW_AI_CHAT). Capped: <=10 history
+// turns, <=2000 chars/message, <=12000 chars/conversation, 10 messages/min.
+ai.chatAssistant({ message: string, history: Message[] })
 ```
 
 ### `whatsapp` (TO BE ADDED)
