@@ -14,7 +14,7 @@
 - [x] RLS enabled on all `sportsplatform_*` tables — write + SELECT harden complete (`20260720000030`, `20260720000034`)
 - [ ] Implement WhatsApp subscribe/unsubscribe routers
 - [ ] Add rate limiting to auth and public mutation endpoints
-- [ ] Ensure all list queries have .limit() (news: limit 50, audit others)
+- [x] Ensure all list queries have .limit() — news default 50; events/clubs/athletes/coaches/streams/venues/federations/hpPrograms default 50 / max 200 (server/_core/listLimits.ts)
 - [x] Reconcile federation roster to NSC 2026 list (85 entities; migration `20260720000001`)
 - [x] Populate new federation descriptions/contacts from NSC Feb 2025 extract (migration `20260720000002`)
 - [x] Restore recoverable logos + null broken paths (migration `20260720000003`)

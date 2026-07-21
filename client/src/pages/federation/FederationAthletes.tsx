@@ -78,7 +78,10 @@ export default function FederationAthletes() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sortBy, setSortBy] = useState<SortBy>("name");
 
-  const athletesQuery = trpc.athletes.list.useQuery({ federationId: federation?.id });
+  const athletesQuery = trpc.athletes.list.useQuery({
+    federationId: federation?.id,
+    limit: 200,
+  });
   const athletes = athletesQuery.data ?? [];
 
   const maleCount = athletes.filter((a) => a.gender?.toLowerCase() === "male").length;

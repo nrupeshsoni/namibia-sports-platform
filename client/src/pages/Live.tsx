@@ -296,8 +296,8 @@ export default function Live() {
   const [platformFilter, setPlatformFilter] = useState("all");
   const [watchStream, setWatchStream] = useState<StreamItem | null>(null);
 
-  const liveQuery = trpc.streams.list.useQuery({ isLive: true });
-  const allQuery = trpc.streams.list.useQuery({});
+  const liveQuery = trpc.streams.list.useQuery({ isLive: true, limit: 200 });
+  const allQuery = trpc.streams.list.useQuery({ limit: 200 });
 
   const allStreams = (allQuery.data ?? []) as StreamItem[];
   const liveStreams = (liveQuery.data ?? []) as StreamItem[];

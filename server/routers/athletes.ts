@@ -9,6 +9,7 @@ import {
   canIncludeInactive,
   canViewNonPublic,
 } from "../_core/federationScope";
+import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 /** Derives URL slug: "Christine Mboma" + id 1 → "christine-mboma-1" */
 function athleteSlug(firstName: string, lastName: string, id: number): string {
@@ -47,6 +48,7 @@ export const athletesRouter = router({
           clubId: z.number().optional(),
           nationality: z.string().optional(),
           search: z.string().optional(),
+          limit: listLimitSchema,
           /** Staff-only; federation_admin must pass matching federationId */
           includeInactive: z.boolean().optional(),
           /** Ignored unless caller is admin or federation_admin. */
@@ -89,7 +91,8 @@ export const athletesRouter = router({
           .select()
           .from(athletes)
           .where(and(...conditions))
-          .orderBy(athletes.firstName);
+          .orderBy(athletes.firstName)
+          .limit(resolveListLimit(input?.limit));
 
         if (input?.includePii === true && staff) return result;
         return result.map(stripAthletePii);

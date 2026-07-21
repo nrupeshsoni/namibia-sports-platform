@@ -160,7 +160,7 @@ export default function FedAdminStreams({ federationId }: { federationId: number
     | null
   >(null);
 
-  const listQuery = trpc.streams.list.useQuery({ federationId });
+  const listQuery = trpc.streams.list.useQuery({ federationId, limit: 200 });
   const setLiveMut = trpc.streams.setLive.useMutation({
     onSuccess: () => listQuery.refetch(),
   });

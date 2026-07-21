@@ -70,22 +70,25 @@ export default function Admin() {
     enabled: isPlatformAdmin,
   });
   const eventsQuery = trpc.events.list.useQuery(
-    { includeUnpublished: true },
+    { includeUnpublished: true, limit: 200 },
     { enabled: isPlatformAdmin }
   );
   const clubsQuery = trpc.clubs.list.useQuery(
-    { includeInactive: true },
+    { includeInactive: true, limit: 200 },
     { enabled: isPlatformAdmin }
   );
   const athletesQuery = trpc.athletes.list.useQuery(
-    { includeInactive: true, includePii: true },
+    { includeInactive: true, includePii: true, limit: 200 },
     { enabled: isPlatformAdmin }
   );
   const newsQuery = trpc.news.list.useQuery(
     { includeUnpublished: true },
     { enabled: isPlatformAdmin }
   );
-  const streamsQuery = trpc.streams.list.useQuery({}, { enabled: isPlatformAdmin });
+  const streamsQuery = trpc.streams.list.useQuery(
+    { limit: 200 },
+    { enabled: isPlatformAdmin }
+  );
 
   const deleteFed = trpc.federations.delete.useMutation({
     onSuccess: () => {

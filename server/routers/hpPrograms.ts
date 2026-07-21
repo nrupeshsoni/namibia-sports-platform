@@ -5,6 +5,7 @@ import { highPerformancePrograms } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
 import { assertSameFederation } from "../_core/federationScope";
+import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 const programTypeSchema = z.enum([
   "talent_identification",
@@ -21,6 +22,7 @@ export const hpProgramsRouter = router({
           federationId: z.number().optional(),
           programType: programTypeSchema.optional(),
           isActive: z.boolean().optional(),
+          limit: listLimitSchema,
         })
         .optional()
     )
@@ -39,13 +41,12 @@ export const hpProgramsRouter = router({
         conditions.push(eq(highPerformancePrograms.isActive, input.isActive));
       }
 
-      const result = await db
+      return await db
         .select()
         .from(highPerformancePrograms)
         .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(highPerformancePrograms.startDate);
-
-      return result;
+        .orderBy(highPerformancePrograms.startDate)
+        .limit(resolveListLimit(input?.limit));
     }),
 
   getById: publicProcedure

@@ -199,7 +199,10 @@ export default function FederationStreams() {
   const [watchStream, setWatchStream] = useState<StreamItem | null>(null);
   const [platformFilter, setPlatformFilter] = useState("all");
 
-  const streamsQuery = trpc.streams.list.useQuery({ federationId: federation?.id });
+  const streamsQuery = trpc.streams.list.useQuery({
+    federationId: federation?.id,
+    limit: 200,
+  });
   const streams = (streamsQuery.data ?? []) as StreamItem[];
 
   const now = Date.now();

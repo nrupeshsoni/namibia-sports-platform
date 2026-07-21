@@ -247,7 +247,7 @@ export default function FederationEvents() {
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
 
   const eventsQuery = trpc.events.list.useQuery(
-    { federationId: federation?.id },
+    { federationId: federation?.id, limit: 200 },
     { enabled: !!federation?.id }
   );
 
