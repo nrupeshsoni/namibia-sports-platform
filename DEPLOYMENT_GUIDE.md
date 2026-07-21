@@ -177,10 +177,17 @@ All API endpoints are available through tRPC:
 
 ## Next Steps
 
-### Immediate:
-1. **Run the SQL migration** in Supabase SQL Editor
-2. **Set DATABASE_URL** environment variable
-3. **Deploy to Netlify** (or your preferred platform)
+### Immediate — open operational items (all need Nrupesh):
+1. **Rotate the Postgres superuser credential** committed to this repo's public git
+   history, create a role scoped to `sportsplatform_*` without `BYPASSRLS`, then
+   `wrangler hyperdrive update`. Gap **B1** — everything else is downstream of it.
+2. **Add federation-scope tests** and confirm every federation-scoped mutation
+   asserts `federationId` (gap **A6**) — the tRPC layer is the only tenancy boundary.
+3. **Set `ANTHROPIC_API_KEY`** *after* the AI chat history caps and rate limit land
+   (gaps **A14**/**B10**), or keep the widget hidden — today every visitor's first
+   message returns a 500.
+4. **Fix `/register`** — it throws on render, so there is no working self-signup
+   path (gap **A2**), and decide the Google provider question (gap **B9**).
 
 ### Future Enhancements:
 1. **Source federation logos** - Add unique logos for each of the 65 federations
@@ -232,29 +239,34 @@ For questions or issues with the platform, refer to:
 ## Database Schema Overview
 
 ### Main Tables:
-1. **namibia_na_26_federations** - All 65 sporting bodies
-2. **namibia_na_26_clubs** - Clubs linked to federations
-3. **namibia_na_26_events** - Competitions, tournaments, workshops
-4. **namibia_na_26_athletes** - Athlete profiles and performance
-5. **namibia_na_26_coaches** - Coach profiles and certifications
-6. **namibia_na_26_venues** - Sports facilities and venues
-7. **namibia_na_26_schools** - Schools offering sports programs
-8. **namibia_na_26_media** - Photos and videos for all entities
-9. **namibia_na_26_hp_programs** - High-performance programs
-10. **users** - Authentication and role-based access
+1. **sportsplatform_federations** - All 65 sporting bodies
+2. **sportsplatform_clubs** - Clubs linked to federations
+3. **sportsplatform_events** - Competitions, tournaments, workshops
+4. **sportsplatform_athletes** - Athlete profiles and performance
+5. **sportsplatform_coaches** - Coach profiles and certifications
+6. **sportsplatform_venues** - Sports facilities and venues
+7. **sportsplatform_schools** - Schools offering sports programs
+8. **sportsplatform_media** - Photos and videos for all entities
+9. **sportsplatform_hp_programs** - High-performance programs
+10. **sportsplatform_users** - Authentication and role-based access
 
 ---
 
 ## Naming Convention
 
-All database tables use the prefix: `namibia_na_26_`
+All database tables use the prefix: **`sportsplatform_`**
 
-This ensures:
-- Clear identification of Namibia sports platform tables
-- No conflicts with other projects in the same database
-- Easy migration and backup operations
+`drizzle/schema.ts` is the source of truth. An older `namibia_na_26_` prefix appears
+in `supabase-migration.sql` and in the `docs/design/*` documents — that is **not**
+the live schema.
+
+The prefix is load-bearing, not cosmetic: this Supabase project is shared with 15+
+unrelated products totalling ~737 tables. Anything outside `sportsplatform_*` is
+someone else's data. Never run unscoped DDL, and never `drizzle-kit push`.
 
 ---
 
-**Platform Status:** ✅ Ready for Deployment
-**Last Updated:** December 2024
+**Platform Status:** Live in production on Cloudflare Workers since 2026-07-19,
+with open critical items — see "Next Steps" above and `docs/GAP_ANALYSIS.md` in the
+DOME X repo for the consolidated register.
+**Last Updated:** 2026-07-21
