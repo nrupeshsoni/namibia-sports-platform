@@ -1,12 +1,25 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import fs from "fs";
 import path from "path";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
+
+/** Strip logo research scratch from dist so Vite publicDir never ships it. */
+function excludeLogoCandidates(): Plugin {
+  return {
+    name: "exclude-logo-candidates",
+    closeBundle() {
+      const dir = path.resolve(import.meta.dirname, "dist/public/logos/_candidates");
+      fs.rmSync(dir, { recursive: true, force: true });
+    },
+  };
+}
 
 const plugins = [
   react(),
   tailwindcss(),
+  excludeLogoCandidates(),
   VitePWA({
     registerType: "autoUpdate",
     manifest: {
@@ -24,13 +37,22 @@ const plugins = [
       ],
     },
     workbox: {
-      globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,jpg,webp}"],
+      // Precache app shell + icon assets only; large public jpg/png use runtimeCaching.
+      globPatterns: [
+        "**/*.{js,css,html,ico,svg,woff2}",
+        "icons/*.png",
+      ],
       navigateFallback: "/index.html",
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
           handler: "CacheFirst",
           options: { cacheName: "images", expiration: { maxEntries: 100, maxAgeSeconds: 86400 * 30 } },
+        },
+        {
+          urlPattern: /\/(?:sports|logos|athletes|venues|coaches|events)\/.+\.(?:png|jpg|jpeg|webp|svg)$/i,
+          handler: "CacheFirst",
+          options: { cacheName: "public-images", expiration: { maxEntries: 200, maxAgeSeconds: 86400 * 30 } },
         },
       ],
     },

@@ -101,6 +101,9 @@ jspm_packages/
 tmp/
 temp/
 
+# Logo research scratch (never ship to production)
+client/public/logos/_candidates/
+
 # Database
 *.db
 *.sqlite
