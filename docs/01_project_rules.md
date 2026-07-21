@@ -10,11 +10,11 @@
 | Styling | TailwindCSS 4, shadcn/ui |
 | Routing | Wouter |
 | State | TanStack React Query v5 + tRPC v11 |
-| Backend | Express + tRPC via Netlify Functions |
-| ORM | Drizzle ORM + postgres-js |
-| Database | Supabase PostgreSQL |
-| Auth | Supabase Auth |
-| Hosting | Netlify |
+| Backend | tRPC v11 on a Cloudflare Worker (`server/worker.ts`) |
+| ORM | Drizzle ORM + postgres-js over a Hyperdrive binding |
+| Database | Supabase PostgreSQL (shared instance — only `sportsplatform_*` is ours) |
+| Auth | Supabase Auth (JWT verified in the tRPC context) |
+| Hosting | Cloudflare Workers — SPA (Static Assets) + API in one Worker, apex `sports.com.na` |
 
 ## Coding Standards
 

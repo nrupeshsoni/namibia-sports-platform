@@ -2,7 +2,8 @@
 
 ## Internal API — tRPC
 
-**Base URL:** `/api/trpc` (Netlify Function)
+**Base URL:** `/api/trpc` — same origin as the SPA; `run_worker_first: ["/api/*"]`
+routes it to Worker code before the asset layer sees it
 **Transport:** HTTP with superjson
 **Auth:** Session cookie + JWT verification
 
@@ -70,13 +71,12 @@
 
 | Service | Purpose | Env Var | Webhooks |
 |---------|---------|---------|----------|
-| Supabase | DB, Auth, Storage | DATABASE_URL, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY | |
-| Anthropic | AI (Claude) | ANTHROPIC_API_KEY | |
+| Supabase | DB (via Hyperdrive), Auth, Storage | `HYPERDRIVE` binding, SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY (uploads only), VITE_SUPABASE_* (client) | |
+| Anthropic | AI (Claude) | ANTHROPIC_API_KEY — **currently unset**, so the chat widget 500s on every message (gap B10) | |
 | WhatsApp Business | Notifications | WHATSAPP_API_TOKEN, WHATSAPP_PHONE_NUMBER_ID | Configure in Meta |
-| Netlify | Hosting | N/A | Deploy on push to main |
-| Cloudflare | DNS (sports.com.na) | N/A | |
+| Cloudflare | Hosting (Worker `namibia-sports-platform`) + DNS + Hyperdrive | Secrets via `wrangler secret put`; vars in `wrangler.jsonc` | Deploy on push to main (Workers Builds) |
 
 ## Webhook Triggers
-- Netlify deploy: push to main
+- Cloudflare Workers Builds deploy: push to main (or `npm run cf:deploy` locally)
 - WhatsApp: incoming message/status (configure callback URL in Meta)
 - Supabase Edge Functions: cron (news-aggregator, whatsapp-webhook)

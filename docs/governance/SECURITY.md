@@ -17,12 +17,16 @@
 ### Authorization
 - **Model:** Role-based (user, admin, federation_admin, club_manager)
 - **Enforcement:** tRPC procedures — `publicProcedure`, `protectedProcedure`, `federationAdminProcedure`, `adminProcedure`
-- **RLS:** Supabase Row Level Security on tables (verify enabled)
+- **RLS:** enabled on `sportsplatform_*` tables, but it is **not** a control for
+  application queries — all real reads/writes go through Drizzle over Hyperdrive as
+  a role that bypasses RLS. The tRPC layer is the sole tenancy boundary. See
+  `docs/architecture/RLS_POLICIES.md`.
 
 ### Data Protection
 - **At rest:** Supabase managed (PostgreSQL encryption)
-- **In transit:** HTTPS/TLS (Netlify, Supabase)
-- **Secrets:** Environment variables only; never in code
+- **In transit:** HTTPS/TLS terminated by Cloudflare; TLS to Supabase
+- **Secrets:** Cloudflare Worker secrets (`wrangler secret put`) only; never in code
+  and never in a hosting dashboard
 
 ### Network Boundaries
 - **Public:** Home, events list, news list, streams list, federation pages
