@@ -12,8 +12,15 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { TRPCError } from "@trpc/server";
 import { appRouter } from "./routers";
 import { NOT_FEDERATION_ADMIN_ERR_MSG } from "../shared/const";
+import {
+  assertSameFederation,
+  canIncludeInactive,
+  canIncludeUnpublished,
+  canViewNonPublic,
+} from "./_core/federationScope";
 import type { TrpcContext } from "./_core/context";
 import type { Env } from "./_core/env";
 
@@ -47,6 +54,92 @@ function callerFor(user: AuthenticatedUser) {
   });
 }
 
+describe("assertSameFederation (unit)", () => {
+  it("allows platform admin for any federation", () => {
+    expect(() =>
+      assertSameFederation({ role: "admin", federationId: null }, OTHER_FEDERATION)
+    ).not.toThrow();
+  });
+
+  it("allows matching federation_admin", () => {
+    expect(() =>
+      assertSameFederation(
+        { role: "federation_admin", federationId: OWN_FEDERATION },
+        OWN_FEDERATION
+      )
+    ).not.toThrow();
+  });
+
+  it("rejects mismatched federation_admin", () => {
+    expect(() =>
+      assertSameFederation(
+        { role: "federation_admin", federationId: OWN_FEDERATION },
+        OTHER_FEDERATION
+      )
+    ).toThrow(TRPCError);
+    try {
+      assertSameFederation(
+        { role: "federation_admin", federationId: OWN_FEDERATION },
+        OTHER_FEDERATION
+      );
+    } catch (err) {
+      expect(err).toBeInstanceOf(TRPCError);
+      expect((err as TRPCError).code).toBe("FORBIDDEN");
+      expect((err as TRPCError).message).toBe(NOT_FEDERATION_ADMIN_ERR_MSG);
+    }
+  });
+
+  it("rejects null resource federationId", () => {
+    expect(() =>
+      assertSameFederation(
+        { role: "federation_admin", federationId: OWN_FEDERATION },
+        null
+      )
+    ).toThrow(NOT_FEDERATION_ADMIN_ERR_MSG);
+  });
+
+  it("rejects federation_admin with no assigned federation", () => {
+    expect(() =>
+      assertSameFederation(
+        { role: "federation_admin", federationId: null },
+        OWN_FEDERATION
+      )
+    ).toThrow(NOT_FEDERATION_ADMIN_ERR_MSG);
+  });
+});
+
+describe("canIncludeUnpublished / canIncludeInactive / canViewNonPublic (unit)", () => {
+  it("denies anonymous callers", () => {
+    expect(canIncludeUnpublished(null, OWN_FEDERATION)).toBe(false);
+    expect(canIncludeInactive(undefined, OWN_FEDERATION)).toBe(false);
+    expect(canViewNonPublic(null, OWN_FEDERATION)).toBe(false);
+  });
+
+  it("allows platform admin", () => {
+    const admin = { role: "admin", federationId: null };
+    expect(canIncludeUnpublished(admin, OTHER_FEDERATION)).toBe(true);
+    expect(canIncludeInactive(admin, undefined)).toBe(true);
+    expect(canViewNonPublic(admin, OTHER_FEDERATION)).toBe(true);
+  });
+
+  it("allows matching federation_admin only", () => {
+    const fed = { role: "federation_admin", federationId: OWN_FEDERATION };
+    expect(canIncludeUnpublished(fed, OWN_FEDERATION)).toBe(true);
+    expect(canIncludeInactive(fed, OWN_FEDERATION)).toBe(true);
+    expect(canViewNonPublic(fed, OWN_FEDERATION)).toBe(true);
+    expect(canIncludeUnpublished(fed, OTHER_FEDERATION)).toBe(false);
+    expect(canViewNonPublic(fed, OTHER_FEDERATION)).toBe(false);
+    expect(canIncludeUnpublished(fed, undefined)).toBe(false);
+    expect(canViewNonPublic(fed, null)).toBe(false);
+  });
+
+  it("denies plain users", () => {
+    const user = { role: "user", federationId: OWN_FEDERATION };
+    expect(canIncludeUnpublished(user, OWN_FEDERATION)).toBe(false);
+    expect(canViewNonPublic(user, OWN_FEDERATION)).toBe(false);
+  });
+});
+
 /** One representative mutation per federation-scoped router. */
 function crossTenantCalls(caller: ReturnType<typeof callerFor>) {
   return {
@@ -58,6 +151,8 @@ function crossTenantCalls(caller: ReturnType<typeof callerFor>) {
       }),
     "athletes.update": () =>
       caller.athletes.update({ id: 1, federationId: OTHER_FEDERATION }),
+    "athletes.delete": () =>
+      caller.athletes.delete({ id: 1, federationId: OTHER_FEDERATION }),
     "clubs.create": () =>
       caller.clubs.create({ name: "C", slug: "c", federationId: OTHER_FEDERATION }),
     "clubs.update": () => caller.clubs.update({ id: 1, federationId: OTHER_FEDERATION }),
@@ -103,7 +198,7 @@ function crossTenantCalls(caller: ReturnType<typeof callerFor>) {
   };
 }
 
-describe("federation tenancy", () => {
+describe("federation tenancy (cross-tenant FORBIDDEN)", () => {
   const calls = crossTenantCalls(callerFor(federationAdmin(OWN_FEDERATION)));
 
   for (const [name, call] of Object.entries(calls)) {
@@ -112,22 +207,62 @@ describe("federation tenancy", () => {
     });
   }
 
-  it("lets a matching federation through the guard", async () => {
-    // Negative control: without this, every test above would still pass if the
-    // guard rejected unconditionally. "Database not available" means the
-    // mutation got past authorization and into its body.
-    const caller = callerFor(federationAdmin(OWN_FEDERATION));
-
-    await expect(
-      caller.clubs.update({ id: 1, federationId: OWN_FEDERATION })
-    ).rejects.toThrow("Database not available");
-  });
-
   it("rejects a federation_admin with no federation assigned", async () => {
     const caller = callerFor(federationAdmin(null));
 
     await expect(
       caller.clubs.update({ id: 1, federationId: OWN_FEDERATION })
     ).rejects.toThrow(NOT_FEDERATION_ADMIN_ERR_MSG);
+  });
+});
+
+describe("federation tenancy (same-tenant guard pass-through)", () => {
+  // Negative control: without these, every FORBIDDEN test would still pass if
+  // the guard rejected unconditionally. "Database not available" (or a later
+  // storage error for upload) means the mutation got past authorization.
+  const caller = callerFor(federationAdmin(OWN_FEDERATION));
+
+  it("lets clubs.update through the guard", async () => {
+    await expect(
+      caller.clubs.update({ id: 1, federationId: OWN_FEDERATION })
+    ).rejects.toThrow("Database not available");
+  });
+
+  it("lets events.create through the guard", async () => {
+    await expect(
+      caller.events.create({
+        name: "E",
+        slug: "e",
+        federationId: OWN_FEDERATION,
+        startDate: new Date(),
+      })
+    ).rejects.toThrow("Database not available");
+  });
+
+  it("lets news.create through the guard", async () => {
+    await expect(
+      caller.news.create({ federationId: OWN_FEDERATION, title: "T", slug: "t" })
+    ).rejects.toThrow("Database not available");
+  });
+
+  it("lets streams.create through the guard", async () => {
+    await expect(
+      caller.streams.create({ federationId: OWN_FEDERATION, title: "S" })
+    ).rejects.toThrow("Database not available");
+  });
+
+  it("lets upload.image through the guard", async () => {
+    try {
+      await caller.upload.image({
+        federationId: OWN_FEDERATION,
+        entity: "club",
+        entityId: 1,
+        base64: "aGk=",
+      });
+      expect.fail("expected upload.image to throw after the tenancy guard");
+    } catch (err) {
+      expect(err).toBeInstanceOf(Error);
+      expect((err as Error).message).not.toBe(NOT_FEDERATION_ADMIN_ERR_MSG);
+    }
   });
 });

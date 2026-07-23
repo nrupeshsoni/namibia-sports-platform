@@ -74,3 +74,26 @@ export function canViewNonPublic(
   }
   return false;
 }
+
+/**
+ * Whether the caller may receive contact/DOB PII for a resource.
+ * Same tenant gate as {@link canViewNonPublic} — federation_admin cannot
+ * pull another federation's athlete/coach emails via `includePii`.
+ */
+export function canIncludePii(
+  user: ScopedUser | null | undefined,
+  resourceFederationId: number | null | undefined
+): boolean {
+  return canViewNonPublic(user, resourceFederationId);
+}
+
+/**
+ * Whether a list query may return PII rows.
+ * Admin: always. Federation admin: only when `federationId` matches their tenant.
+ */
+export function canIncludePiiInList(
+  user: ScopedUser | null | undefined,
+  federationId: number | undefined
+): boolean {
+  return canIncludeUnpublished(user, federationId);
+}

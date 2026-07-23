@@ -7,6 +7,8 @@ import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc
 import {
   assertSameFederation,
   canIncludeInactive,
+  canIncludePii,
+  canIncludePiiInList,
   canViewNonPublic,
 } from "../_core/federationScope";
 import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
@@ -18,10 +20,6 @@ function athleteSlug(firstName: string, lastName: string, id: number): string {
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "");
   return base;
-}
-
-function isStaff(role: string | null | undefined): boolean {
-  return role === "admin" || role === "federation_admin";
 }
 
 /** Public responses never expose contact or birth-date PII. */
@@ -61,10 +59,12 @@ export const athletesRouter = router({
         const db = await getDb();
         if (!db) return [];
 
-        const staff = isStaff(ctx.user?.role);
         const allowInactive =
           input?.includeInactive === true &&
           canIncludeInactive(ctx.user, input.federationId);
+        const allowPii =
+          input?.includePii === true &&
+          canIncludePiiInList(ctx.user, input.federationId);
         const conditions = [];
         if (!allowInactive) {
           conditions.push(eq(athletes.isActive, true));
@@ -94,7 +94,7 @@ export const athletesRouter = router({
           .orderBy(athletes.firstName)
           .limit(resolveListLimit(input?.limit));
 
-        if (input?.includePii === true && staff) return result;
+        if (allowPii) return result;
         return result.map(stripAthletePii);
       } catch (e) {
         console.error("[athletes.list]", e);
@@ -126,7 +126,9 @@ export const athletesRouter = router({
       if (!row.isActive && !canViewNonPublic(ctx.user, row.federationId)) {
         return null;
       }
-      if (input.includePii === true && isStaff(ctx.user?.role)) return row;
+      if (input.includePii === true && canIncludePii(ctx.user, row.federationId)) {
+        return row;
+      }
       return stripAthletePii(row);
     }),
 
@@ -246,6 +248,9 @@ export const athletesRouter = router({
   delete: federationAdminProcedure
     .input(z.object({ id: z.number(), federationId: z.number() }))
     .mutation(async ({ ctx, input }) => {
+      // Tenant check on input first so cross-tenant is rejected before any DB I/O.
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
@@ -258,7 +263,6 @@ export const athletesRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Athlete not found" });
       }
       assertSameFederation(ctx.user, existing.federationId);
-      assertSameFederation(ctx.user, input.federationId);
 
       await db
         .delete(athletes)

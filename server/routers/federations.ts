@@ -80,7 +80,10 @@ export const federationsRouter = router({
     return await db.select().from(federations).orderBy(federations.id);
   }),
 
-  /** Returns row by id as stored (including inactive). Admin CRUD relies on this. */
+  /**
+   * Public: active row, or canonical successor when soft-merged.
+   * Inactive rows without merge are hidden (use `listAll` for admin CRUD).
+   */
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
@@ -93,7 +96,7 @@ export const federationsRouter = router({
         .where(eq(federations.id, input.id))
         .limit(1);
 
-      return row ?? null;
+      return resolveCanonical(db, row);
     }),
 
   getByAbbreviation: publicProcedure

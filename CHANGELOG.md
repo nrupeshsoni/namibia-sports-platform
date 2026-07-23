@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- CI quality gate: `npm run ci:gate` runs `check` + `test` + `build`. Local `cf:deploy` / `cf:deploy:staging` invoke it before wrangler. `docs/CI.md` documents Workers Builds dashboard build-command update to `npm run ci:gate` (not always changeable via repo / `wrangler.jsonc`).
+
+### Added
+- Expanded `server/federationScope.test.ts`: unit coverage for `assertSameFederation` / unpublished-inactive helpers; same-tenant pass-through for events/news/streams/upload; `athletes.delete` cross-tenant FORBIDDEN (input asserted before DB).
+
 ### Security
 - **Production hardening (2026-07-23):** WhatsApp `unsubscribe` / `getSubscriptions` require auth (own rows only); `subscribe` gated by Worker `ENABLE_WHATSAPP_SUBSCRIBE` (default off) + rate limit + `consent_at`. Rate limits extended to `ai.*`, `whatsapp.*`, `upload.image`, `search.global`. Worker CORS allowlist for sports.com.na + staging + local. Supabase Storage: MIME allowlist + public SELECT policies on `sportsplatform_*` buckets (no anon INSERT). See `docs/governance/SECURITY.md`.
 - Closed public detail/search leaks for drafts and inactive entities: `events.getById` returns null unless `isPublished` (admin / same-federation `federation_admin` may see drafts); `athletes.getById` / `getBySlug`, `clubs.getById`, `coaches.getById` return null unless `isActive` (same staff exception); `search.global` events require `isPublished`. List `includeInactive` for `federation_admin` requires matching `federationId` (same gate as `includeUnpublished`).

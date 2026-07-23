@@ -13,6 +13,12 @@ import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 const platformTypeEnum = z.enum(["youtube", "facebook", "twitch", "other"]);
 
+/** Outbound links must be https — blocks javascript:/data: open redirects. */
+const httpsUrlSchema = z
+  .string()
+  .url()
+  .refine((u) => u.startsWith("https://"), { message: "URL must use https" });
+
 export const streamsRouter = router({
   list: publicProcedure
     .input(
@@ -70,9 +76,9 @@ export const streamsRouter = router({
         federationId: z.number(),
         title: z.string(),
         platformType: platformTypeEnum.default("youtube"),
-        streamUrl: z.string().optional(),
-        embedUrl: z.string().optional(),
-        thumbnailUrl: z.string().optional(),
+        streamUrl: httpsUrlSchema.optional(),
+        embedUrl: httpsUrlSchema.optional(),
+        thumbnailUrl: httpsUrlSchema.optional(),
         scheduledStart: z.date().optional(),
         scheduledEnd: z.date().optional(),
       })
@@ -97,9 +103,9 @@ export const streamsRouter = router({
         federationId: z.number(),
         title: z.string().optional(),
         platformType: platformTypeEnum.optional(),
-        streamUrl: z.string().optional(),
-        embedUrl: z.string().optional(),
-        thumbnailUrl: z.string().optional(),
+        streamUrl: httpsUrlSchema.optional(),
+        embedUrl: httpsUrlSchema.optional(),
+        thumbnailUrl: httpsUrlSchema.optional(),
         scheduledStart: z.date().optional(),
         scheduledEnd: z.date().optional(),
       })
@@ -133,6 +139,21 @@ export const streamsRouter = router({
           updatedAt: new Date(),
           ...(input.isLive ? { viewerCount: 0 } : {}),
         })
+        .where(and(eq(liveStreams.id, input.id), eq(liveStreams.federationId, input.federationId)));
+      return { success: true };
+    }),
+
+  /** Hard-delete a stream (no archive column on live_streams). */
+  delete: federationAdminProcedure
+    .input(z.object({ id: z.number(), federationId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      await db
+        .delete(liveStreams)
         .where(and(eq(liveStreams.id, input.id), eq(liveStreams.federationId, input.federationId)));
       return { success: true };
     }),

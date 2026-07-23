@@ -7,13 +7,11 @@ import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc
 import {
   assertSameFederation,
   canIncludeInactive,
+  canIncludePii,
+  canIncludePiiInList,
   canViewNonPublic,
 } from "../_core/federationScope";
 import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
-
-function isStaff(role: string | null | undefined): boolean {
-  return role === "admin" || role === "federation_admin";
-}
 
 /** Public responses never expose contact PII. */
 function stripCoachPii<T extends { email: unknown; phone: unknown }>(
@@ -45,10 +43,12 @@ export const coachesRouter = router({
       const db = await getDb();
       if (!db) return [];
 
-      const staff = isStaff(ctx.user?.role);
       const allowInactive =
         input?.includeInactive === true &&
         canIncludeInactive(ctx.user, input.federationId);
+      const allowPii =
+        input?.includePii === true &&
+        canIncludePiiInList(ctx.user, input.federationId);
       const conditions = [];
       if (!allowInactive) {
         conditions.push(eq(coaches.isActive, true));
@@ -67,7 +67,7 @@ export const coachesRouter = router({
         .orderBy(coaches.firstName)
         .limit(resolveListLimit(input?.limit));
 
-      if (input?.includePii === true && staff) return result;
+      if (allowPii) return result;
       return result.map(stripCoachPii);
     }),
 
@@ -95,7 +95,9 @@ export const coachesRouter = router({
       if (!row.isActive && !canViewNonPublic(ctx.user, row.federationId)) {
         return null;
       }
-      if (input.includePii === true && isStaff(ctx.user?.role)) return row;
+      if (input.includePii === true && canIncludePii(ctx.user, row.federationId)) {
+        return row;
+      }
       return stripCoachPii(row);
     }),
 

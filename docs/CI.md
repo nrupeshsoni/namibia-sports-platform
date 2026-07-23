@@ -8,12 +8,58 @@ Workers Builds**.
 
 - **Repository:** `nrupeshsoni/namibia-sports-platform`
 - **Production branch:** `main` → deploys to the apex `sports.com.na`
-- **Build command:** `npm run build` (`vite build` → `dist/public`, served as Static Assets)
+- **Local / required quality gate:** `npm run ci:gate`  
+  (`check` + `test` + `build` — see `package.json`)
+- **Workers Builds build command (recommended):** `npm run ci:gate`  
+  Falls back to `npm run build` only if the dashboard cannot be updated yet —
+  **do not treat build-only as sufficient for production confidence.**
 - **Deploy command:** `npx wrangler deploy` (reads `wrangler.jsonc`)
+
+## Quality gate (mandatory before deploy)
+
+Before any production deploy (manual or CI), the following must pass:
+
+```bash
+npm run check   # tsc --noEmit
+npm run test    # vitest run (includes federationScope cross-tenant FORBIDDEN cases)
+npm run build   # vite build → dist/public
+```
+
+Or in one shot:
+
+```bash
+npm run ci:gate
+```
+
+Local scripts `npm run cf:deploy` and `npm run cf:deploy:staging` already run
+`ci:gate` before `wrangler deploy`.
+
+### Workers Builds dashboard note
+
+Workers Builds build/deploy commands live in the **Cloudflare dashboard** (or
+Workers Builds API), not in `wrangler.jsonc`. Repo code cannot always change
+them. Until the dashboard build command is set to `npm run ci:gate`:
+
+1. Treat `npm run ci:gate` as the local/PR gate on every change destined for `main`.
+2. Update the Workers Builds **build command** for `namibia-sports-platform` to
+   `npm run ci:gate` when you have dashboard access (Deploy command stays
+   `npx wrangler deploy`).
+3. Do **not** add a `prepare` hook that runs the full gate — that would slow
+   every `npm install` and is the wrong place for CI.
 
 Every push to `main` builds and deploys automatically. Secrets
 (`SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) live in the Worker and are
 injected at runtime — not in the repo.
+
+## Tenancy regression tests
+
+`server/federationScope.test.ts` covers:
+
+- Unit: `assertSameFederation`, `canIncludeUnpublished`, `canIncludeInactive`,
+  `canViewNonPublic`
+- Cross-tenant FORBIDDEN via real tRPC callers for federation-scoped mutations
+  (including `events` / `news` / `streams` / `upload`)
+- Same-tenant pass-through negative controls (guard allows; failure is DB/storage)
 
 ## Data layer
 

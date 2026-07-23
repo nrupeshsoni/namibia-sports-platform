@@ -4,7 +4,11 @@ import { getDb } from "../db";
 import { highPerformancePrograms } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
-import { assertSameFederation } from "../_core/federationScope";
+import {
+  assertSameFederation,
+  canIncludeInactive,
+  canViewNonPublic,
+} from "../_core/federationScope";
 import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 const programTypeSchema = z.enum([
@@ -21,24 +25,29 @@ export const hpProgramsRouter = router({
         .object({
           federationId: z.number().optional(),
           programType: programTypeSchema.optional(),
-          isActive: z.boolean().optional(),
+          /** Staff-only when false; public always sees active programs. */
+          includeInactive: z.boolean().optional(),
           limit: listLimitSchema,
         })
         .optional()
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) return [];
 
+      const allowInactive =
+        input?.includeInactive === true &&
+        canIncludeInactive(ctx.user, input.federationId);
+
       const conditions = [];
+      if (!allowInactive) {
+        conditions.push(eq(highPerformancePrograms.isActive, true));
+      }
       if (input?.federationId) {
         conditions.push(eq(highPerformancePrograms.federationId, input.federationId));
       }
       if (input?.programType) {
         conditions.push(eq(highPerformancePrograms.programType, input.programType));
-      }
-      if (input?.isActive !== undefined) {
-        conditions.push(eq(highPerformancePrograms.isActive, input.isActive));
       }
 
       return await db
@@ -51,7 +60,7 @@ export const hpProgramsRouter = router({
 
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) return null;
 
@@ -61,7 +70,12 @@ export const hpProgramsRouter = router({
         .where(eq(highPerformancePrograms.id, input.id))
         .limit(1);
 
-      return result[0] || null;
+      const row = result[0];
+      if (!row) return null;
+      if (!row.isActive && !canViewNonPublic(ctx.user, row.federationId)) {
+        return null;
+      }
+      return row;
     }),
 
   create: federationAdminProcedure

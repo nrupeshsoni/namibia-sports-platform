@@ -12,8 +12,9 @@
 
 ## ⚠️ HIGH PRIORITY
 - [x] RLS enabled on all `sportsplatform_*` tables — write + SELECT harden complete (`20260720000030`, `20260720000034`)
-- [x] WhatsApp routers hardened — `subscribe` feature-flagged (`ENABLE_WHATSAPP_SUBSCRIBE`); `unsubscribe`/`getSubscriptions` auth-gated; `consent_at` column
-- [x] Rate limiting on `ai.*`, `whatsapp.*`, `upload.image`, `search.global` (`server/_core/rateLimit.ts`) — auth endpoints still open if needed later
+- [x] WhatsApp public API **hard-disabled** for go-live (`WHATSAPP_API_ENABLED=false` in `server/routers/whatsapp.ts`); `consent_at` column ready for future Meta opt-in re-enable
+- [x] Rate limiting on `ai.*`, `upload.image`, `search.global` (`server/_core/rateLimit.ts`) — auth endpoints / global WAF still open if needed later
+- [x] Production security audit 2026-07-23 — `docs/research/PRODUCTION_SECURITY_AUDIT.md` (Critical remaining: credential rotation + Hyperdrive least-privilege)
 - [x] Ensure all list queries have .limit() — news default 50; events/clubs/athletes/coaches/streams/venues/federations/hpPrograms default 50 / max 200 (server/_core/listLimits.ts)
 - [x] Reconcile federation roster to NSC 2026 list (85 entities; migration `20260720000001`)
 - [x] Populate new federation descriptions/contacts from NSC Feb 2025 extract (migration `20260720000002`)
@@ -47,7 +48,7 @@
 - [ ] Events pass 8 / NSC ask: remaining 18 zeros; thin tennis/archery/chess seeds; NSSU federation row
 - [x] News pass 3 — +12 zero-news feds (`20260720000052`); live **59** published / **37** feds / **46** still zero news
 - [x] News pass 4 — +14 zero-news feds (`20260720000058`); live **73** published / **51** feds / **32** still zero news
-- [ ] Admin page: connect to real tRPC, remove mock data
+- [x] Admin page: connect to real tRPC CRUD for news/streams/venues/coaches/schools/media/HP + Users role assignment; FedAdmin coaches/media/HP + ImageUpload on news/streams/clubs
 - [~] Empty states for all list views — federation Clubs/Athletes/News/Events done; remaining: admin lists, Home sections, Live
 - [ ] Loading states to prevent double-click submit
 - [ ] Error boundaries on page-level components
