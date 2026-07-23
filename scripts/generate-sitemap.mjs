@@ -23,8 +23,9 @@ const STATIC_ROUTES = [
   { loc: "/events", changefreq: "daily", priority: "0.9" },
   { loc: "/news", changefreq: "daily", priority: "0.9" },
   { loc: "/map", changefreq: "weekly", priority: "0.7" },
-  // Live kept at low priority — inventory is mostly VOD / gated
-  { loc: "/live", changefreq: "weekly", priority: "0.3" },
+  { loc: "/privacy", changefreq: "yearly", priority: "0.4" },
+  { loc: "/terms", changefreq: "yearly", priority: "0.4" },
+  // /live omitted while inventory is VOD-only (route remains reachable)
 ];
 
 function readSlugFile(name) {

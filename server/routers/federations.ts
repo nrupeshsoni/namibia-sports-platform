@@ -3,6 +3,7 @@ import { getDb } from "../db";
 import { federations, type Federation } from "../../drizzle/schema";
 import { eq, like, and, ilike } from "drizzle-orm";
 import { publicProcedure, adminProcedure, router } from "../_core/trpc";
+import { optionalHttpsUrlSchema } from "../_core/httpsUrl";
 import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 /** Derives URL slug from federation name: "Karate Namibia" → "karate-namibia" */
@@ -181,13 +182,13 @@ export const federationsRouter = router({
         backgroundImage: z.string().optional(),
         email: z.string().optional(),
         phone: z.string().optional(),
-        website: z.string().optional(),
+        website: optionalHttpsUrlSchema,
         president: z.string().optional(),
         secretaryGeneral: z.string().optional(),
-        facebook: z.string().optional(),
-        instagram: z.string().optional(),
-        twitter: z.string().optional(),
-        youtube: z.string().optional(),
+        facebook: optionalHttpsUrlSchema,
+        instagram: optionalHttpsUrlSchema,
+        twitter: optionalHttpsUrlSchema,
+        youtube: optionalHttpsUrlSchema,
         type: z.enum(["federation", "umbrella", "ministry", "commission"]).default("federation"),
       })
     )
@@ -210,13 +211,13 @@ export const federationsRouter = router({
         backgroundImage: z.string().optional(),
         email: z.string().optional(),
         phone: z.string().optional(),
-        website: z.string().optional(),
+        website: optionalHttpsUrlSchema,
         president: z.string().optional(),
         secretaryGeneral: z.string().optional(),
-        facebook: z.string().optional(),
-        instagram: z.string().optional(),
-        twitter: z.string().optional(),
-        youtube: z.string().optional(),
+        facebook: optionalHttpsUrlSchema,
+        instagram: optionalHttpsUrlSchema,
+        twitter: optionalHttpsUrlSchema,
+        youtube: optionalHttpsUrlSchema,
         isActive: z.boolean().optional(),
         mergedIntoSlug: z.string().nullable().optional(),
       })

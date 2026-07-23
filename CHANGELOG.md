@@ -6,12 +6,16 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 - CI quality gate: `npm run ci:gate` runs `check` + `test` + `build`. Local `cf:deploy` / `cf:deploy:staging` invoke it before wrangler. `docs/CI.md` **Workers Builds dashboard** section has the exact click path + API note to set build command to `npm run ci:gate` (MCP/Wrangler OAuth cannot change trigger settings).
+- Sitemap hubs: include `/privacy` + `/terms`; omit `/live` while stream inventory is VOD-only (`scripts/generate-sitemap.mjs`).
 
 ### Added
+- Production go-live scorecard (orchestrator): `docs/research/PRODUCTION_GO_LIVE_SCORECARD.md` — full public **74/100**, **CONDITIONAL** (soft public after human credential rotation; full national still NO-GO). Caps ≤52 while DB/`service_role` unrotated.
 - Expanded `server/federationScope.test.ts`: unit coverage for `assertSameFederation` / unpublished-inactive helpers; same-tenant pass-through for events/news/streams/upload; `athletes.delete` + `streams.delete` cross-tenant FORBIDDEN (input asserted before DB).
 - Full backend content management for Platform Admin and Federation Admin: news (create/edit/publish/delete), streams (create/edit/setLive/delete), venues, coaches, schools, media library, HP programs, plus **Users** role assignment (`users.list` + `users.setRole` with `role` + `federationId`) so platform admins can grant federation editors. Shared forms with `ImageUpload` on news/streams/clubs/coaches/venues; FedAdmin nav adds Coaches, Media, HP Programs. `news.delete` is `federationAdminProcedure` with `assertSameFederation`; upload entities include `coach` and `stream`.
 
 ### Security
+- Public `venues.list` / `getById` default to `is_active = true` (platform admin may pass `includeInactive`).
+- Federation `website` / Facebook / Instagram / Twitter / YouTube on create/update require `https://` (shared `server/_core/httpsUrl.ts`; streams reuse the same schema).
 - Spot-audit of Admin CMS + `users` RBAC (`b6d1411` / `ae83765`): no Critical/High privilege-escalation or tenancy gaps; notes under “Admin CMS follow-up” in `docs/research/PRODUCTION_SECURITY_AUDIT.md`.
 - **Least-privilege DB role for Hyperdrive (C2 partial):** created `sportsplatform_app` (`LOGIN`, no superuser, no `BYPASSRLS`) with `SELECT/INSERT/UPDATE/DELETE` on all `sportsplatform_*` tables + sequence grants. Migration `supabase/migrations/20260723230000_create_sportsplatform_app_role.sql` (applied live as Supabase `create_sportsplatform_app_role`). **No password set in DB/git.** Human must `ALTER ROLE … PASSWORD`, point Hyperdrive id `dbfcf635ad4a475ba991743b94a5d6a2` at the role, rotate compromised `postgres` password + `service_role` — updated checklist `docs/research/SECURITY_CREDENTIAL_ROTATION.md`.
 - **Full production security audit (2026-07-23):** `docs/research/PRODUCTION_SECURITY_AUDIT.md`. Code: WhatsApp tRPC hard-disabled (`WHATSAPP_API_ENABLED=false`); athlete/coach `includePii` tenant-scoped; HP programs + `federations.getById` hide inactive; stream URLs require `https://`. **Human Critical remains:** rotate DB password + service_role + switch Hyperdrive off `postgres` — `SECURITY_CREDENTIAL_ROTATION.md`.

@@ -9,15 +9,10 @@ import {
   router,
 } from "../_core/trpc";
 import { assertSameFederation } from "../_core/federationScope";
+import { httpsUrlSchema } from "../_core/httpsUrl";
 import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 const platformTypeEnum = z.enum(["youtube", "facebook", "twitch", "other"]);
-
-/** Outbound links must be https — blocks javascript:/data: open redirects. */
-const httpsUrlSchema = z
-  .string()
-  .url()
-  .refine((u) => u.startsWith("https://"), { message: "URL must use https" });
 
 export const streamsRouter = router({
   list: publicProcedure

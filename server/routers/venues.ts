@@ -12,15 +12,23 @@ export const venuesRouter = router({
         .object({
           region: z.string().optional(),
           search: z.string().optional(),
+          /** Platform admin only — public always sees active venues. */
+          includeInactive: z.boolean().optional(),
           limit: listLimitSchema,
         })
         .optional()
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) return [];
 
+      const allowInactive =
+        input?.includeInactive === true && ctx.user?.role === "admin";
+
       const conditions = [];
+      if (!allowInactive) {
+        conditions.push(eq(venues.isActive, true));
+      }
       if (input?.region) {
         conditions.push(eq(venues.region, input.region));
       }
@@ -38,7 +46,7 @@ export const venuesRouter = router({
 
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) return null;
 
@@ -48,7 +56,10 @@ export const venuesRouter = router({
         .where(eq(venues.id, input.id))
         .limit(1);
 
-      return result[0] || null;
+      const row = result[0];
+      if (!row) return null;
+      if (!row.isActive && ctx.user?.role !== "admin") return null;
+      return row;
     }),
 
   create: adminProcedure
