@@ -8,7 +8,8 @@ All notable changes to this project are documented in this file.
 - CI quality gate: `npm run ci:gate` runs `check` + `test` + `build`. Local `cf:deploy` / `cf:deploy:staging` invoke it before wrangler. `docs/CI.md` documents Workers Builds dashboard build-command update to `npm run ci:gate` (not always changeable via repo / `wrangler.jsonc`).
 
 ### Added
-- Expanded `server/federationScope.test.ts`: unit coverage for `assertSameFederation` / unpublished-inactive helpers; same-tenant pass-through for events/news/streams/upload; `athletes.delete` cross-tenant FORBIDDEN (input asserted before DB).
+- Expanded `server/federationScope.test.ts`: unit coverage for `assertSameFederation` / unpublished-inactive helpers; same-tenant pass-through for events/news/streams/upload; `athletes.delete` + `streams.delete` cross-tenant FORBIDDEN (input asserted before DB).
+- Full backend content management for Platform Admin and Federation Admin: news (create/edit/publish/delete), streams (create/edit/setLive/delete), venues, coaches, schools, media library, HP programs, plus **Users** role assignment (`users.list` + `users.setRole` with `role` + `federationId`) so platform admins can grant federation editors. Shared forms with `ImageUpload` on news/streams/clubs/coaches/venues; FedAdmin nav adds Coaches, Media, HP Programs. `news.delete` is `federationAdminProcedure` with `assertSameFederation`; upload entities include `coach` and `stream`.
 
 ### Security
 - **Full production security audit (2026-07-23):** `docs/research/PRODUCTION_SECURITY_AUDIT.md`. Code: WhatsApp tRPC hard-disabled (`WHATSAPP_API_ENABLED=false`); athlete/coach `includePii` tenant-scoped; HP programs + `federations.getById` hide inactive; stream URLs require `https://`. **Human Critical remains:** rotate DB password + service_role + Hyperdrive least-privilege — `SECURITY_CREDENTIAL_ROTATION.md`.

@@ -182,12 +182,15 @@ function crossTenantCalls(caller: ReturnType<typeof callerFor>) {
       caller.news.create({ federationId: OTHER_FEDERATION, title: "T", slug: "t" }),
     "news.update": () => caller.news.update({ id: 1, federationId: OTHER_FEDERATION }),
     "news.publish": () => caller.news.publish({ id: 1, federationId: OTHER_FEDERATION }),
+    "news.delete": () => caller.news.delete({ id: 1, federationId: OTHER_FEDERATION }),
     "streams.create": () =>
       caller.streams.create({ federationId: OTHER_FEDERATION, title: "S" }),
     "streams.update": () =>
       caller.streams.update({ id: 1, federationId: OTHER_FEDERATION }),
     "streams.setLive": () =>
       caller.streams.setLive({ id: 1, federationId: OTHER_FEDERATION, isLive: true }),
+    "streams.delete": () =>
+      caller.streams.delete({ id: 1, federationId: OTHER_FEDERATION }),
     "upload.image": () =>
       caller.upload.image({
         federationId: OTHER_FEDERATION,
