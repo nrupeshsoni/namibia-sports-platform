@@ -32,7 +32,7 @@
 | ID | Finding | Location | Fix |
 |----|---------|----------|-----|
 | C1 | **Postgres password + `SUPABASE_SERVICE_ROLE_KEY` were in git history.** Tree scrubbed; live secrets must still be rotated. | History: commits before `b040dc3`; checklist `docs/research/SECURITY_CREDENTIAL_ROTATION.md` | Rotate DB password → update Hyperdrive connection string → rotate service_role → `wrangler secret put` → redeploy. Agents cannot do this. |
-| C2 | **Hyperdrive origin uses `postgres` superuser (`rolbypassrls`).** tRPC/Drizzle path never evaluates RLS; tenancy is API-only. Compromised Worker/Hyperdrive = full shared DB. | `wrangler.jsonc` Hyperdrive binding; `server/db.ts:52–67`; `docs/architecture/RLS_POLICIES.md` (gap B1) | Create least-privilege role limited to `sportsplatform_*`; point Hyperdrive at it after C1. |
+| C2 | **Hyperdrive origin uses `postgres` (`rolbypassrls`).** tRPC/Drizzle path never evaluates RLS; tenancy is API-only. Compromised Worker/Hyperdrive = full shared DB. | `wrangler.jsonc` Hyperdrive binding `dbfcf635ad4a475ba991743b94a5d6a2`; `server/db.ts:52–67`; `docs/architecture/RLS_POLICIES.md` (gap B1) | **Role created in DB:** `sportsplatform_app` (LOGIN, no bypassrls) + grants on all `sportsplatform_*`. **Human still must:** set role password → point Hyperdrive at it → finish C1. Checklist: `SECURITY_CREDENTIAL_ROTATION.md`. |
 
 ### HIGH — fixed in this pass (or already fixed on main)
 
@@ -122,7 +122,7 @@ Public list/get strip email/phone/(DOB). Staff `includePii` now tenant-scoped vi
 
 ### 8. Hyperdrive / role
 
-See **C2**. Documented in CLAUDE.md / RLS_POLICIES.md. Not fixable in app code alone.
+See **C2**. Role `sportsplatform_app` + grants exist in DB; Hyperdrive still on `postgres` until a human sets the role password and updates config `dbfcf635ad4a475ba991743b94a5d6a2`. Documented in CLAUDE.md / RLS_POLICIES.md / `SECURITY_CREDENTIAL_ROTATION.md`.
 
 ### 9. Client XSS / open redirects
 
@@ -153,10 +153,10 @@ Platform `/admin` and federation `/admin/*` gated in UI; mutations enforce RBAC 
 
 Complete **before** treating production as safe:
 
-1. **Reset Supabase DB password** (project `rbibqjgsnrueubrvyqps`).  
-2. **Rotate `SUPABASE_SERVICE_ROLE_KEY`** (and consider anon if abused).  
-3. **Update Hyperdrive** connection string with new password.  
-4. Prefer a **least-privilege DB role** (not `postgres`) for Hyperdrive.  
+1. **Set password** for DB role `sportsplatform_app` (role + grants already applied 2026-07-23).  
+2. **Point Hyperdrive** `dbfcf635ad4a475ba991743b94a5d6a2` at `sportsplatform_app` (not `postgres`).  
+3. **Reset Supabase `postgres` DB password** (project `rbibqjgsnrueubrvyqps`).  
+4. **Rotate `SUPABASE_SERVICE_ROLE_KEY`** in the dashboard (and consider anon if abused).  
 5. **`npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY`** (and related) + redeploy.  
 6. Update local `.env` / CI secrets; verify federations list + image upload smoke tests.
 

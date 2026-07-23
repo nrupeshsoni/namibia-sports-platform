@@ -1,8 +1,12 @@
 # SECURITY: Credential rotation (Postgres + Supabase)
 
-**Status:** CRITICAL — plaintext Postgres password (and a service-role JWT) were committed in git history. Scrubbing the working tree does **not** revoke access. A human with Supabase/Cloudflare/Netlify access must rotate **now**.
+**Status:** CRITICAL — plaintext Postgres password (and a service-role JWT) were committed in git history. Scrubbing the working tree does **not** revoke access. A human with Supabase/Cloudflare access must finish rotation **now**.
 
-Agents cannot rotate the live password without dashboard access.
+**Project:** `rbibqjgsnrueubrvyqps` (EU West)  
+**Hyperdrive config id** (from `wrangler.jsonc`): `dbfcf635ad4a475ba991743b94a5d6a2`  
+**Account id** (from `wrangler.jsonc`): `172d6c3857f7ef25ecc5caadc9381e9f`
+
+Agents cannot rotate the live password or `service_role` without dashboard access. Never paste real passwords or JWTs into git, chat logs, or `wrangler.jsonc`.
 
 ---
 
@@ -11,63 +15,138 @@ Agents cannot rotate the live password without dashboard access.
 | Secret | Where it appeared (scrubbed in tree) | Risk |
 |--------|--------------------------------------|------|
 | Supabase `postgres` DB password | `README.md`, `DEPLOYMENT_GUIDE.md`, `docs/design/NETLIFY_DEPLOYMENT.md`, `scripts/apply-seed.mjs`, `docs/scripts/test-db-connection.mjs` | Full DB access (shared project) |
-| `SUPABASE_SERVICE_ROLE_KEY` | `scripts/seed-via-supabase.mjs` | Bypasses RLS |
+| `SUPABASE_SERVICE_ROLE_KEY` | `scripts/seed-via-supabase.mjs` | Bypasses RLS (PostgREST / Storage) |
 
 Treat both as compromised until rotated. Assume git history and any forks/clones still contain the old values.
 
 ---
 
-## Checklist (do in order)
+## Already done in DB (agent / MCP — 2026-07-23)
 
-### 1. Rotate Supabase database password — NOW
+Applied migration `create_sportsplatform_app_role` (Supabase version `20260723200947`; repo copy `supabase/migrations/20260723230000_create_sportsplatform_app_role.sql`):
 
-1. Open [Supabase Dashboard](https://supabase.com/dashboard) → project `rbibqjgsnrueubrvyqps`.
-2. **Project Settings → Database → Database password → Reset database password**.
-3. Generate a strong password; store it only in a password manager / secrets store.
-4. Copy the new **URI** connection strings (session pooler `:5432` and/or transaction pooler `:6543`).
-5. URL-encode special characters in the password when building `DATABASE_URL`.
+| Item | Result |
+|------|--------|
+| Role `sportsplatform_app` | Exists: `LOGIN`, `rolsuper=false`, `rolbypassrls=false`, no CREATEDB/CREATEROLE |
+| Schema | `GRANT USAGE ON SCHEMA public` |
+| Tables | `SELECT/INSERT/UPDATE/DELETE` on all `sportsplatform_*` tables (13) including `sportsplatform_users` |
+| Sequences | `USAGE, SELECT` on all `sportsplatform_*` sequences |
+| Password | **Not set** — role cannot authenticate until a human sets one |
+| Bare `users` table | **No grant** (app uses `sportsplatform_users` only) |
+| `ALTER DEFAULT PRIVILEGES` | **Skipped on purpose** — shared DB (~737 tables); broad defaults would leak other products’ future tables |
 
-### 2. Rotate Supabase API keys (service role at minimum)
+**Not done (human only):** set role password, point Hyperdrive at the role, rotate `postgres` password, rotate `service_role`, update Worker secrets, smoke-test.
+
+---
+
+## Copy-paste checklist (human — do in order)
+
+### A. Set password for `sportsplatform_app` (required before Hyperdrive switch)
+
+1. Open [Supabase SQL Editor](https://supabase.com/dashboard/project/rbibqjgsnrueubrvyqps/sql) for project `rbibqjgsnrueubrvyqps`.
+2. Generate a strong password in a password manager (do **not** reuse the leaked `postgres` password).
+3. Run (replace the placeholder yourself; do not commit the password):
+
+```sql
+ALTER ROLE sportsplatform_app PASSWORD '<PASTE_NEW_STRONG_PASSWORD>';
+```
+
+4. Confirm login attributes (should already match):
+
+```sql
+SELECT rolname, rolsuper, rolbypassrls, rolcanlogin
+FROM pg_roles
+WHERE rolname = 'sportsplatform_app';
+-- expect: false, false, true
+```
+
+### B. Point Hyperdrive at the least-privilege role
+
+**Hyperdrive id:** `dbfcf635ad4a475ba991743b94a5d6a2`  
+**Binding:** `HYPERDRIVE` in `wrangler.jsonc` (production + staging env currently share this id).
+
+Prefer **session / direct** Postgres host (port **5432**), not transaction pooler `:6543`, for Hyperdrive.
+
+Connection string shape (**placeholders only** — never commit the filled string):
+
+```
+postgresql://sportsplatform_app:<URL_ENCODED_PASSWORD>@db.rbibqjgsnrueubrvyqps.supabase.co:5432/postgres
+```
+
+If Supabase requires the pooler username form for your network path:
+
+```
+postgresql://sportsplatform_app.rbibqjgsnrueubrvyqps:<URL_ENCODED_PASSWORD>@aws-0-eu-west-1.pooler.supabase.com:5432/postgres
+```
+
+**Option 1 — Cloudflare Dashboard**
+
+1. Cloudflare → account that owns Worker `namibia-sports-platform` → **Hyperdrive**.
+2. Open config id `dbfcf635ad4a475ba991743b94a5d6a2`.
+3. Edit origin connection string → use `sportsplatform_app` + new password (not `postgres`).
+4. Save. No `wrangler.jsonc` change needed if the id stays the same.
+
+**Option 2 — Wrangler CLI** (run locally; password stays in your shell history — prefer Dashboard if unsure):
+
+```bash
+npx wrangler hyperdrive update dbfcf635ad4a475ba991743b94a5d6a2 --connection-string="postgresql://sportsplatform_app:<URL_ENCODED_PASSWORD>@db.rbibqjgsnrueubrvyqps.supabase.co:5432/postgres"
+```
+
+Do **not** put the real connection string in git, PR descriptions, or agent chat.
+
+### C. Rotate the compromised `postgres` password
+
+1. Supabase Dashboard → project `rbibqjgsnrueubrvyqps` → **Project Settings → Database → Database password → Reset**.
+2. Store the new password in a password manager only.
+3. Update any **local/CI** tools that still use `postgres` (migrations, one-off scripts). Production Worker traffic should use Hyperdrive → `sportsplatform_app` after step B.
+4. If anything still pointed Hyperdrive at `postgres`, re-do step B with the new `sportsplatform_app` password (role password is independent of the `postgres` password reset — only reset of the role’s own password would require B again).
+
+### D. Rotate Supabase API keys (service_role — dashboard only)
 
 1. **Project Settings → API**.
-2. Rotate / regenerate the **service_role** key (and consider rotating **anon** if this project’s keys were ever misused).
-3. Update every consumer that stores these keys (below).
+2. Rotate / regenerate **`service_role`** (consider rotating **anon** only if you believe it was abused alongside the leak).
+3. Agents must **not** rotate service_role via API automation from this checklist.
 
-### 3. Update Cloudflare Hyperdrive
-
-Workers reach Postgres via Hyperdrive (`wrangler.jsonc` binding `HYPERDRIVE`), not a committed `DATABASE_URL`.
-
-1. After the DB password change, update the Hyperdrive config’s origin connection string to use the **new** password (and ideally a least-privilege role — not the `postgres` superuser).
-2. Dashboard: Cloudflare → Hyperdrive → config tied to id in `wrangler.jsonc` → edit connection string  
-   **or** recreate with:
-   ```bash
-   npx wrangler hyperdrive update <HYPERDRIVE_ID> --connection-string="postgresql://<role>:<NEW_PASSWORD>@<host>:5432/postgres"
-   ```
-3. Prefer a scoped DB role limited to `sportsplatform_*` tables (this Supabase project is shared).
-
-### 4. Update Worker / Netlify / local secrets
+### E. Update Worker / local / CI secrets
 
 | Target | Action |
 |--------|--------|
-| Cloudflare Worker secrets | `npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY` (and anon if rotated). Redeploy if needed. |
-| Hyperdrive | Step 3 — connection string with new DB password |
-| Netlify env (if still used) | Site settings → Environment variables → update `DATABASE_URL` / Supabase keys |
-| Local `.env` | Replace `DATABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from `.env.example` placeholders — never commit `.env` |
+| Cloudflare Worker secrets | `npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY` (and anon if rotated). |
+| Hyperdrive | Step B — already uses DB role password, not Worker secrets |
+| Local `.env` | Replace `DATABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` from `.env.example` placeholders — never commit `.env` |
 | CI / Workers Builds | Update any encrypted env vars that held the old password or service role |
+| Netlify (dead) | Ignore unless something still reads old Netlify env |
 
-### 5. Verify the app still connects
+Redeploy after secrets change if the Worker was built/cached with old values:
 
-1. Local: `DATABASE_URL=... node docs/scripts/test-db-connection.mjs` (expects federations count).
-2. Staging Worker: hit a public tRPC query (e.g. federations list) — must return 200 with data.
-3. Production (`sports.com.na`): same smoke check after deploy.
-4. Confirm storage uploads still work if they use `SUPABASE_SERVICE_ROLE_KEY`.
+```bash
+npm run cf:deploy
+```
 
-### 6. Optional hardening after rotation
+### F. Verify
 
-- [ ] Create a least-privilege Postgres role for Hyperdrive (no superuser).
-- [ ] Revoke/rotate any other leaked keys found in git history (`git log -p -S 'postgresql://postgres:'`).
+1. Local (optional): `DATABASE_URL=... node docs/scripts/test-db-connection.mjs` using a URL that uses **`sportsplatform_app`**, not `postgres`.
+2. Staging / production: public tRPC query (e.g. federations list) returns 200 with data.
+3. Confirm Storage uploads still work (`SUPABASE_SERVICE_ROLE_KEY` path).
+4. Optional: from SQL editor as a privileged role, confirm the app role has **no** privilege on unrelated tables:
+
+```sql
+SELECT has_table_privilege('sportsplatform_app', 'public.users', 'SELECT') AS bare_users;
+-- expect: false
+```
+
+### G. After adding new `sportsplatform_*` tables
+
+Re-run the grant block in `supabase/migrations/20260723230000_create_sportsplatform_app_role.sql` (or re-apply the same `DO $$ … GRANT …` loop). Do **not** add `ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public`.
+
+---
+
+## Optional hardening after rotation
+
+- [ ] Revoke/rotate any other leaked keys found in git history (`git log -p -S 'postgresql://postgres:'` — do not paste secrets into tickets).
 - [ ] Consider history rewrite only if the repo was private and you accept the cost; public history = assume forever leaked → rotation is the real fix.
 - [ ] Enable Supabase leaked-password / audit alerts if available.
+- [ ] Give staging its **own** Hyperdrive id (today staging reuses `dbfcf635ad4a475ba991743b94a5d6a2`).
 
 ---
 
@@ -76,7 +155,7 @@ Workers reach Postgres via Hyperdrive (`wrangler.jsonc` binding `HYPERDRIVE`), n
 Use only forms like `.env.example`:
 
 ```
-DATABASE_URL=postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+DATABASE_URL=postgresql://sportsplatform_app.[PROJECT_REF]:[PASSWORD]@aws-0-eu-west-1.pooler.supabase.com:5432/postgres
 SUPABASE_SERVICE_ROLE_KEY=
 ```
 
