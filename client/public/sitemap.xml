@@ -441,57 +441,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sports.com.na/news/namibia-bjk-cup-africa-group-iii-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-women-hockey-sa-series-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/team-namibia-commonwealth-flag-handover-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-squash-jarvis-cup-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/desert-jewels-squad-zimbabwe-africa-cup-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/mischa-araes-commonwealth-boxing-debut-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-powerlifting-national-qualifier-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://sports.com.na/news/african-stars-fourth-npfl-title-2026</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://sports.com.na/news/welwitschias-blue-bulls-thriller-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/shikongo-para-athletics-commonwealth-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-wrestlers-spain-grand-prix-2026</loc>
+    <loc>https://sports.com.na/news/african-traditional-sports-2026-namibia</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -501,12 +456,17 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://sports.com.na/news/eagles-t20-tri-nations-sweep-2026</loc>
+    <loc>https://sports.com.na/news/athletics-nationals-2026-dates</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://sports.com.na/news/kambonde-archery-aga-botswana-2026</loc>
+    <loc>https://sports.com.na/news/bfn-lynn-du-preez-awiba-2021</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/boshoff-brothers-african-canoe-slalom-medals-2026</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -516,82 +476,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://sports.com.na/news/ekandjo-rhythmic-gymnastics-worlds-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/welwitschias-zambia-71-12-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-rowing-coastal-sprints-debut-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/unam-fc-nfa-cup-champs-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/nesa-global-esports-games-qualifiers-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/fei-world-jumping-challenge-swakopmund-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/parker-bredenhann-namibian-open-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-karate-ufak-angola-medals-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/quality-fc-nfa-futsal-cup-champions-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/junior-national-sailing-champions-walvis-bay-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-fencing-gaborone-easter-bronzes-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/nhra-independence-cup-gobabis-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-sports-portal-launch</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/athletics-nationals-2026-dates</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/swimming-namibia-nationals-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/junior-table-tennis-record-entry-2026</loc>
+    <loc>https://sports.com.na/news/chase-brinkmann-africa-junior-triathlon-2026</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -601,12 +486,127 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://sports.com.na/news/namibia-padel-nppl-league-launch-2026</loc>
+    <loc>https://sports.com.na/news/desert-jewels-squad-zimbabwe-africa-cup-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/eagles-t20-tri-nations-sweep-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/ekandjo-rhythmic-gymnastics-worlds-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/erasmus-t20-wc-2026-squad</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/fei-world-jumping-challenge-swakopmund-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/fistball-cohen-cup-cfc-victory-2025</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/handball-swakopmund-regional-tournament-2025</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/jukskei-namibia-senior-tests-kroonstad-sa</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/junior-national-sailing-champions-walvis-bay-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/junior-table-tennis-record-entry-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/kambonde-archery-aga-botswana-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/mabuza-taekwondo-african-open-bronze-2025</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/mboma-commonwealth-games-2026</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://sports.com.na/news/ministry-sport-budget-increase-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/ministry-sport-youth-budget-uplift-2025</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/mischa-araes-commonwealth-boxing-debut-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/mman-damian-muller-immaf-africa-flyweight-2024</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/nagu-parker-namibian-open-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-2026-major-sports-calendar</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-bass-angling-world-championships-2025</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-bjk-cup-africa-group-iii-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-bodybuilding-wff-africa-medals-2025</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-commonwealth-games-2026-team</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-darts-region5-five-medals-2025</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-fencing-gaborone-easter-bronzes-2026</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -621,162 +621,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://sports.com.na/news/nsc-high-performance-athletics</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/rugby-namibia-new-coach</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/volleyball-cavb-u20-victory</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/nfa-premier-league-format-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-national-closed-chess-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/oshana-multi-sport-complex-plan</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-medals-all-africa-games</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-zone-vi-beach-volleyball-tour-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-youth-olympic-games-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/chase-brinkmann-africa-junior-triathlon-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/street-classic-2026-preview</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/nfa-premier-league-2026-update</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/boshoff-brothers-african-canoe-slalom-medals-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/suren-greeff-nedbank-road-champs-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-commonwealth-games-2026-team</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/african-traditional-sports-2026-namibia</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/shalulile-afcon-namibia-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/mboma-commonwealth-games-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/welwitschias-2026-home-schedule</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/erasmus-t20-wc-2026-squad</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-2026-major-sports-calendar</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-u19-wc-2026-host</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/weskus-4x4-vasbyt-motorsport-finale-2025</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/ncsf-champ-of-champs-namshooters-2025</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/spitzkoppe-rock-climbing-boom-namibia</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/unam-phoenix-fiba-africa-qualifiers-2025</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-bodybuilding-wff-africa-medals-2025</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/fistball-cohen-cup-cfc-victory-2025</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/mabuza-taekwondo-african-open-bronze-2025</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/handball-swakopmund-regional-tournament-2025</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-bass-angling-world-championships-2025</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://sports.com.na/news/namibia-darts-region5-five-medals-2025</loc>
+    <loc>https://sports.com.na/news/namibia-hunting-rifle-world-championships-otjiwa</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -786,7 +631,127 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/news/namibia-karate-ufak-angola-medals-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-medals-all-africa-games</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-national-closed-chess-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/news/namibia-national-surfing-championships-walvis-bay</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-padel-nppl-league-launch-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-powerlifting-national-qualifier-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-rowing-coastal-sprints-debut-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-sports-portal-launch</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-squash-jarvis-cup-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-u19-wc-2026-host</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-women-hockey-sa-series-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-wrestlers-spain-grand-prix-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-youth-olympic-games-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/namibia-zone-vi-beach-volleyball-tour-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/ncsf-champ-of-champs-namshooters-2025</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/nesa-global-esports-games-qualifiers-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/nfa-premier-league-2026-update</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/nfa-premier-league-format-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/nhra-independence-cup-gobabis-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/nkbf-muller-brothers-desert-storm-5</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/nsc-high-performance-athletics</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/oshana-multi-sport-complex-plan</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/parker-bredenhann-namibian-open-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/pwfn-shangadi-world-championships-brazil-bronze</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/quality-fc-nfa-futsal-cup-champions-2026</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -796,12 +761,77 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://sports.com.na/news/namibia-hunting-rifle-world-championships-otjiwa</loc>
+    <loc>https://sports.com.na/news/rugby-namibia-new-coach</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://sports.com.na/news/ministry-sport-youth-budget-uplift-2025</loc>
+    <loc>https://sports.com.na/news/shalulile-afcon-namibia-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/shikongo-para-athletics-commonwealth-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/spitzkoppe-rock-climbing-boom-namibia</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/street-classic-2026-preview</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/suren-greeff-nedbank-road-champs-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/swimming-namibia-nationals-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/team-namibia-commonwealth-flag-handover-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/unam-fc-nfa-cup-champs-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/unam-phoenix-fiba-africa-qualifiers-2025</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/volleyball-cavb-u20-victory</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/welwitschias-2026-home-schedule</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/welwitschias-blue-bulls-thriller-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/welwitschias-zambia-71-12-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/news/weskus-4x4-vasbyt-motorsport-finale-2025</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -822,6 +852,11 @@
   </url>
   <url>
     <loc>https://sports.com.na/athletes/alexander-miller</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/allan-nghixulifwa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -847,6 +882,11 @@
   </url>
   <url>
     <loc>https://sports.com.na/athletes/annelise-koster</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/anri-krugel</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -901,6 +941,11 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/carli-du-plessis</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/charles-eichab</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -936,7 +981,17 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/colbin-du-plessis</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/connor-van-schalkwyk</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/corbin-prinzonsky</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -947,6 +1002,11 @@
   </url>
   <url>
     <loc>https://sports.com.na/athletes/craig-williams</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/damian-muller</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -971,12 +1031,47 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/delano-muller</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/deon-hotto</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/dries-verwey</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/dynamo-fredericks</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/edmund-van-neel</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/edwin-kutara</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/elijah-hilukiluah</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/ellen-melani</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/elmarie-horn</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -996,6 +1091,11 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/francois-boshoff</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/frankie-fredericks</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -1011,12 +1111,22 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/gesa-jeske</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/harry-simon</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://sports.com.na/athletes/helalia-johannes</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/heleen-steenkamp</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1066,6 +1176,11 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/joe-banda</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/johan-deysel</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -1111,6 +1226,11 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/julian-muller</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/julius-indongo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -1126,7 +1246,17 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/kautjeza-tjirimuje</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/keith-bock</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/kevin-kazadi-muanza</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1156,12 +1286,32 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/leona-oosthuizen</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/lian-gebauer</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/liezl-maritz</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/likius-nande</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/lishen-mentile</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/liza-hanekom</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1186,7 +1336,52 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/lume-karsten</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/mabeth-kazeurua</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/maja-brinkmann</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/manfred-starke</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/marius-johannes</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/maximilian-betts</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/melt-meyer</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/mevin-mutakalilumo</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/michael-katoko</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/michael-mukumbutaa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1216,6 +1411,11 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/nathan-chase</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/nico-dreyer</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -1226,7 +1426,27 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/nicolas-garrels</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/nicole-langerman</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/niko-davin</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/nino-leicher</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/odile-gertze</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1246,12 +1466,22 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/penda-given-atshipara</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/peter-shalulile</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://sports.com.na/athletes/petro-stoffberg</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/petrus-iyambo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1266,7 +1496,17 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/pewee-garth-kavekatora</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/philip-seidler</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/phillipus-shangadi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1311,6 +1551,11 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/ronald-smith-neville</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/ronan-wantenaar</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -1322,6 +1567,16 @@
   </url>
   <url>
     <loc>https://sports.com.na/athletes/ruben-yssel</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/sakaria-shikongo</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/seth-mabuza</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1366,12 +1621,22 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/thomas-ndara</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/tjipekapora-herunga</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://sports.com.na/athletes/tjiuee-uanivi</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/todd-parker</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1386,7 +1651,17 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/veja-hinda</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/vera-looser</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/vetjitiraije-kaunami</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -1411,12 +1686,37 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://sports.com.na/athletes/wensley-haseb</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://sports.com.na/athletes/wian-conradie</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://sports.com.na/athletes/willy-stephanus</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/wilmari-woest</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/wilna-bredenhann</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/yana-oosthuizen</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://sports.com.na/athletes/yaurovandu-ndjavera</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

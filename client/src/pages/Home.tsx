@@ -1108,26 +1108,36 @@ export default function Home() {
               <ul className="space-y-3 text-sm text-gray-500">
                 <li>Namibia Sports Commission</li>
                 <li>Windhoek, Namibia</li>
-                <li className="hover:text-red-400 transition-colors cursor-pointer">info@namibiasport.org</li>
-                <li className="hover:text-red-400 transition-colors cursor-pointer">+264 61 246105</li>
+                <li>
+                  <a
+                    href="mailto:info@namibiasport.org"
+                    className="hover:text-red-400 transition-colors"
+                  >
+                    info@namibiasport.org
+                  </a>
+                </li>
+                <li>
+                  <a href="tel:+26461246105" className="hover:text-red-400 transition-colors">
+                    +264 61 246105
+                  </a>
+                </li>
               </ul>
             </div>
             <div>
               <h4 className="text-sm tracking-wider text-gray-300 mb-4">FOLLOW US</h4>
               <div className="flex gap-3">
-                {['Facebook', 'Twitter', 'Instagram'].map((social) => (
-                  <a 
-                    key={social}
-                    href="#" 
-                    className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white transition-all duration-300"
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                    }}
-                  >
-                    {social}
-                  </a>
-                ))}
+                <a
+                  href="https://facebook.com/NamibiaSportsCommission"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white transition-all duration-300"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                  }}
+                >
+                  Facebook
+                </a>
               </div>
             </div>
           </div>

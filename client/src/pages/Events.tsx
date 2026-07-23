@@ -639,6 +639,11 @@ export default function Events() {
         <p className="text-sm text-gray-600">
           © {new Date().getFullYear()} Namibia Sports Platform
         </p>
+        <p className="text-xs text-gray-600 mt-2">
+          <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+          <span className="mx-2 text-gray-700">·</span>
+          <a href="/terms" className="hover:text-white transition-colors">Terms of Use</a>
+        </p>
         <p className="text-xs text-gray-700 mt-1">
           Designed & Developed by{' '}
           <a href="https://thedome.com.na" className="text-red-600 hover:text-red-500">

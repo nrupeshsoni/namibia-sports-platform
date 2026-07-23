@@ -76,3 +76,39 @@ Priority null logos (NAGU, NKF, BFN, DSN, NSRF, TKD, UFN, PWFN, NNSSU, NUFS, TIS
 - Fabricated club emails/phones  
 - Crest uploads for rejected candidates under `client/public/logos/_candidates/`  
 - Long-tail hollow emerging sports with no named clubs or press (kendo, teqball, orienteering, etc.)
+
+---
+
+## Polish pass (2026-07-23)
+
+**Migration:** `20260723100000_athletes_clubs_hollow_polish.sql` (remote: `athletes_clubs_hollow_polish`)  
+**Sitemap:** regenerated `scripts/data/*-slugs.json` + `client/public/sitemap.xml` → **83** feds / **79** news / **178** athletes.
+
+### Athletes / clubs added
+
+| Fed | Athletes | Clubs | Sources |
+|-----|----------:|------:|---------|
+| Karate | **5** | +OGKN | goju-ryu-karate-namibia.com UFAK Region South 2026 |
+| Dance Sport | **6** | +Codesync | Republikein DSN nationals 2025 |
+| Triathlon | **4** | — | The Namibian Africa Junior golds + triathlon.org NF rankings |
+| Taekwondo | **1** | — | New Era Seth Mabuza Zone 6 bronze |
+
+### Crest re-hunt (Golf / Karate / Badminton / PWFN)
+
+| Candidate | Verdict |
+|-----------|---------|
+| FB `NamibiaKarateFederation` | **Reject** — Namibian flag-wave / Paralympic-style graphic, not karate crest |
+| FB `NamibiaKarate` | **Reject** — Namibia JKA Shotokan branch logo |
+| Golf FB / Webnode | **Reject** — silhouette / initials-only favicon |
+| Badminton / PWFN | **Reject** — no verified federation crest file found |
+
+Null logos remain **30 / 83** active.
+
+### Live counts (after polish)
+
+| Metric | Before polish | After |
+|--------|--------------:|------:|
+| Active athletes | 162 | **178** (+16) |
+| Active clubs | 169 | **171** (+2) |
+| Published news | 79 | **79** |
+| Null logos | 30 | **30** |
