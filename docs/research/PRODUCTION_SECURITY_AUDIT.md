@@ -170,3 +170,24 @@ Full checklist: [`SECURITY_CREDENTIAL_ROTATION.md`](./SECURITY_CREDENTIAL_ROTATI
 npm run check          # pass
 npm run test -- --run server/federationScope.test.ts server/rateLimit.test.ts  # 37 pass
 ```
+
+---
+
+## Admin CMS follow-up
+
+**Date:** 2026-07-23  
+**HEAD audited:** `b6d1411` / `ae83765` (admin CRUD UIs + `users` RBAC)  
+**Scope:** Privilege escalation / tenancy only.  
+**Verdict:** **CLEAN** — no Critical/High findings; no code changes required.
+
+| Check | Result |
+|-------|--------|
+| `users.list` / `users.setRole` | `adminProcedure` only — `federation_admin` cannot call (role gate in `adminProcedure`). |
+| Demote last admin | Self-demotion blocked (`id === ctx.user.id && role !== "admin"`). Sole admin cannot remove own admin role. |
+| `federation_admin` + null `federationId` | Rejected at runtime (`federationId == null` → `BAD_REQUEST`). Zod input allows `nullable().optional()`; couple is enforced in the mutation body (Medium defense-in-depth only — not exploitable). |
+| `news.delete` / `streams.delete` | `assertSameFederation(input.federationId)` then `DELETE … WHERE id AND federationId` — no cross-tenant delete. Ownership load-then-assert still preferred (see M4); silent no-op on id/fed mismatch is not escalation. |
+| Upload `coach` / `stream` | `entitySchema` includes both; `assertSameFederation` on `federationId` before storage write (same pattern as club/athlete). |
+| Platform Admin UI | `Admin.tsx`: `role === "admin"` redirect + early return before mutation UI; queries `enabled: isPlatformAdmin`. |
+| FedAdmin new tabs | Props use `federation.id` from slug lookup (`FederationLayout`); coaches/media/HP/news/streams lock that id — client cannot pass another federation via UI. API still enforces `assertSameFederation`. |
+
+**Tests re-run:** `npm run check` + `vitest run server/federationScope.test.ts` — 35 pass (includes `news.delete` / `streams.delete` / `upload.image` / `coaches.create` cross-tenant).
