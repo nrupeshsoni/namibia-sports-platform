@@ -5,8 +5,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "wrangler dev",
-    "prebuild": "npm run generate-icons",
+    "prebuild": "npm run generate-icons && npm run generate-sitemap",
     "build": "vite build",
+    "generate-sitemap": "node scripts/generate-sitemap.mjs",
     "check": "tsc --noEmit",
     "cf:dryrun": "npm run build && wrangler deploy --dry-run",
     "cf:deploy:staging": "npm run build && wrangler deploy --env staging",

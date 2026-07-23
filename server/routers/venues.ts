@@ -3,6 +3,7 @@ import { getDb } from "../db";
 import { venues } from "../../drizzle/schema";
 import { eq, like, and } from "drizzle-orm";
 import { publicProcedure, adminProcedure, router } from "../_core/trpc";
+import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 export const venuesRouter = router({
   list: publicProcedure
@@ -11,6 +12,7 @@ export const venuesRouter = router({
         .object({
           region: z.string().optional(),
           search: z.string().optional(),
+          limit: listLimitSchema,
         })
         .optional()
     )
@@ -26,13 +28,12 @@ export const venuesRouter = router({
         conditions.push(like(venues.name, `%${input.search}%`));
       }
 
-      const result = await db
+      return await db
         .select()
         .from(venues)
         .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(venues.name);
-
-      return result;
+        .orderBy(venues.name)
+        .limit(resolveListLimit(input?.limit));
     }),
 
   getById: publicProcedure

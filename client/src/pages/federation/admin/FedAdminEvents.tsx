@@ -17,7 +17,11 @@ export default function FedAdminEvents({ federationId }: FedAdminEventsProps) {
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number } | null>(null);
 
   const utils = trpc.useUtils();
-  const eventsQuery = trpc.events.list.useQuery({ federationId, includeUnpublished: true });
+  const eventsQuery = trpc.events.list.useQuery({
+    federationId,
+    includeUnpublished: true,
+    limit: 200,
+  });
   const deleteMut = trpc.events.delete.useMutation({
     onSuccess: () => {
       utils.events.list.invalidate();

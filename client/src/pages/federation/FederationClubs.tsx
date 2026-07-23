@@ -60,7 +60,10 @@ export default function FederationClubs() {
   const [search, setSearch] = useState("");
   const [regionFilter, setRegionFilter] = useState("all");
 
-  const clubsQuery = trpc.clubs.list.useQuery({ federationId: federation?.id });
+  const clubsQuery = trpc.clubs.list.useQuery({
+    federationId: federation?.id,
+    limit: 200,
+  });
   const clubs = clubsQuery.data ?? [];
 
   const filtered = clubs.filter((c) => {

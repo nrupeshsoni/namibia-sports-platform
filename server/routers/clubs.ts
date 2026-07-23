@@ -8,6 +8,7 @@ import {
   canIncludeInactive,
   canViewNonPublic,
 } from "../_core/federationScope";
+import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 export const clubsRouter = router({
   /** Public directory — active clubs only. Staff may pass `includeInactive`. */
@@ -18,6 +19,7 @@ export const clubsRouter = router({
           federationId: z.number().optional(),
           region: z.string().optional(),
           search: z.string().optional(),
+          limit: listLimitSchema,
           /** Staff-only; federation_admin must pass matching federationId */
           includeInactive: z.boolean().optional(),
         })
@@ -45,13 +47,12 @@ export const clubsRouter = router({
           conditions.push(like(clubs.name, `%${input.search}%`));
         }
 
-        const result = await db
+        return await db
           .select()
           .from(clubs)
           .where(and(...conditions))
-          .orderBy(clubs.name);
-
-        return result;
+          .orderBy(clubs.name)
+          .limit(resolveListLimit(input?.limit));
       } catch (e) {
         console.error("[clubs.list]", e);
         return [];

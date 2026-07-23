@@ -51,7 +51,7 @@ const L = "text-sm text-gray-400";
 
 export function ClubForm({ mode, initialData, onSuccess, federationIdLock }: Props) {
   const utils = trpc.useUtils();
-  const federationsQuery = trpc.federations.list.useQuery({});
+  const federationsQuery = trpc.federations.list.useQuery({ limit: 200 });
   const [error, setError] = useState<string | null>(null);
   const lockedFedId = federationIdLock ?? initialData?.federationId;
 

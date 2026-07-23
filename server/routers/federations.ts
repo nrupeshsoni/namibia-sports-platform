@@ -3,6 +3,7 @@ import { getDb } from "../db";
 import { federations, type Federation } from "../../drizzle/schema";
 import { eq, like, and, ilike } from "drizzle-orm";
 import { publicProcedure, adminProcedure, router } from "../_core/trpc";
+import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 /** Derives URL slug from federation name: "Karate Namibia" → "karate-namibia" */
 function nameToSlug(name: string): string {
@@ -40,6 +41,7 @@ export const federationsRouter = router({
         .object({
           search: z.string().optional(),
           type: z.enum(["federation", "umbrella", "ministry", "commission"]).optional(),
+          limit: listLimitSchema,
         })
         .optional()
     )
@@ -60,7 +62,8 @@ export const federationsRouter = router({
           .select()
           .from(federations)
           .where(and(...conditions))
-          .orderBy(federations.id);
+          .orderBy(federations.id)
+          .limit(resolveListLimit(input?.limit));
       } catch (e) {
         console.error("[federations.list]", e);
         return [];

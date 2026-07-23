@@ -9,6 +9,7 @@ import {
   canIncludeInactive,
   canViewNonPublic,
 } from "../_core/federationScope";
+import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 function isStaff(role: string | null | undefined): boolean {
   return role === "admin" || role === "federation_admin";
@@ -32,6 +33,7 @@ export const coachesRouter = router({
         .object({
           federationId: z.number().optional(),
           clubId: z.number().optional(),
+          limit: listLimitSchema,
           /** Staff-only; federation_admin must pass matching federationId */
           includeInactive: z.boolean().optional(),
           /** Ignored unless caller is admin or federation_admin. */
@@ -62,7 +64,8 @@ export const coachesRouter = router({
         .select()
         .from(coaches)
         .where(and(...conditions))
-        .orderBy(coaches.firstName);
+        .orderBy(coaches.firstName)
+        .limit(resolveListLimit(input?.limit));
 
       if (input?.includePii === true && staff) return result;
       return result.map(stripCoachPii);

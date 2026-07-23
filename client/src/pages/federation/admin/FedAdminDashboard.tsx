@@ -7,11 +7,23 @@ interface FedAdminDashboardProps {
 }
 
 export default function FedAdminDashboard({ federationId, federationName }: FedAdminDashboardProps) {
-  const eventsQuery = trpc.events.list.useQuery({ federationId, includeUnpublished: true });
-  const clubsQuery = trpc.clubs.list.useQuery({ federationId, includeInactive: true });
-  const athletesQuery = trpc.athletes.list.useQuery({ federationId, includeInactive: true });
+  const eventsQuery = trpc.events.list.useQuery({
+    federationId,
+    includeUnpublished: true,
+    limit: 200,
+  });
+  const clubsQuery = trpc.clubs.list.useQuery({
+    federationId,
+    includeInactive: true,
+    limit: 200,
+  });
+  const athletesQuery = trpc.athletes.list.useQuery({
+    federationId,
+    includeInactive: true,
+    limit: 200,
+  });
   const newsQuery = trpc.news.list.useQuery({ federationId, includeUnpublished: true });
-  const streamsQuery = trpc.streams.list.useQuery({ federationId });
+  const streamsQuery = trpc.streams.list.useQuery({ federationId, limit: 200 });
 
   const stats = [
     { label: "Events", value: eventsQuery.data?.length ?? "—", color: "#3B82F6", icon: Calendar },

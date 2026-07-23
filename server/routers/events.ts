@@ -8,6 +8,7 @@ import {
   canIncludeUnpublished,
   canViewNonPublic,
 } from "../_core/federationScope";
+import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 export const eventsRouter = router({
   list: publicProcedure
@@ -18,7 +19,7 @@ export const eventsRouter = router({
           region: z.string().optional(),
           upcoming: z.boolean().optional(),
           search: z.string().optional(),
-          limit: z.number().optional(),
+          limit: listLimitSchema,
           /** Staff-only: ignored for public/anonymous; federation_admin limited to own federation */
           includeUnpublished: z.boolean().optional(),
         })
@@ -51,19 +52,13 @@ export const eventsRouter = router({
         }
 
         const orderBy = input?.upcoming ? asc(events.startDate) : desc(events.startDate);
-        const limit = input?.limit;
 
-        let query = db
+        return db
           .select()
           .from(events)
           .where(conditions.length > 0 ? and(...conditions) : undefined)
-          .orderBy(orderBy);
-
-        if (limit) {
-          query = query.limit(limit) as typeof query;
-        }
-
-        return query;
+          .orderBy(orderBy)
+          .limit(resolveListLimit(input?.limit));
       } catch (e) {
         console.error("[events.list]", e);
         return [];

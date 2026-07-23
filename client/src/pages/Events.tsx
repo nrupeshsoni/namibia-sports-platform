@@ -318,7 +318,7 @@ export default function Events() {
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  const eventsQuery = trpc.events.list.useQuery({});
+  const eventsQuery = trpc.events.list.useQuery({ limit: 200 });
 
   const highlightSlug = useMemo(() => {
     if (typeof window === 'undefined') return null;

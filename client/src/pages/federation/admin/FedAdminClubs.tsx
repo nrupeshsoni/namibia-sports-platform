@@ -19,6 +19,7 @@ export default function FedAdminClubs({ federationId }: FedAdminClubsProps) {
   const clubsQuery = trpc.clubs.list.useQuery({
     federationId,
     includeInactive: true,
+    limit: 200,
   });
   const deleteMut = trpc.clubs.delete.useMutation({
     onSuccess: () => {

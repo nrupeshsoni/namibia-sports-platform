@@ -97,7 +97,7 @@ export default function Home() {
   }, [federations, searchQuery, selectedCategory]);
   
   // Federations via tRPC (same source as getBySlug — consistent slug resolution)
-  const federationQuery = trpc.federations.list.useQuery();
+  const federationQuery = trpc.federations.list.useQuery({ limit: 200 });
   const fedList = federationQuery.data ?? [];
   const fedError = federationQuery.error;
   const fedLoading = federationQuery.isLoading;
@@ -119,6 +119,8 @@ export default function Home() {
       { label: 'Federations', href: '#federations' },
       { label: 'Venues', href: '#venues' },
       { label: 'Events', href: '/events' },
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Use', href: '/terms' },
     ];
     if (isPlatformAdmin) {
       links.push({ label: 'Admin Portal', href: '/admin' });
@@ -139,7 +141,7 @@ export default function Home() {
   }, [fedList, fedError, fedLoading]);
 
   // Venues via tRPC (server orders by name — sort by capacity descending for display)
-  const venuesQuery = trpc.venues.list.useQuery();
+  const venuesQuery = trpc.venues.list.useQuery({ limit: 200 });
   const venues = useMemo(
     () => [...(venuesQuery.data ?? [])].sort((a, b) => (b.capacity ?? 0) - (a.capacity ?? 0)),
     [venuesQuery.data]
@@ -1139,6 +1141,11 @@ export default function Home() {
           >
             <p className="text-sm text-gray-500 mb-3">
               © {new Date().getFullYear()} Namibia Sports Platform. All rights reserved.
+            </p>
+            <p className="text-xs text-gray-500 mb-3">
+              <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+              <span className="mx-2 text-gray-600">·</span>
+              <a href="/terms" className="hover:text-white transition-colors">Terms of Use</a>
             </p>
             <p className="text-xs text-gray-600">
               Website Designed and Developed by{' '}

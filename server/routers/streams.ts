@@ -9,6 +9,7 @@ import {
   router,
 } from "../_core/trpc";
 import { assertSameFederation } from "../_core/federationScope";
+import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 const platformTypeEnum = z.enum(["youtube", "facebook", "twitch", "other"]);
 
@@ -19,6 +20,7 @@ export const streamsRouter = router({
         .object({
           federationId: z.number().optional(),
           isLive: z.boolean().optional(),
+          limit: listLimitSchema,
         })
         .optional()
     )
@@ -35,13 +37,12 @@ export const streamsRouter = router({
           conditions.push(eq(liveStreams.isLive, input.isLive));
         }
 
-        const result = await db
+        return await db
           .select()
           .from(liveStreams)
           .where(conditions.length > 0 ? and(...conditions) : undefined)
-          .orderBy(desc(liveStreams.scheduledStart));
-
-        return result;
+          .orderBy(desc(liveStreams.scheduledStart))
+          .limit(resolveListLimit(input?.limit));
       } catch (e) {
         console.error("[streams.list]", e);
         return [];

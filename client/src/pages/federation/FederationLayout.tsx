@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useLocation, Link, Redirect } from "wouter";
 import { ChevronLeft, Loader2, Home, Calendar, Users, User, Newspaper, Radio, Shield } from "lucide-react";
 import type { FederationContextValue } from "@/contexts/FederationContext";
@@ -12,12 +12,13 @@ import FederationAthletes from "./FederationAthletes";
 import FederationNews from "./FederationNews";
 import FederationStreams from "./FederationStreams";
 import { FedAdminLayout, FedAdminLayoutSkeleton } from "./admin/FedAdminLayout";
-import FedAdminDashboard from "./admin/FedAdminDashboard";
-import FedAdminEvents from "./admin/FedAdminEvents";
-import FedAdminClubs from "./admin/FedAdminClubs";
-import FedAdminAthletes from "./admin/FedAdminAthletes";
-import FedAdminNews from "./admin/FedAdminNews";
-import FedAdminStreams from "./admin/FedAdminStreams";
+
+const FedAdminDashboard = lazy(() => import("./admin/FedAdminDashboard"));
+const FedAdminEvents = lazy(() => import("./admin/FedAdminEvents"));
+const FedAdminClubs = lazy(() => import("./admin/FedAdminClubs"));
+const FedAdminAthletes = lazy(() => import("./admin/FedAdminAthletes"));
+const FedAdminNews = lazy(() => import("./admin/FedAdminNews"));
+const FedAdminStreams = lazy(() => import("./admin/FedAdminStreams"));
 
 const TABS = [
   { path: "", label: "Home", icon: Home },
@@ -146,12 +147,23 @@ function FederationLayoutInner({
     }
     return (
       <FedAdminLayout slug={slug} federationId={federation.id} federationName={federation.name}>
-        {adminSection === "" && <FedAdminDashboard federationId={federation.id} federationName={federation.name} />}
-        {adminSection === "events" && <FedAdminEvents federationId={federation.id} />}
-        {adminSection === "clubs" && <FedAdminClubs federationId={federation.id} />}
-        {adminSection === "athletes" && <FedAdminAthletes federationId={federation.id} />}
-        {adminSection === "news" && <FedAdminNews federationId={federation.id} />}
-        {adminSection === "streams" && <FedAdminStreams federationId={federation.id} />}
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center py-16 text-gray-400 text-sm">
+              <Loader2 className="w-5 h-5 animate-spin mr-2" />
+              Loading…
+            </div>
+          }
+        >
+          {adminSection === "" && (
+            <FedAdminDashboard federationId={federation.id} federationName={federation.name} />
+          )}
+          {adminSection === "events" && <FedAdminEvents federationId={federation.id} />}
+          {adminSection === "clubs" && <FedAdminClubs federationId={federation.id} />}
+          {adminSection === "athletes" && <FedAdminAthletes federationId={federation.id} />}
+          {adminSection === "news" && <FedAdminNews federationId={federation.id} />}
+          {adminSection === "streams" && <FedAdminStreams federationId={federation.id} />}
+        </Suspense>
       </FedAdminLayout>
     );
   }

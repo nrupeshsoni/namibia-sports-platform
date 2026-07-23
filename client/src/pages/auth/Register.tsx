@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { trpc } from "@/lib/trpc";
 import { isGoogleAuthEnabled } from "@/lib/features";
@@ -29,18 +30,23 @@ export default function Register() {
   // form field; it must go through an invite/admin grant. Kept as a visible
   // no-op until that flow exists.
   const [federationId, setFederationId] = useState<string>("none");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   /** Set once Supabase has created the account but returned no session. */
   const [confirmationSentTo, setConfirmationSentTo] = useState<string | null>(null);
   const { signUp, signInWithGoogle } = useAuth();
   const [, setLocation] = useLocation();
-  const federationsQuery = trpc.federations.list.useQuery({});
+  const federationsQuery = trpc.federations.list.useQuery({ limit: 200 });
   const federations = federationsQuery.data ?? [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    if (!acceptedTerms) {
+      setError("Please accept the Terms of Use and Privacy Policy to create an account.");
+      return;
+    }
     setIsSubmitting(true);
     const { error: err, needsEmailConfirmation } = await signUp(
       email,
@@ -188,10 +194,35 @@ export default function Register() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="flex items-start gap-3 pt-1">
+                  <Checkbox
+                    id="acceptTerms"
+                    checked={acceptedTerms}
+                    onCheckedChange={(v) => setAcceptedTerms(!!v)}
+                    className="mt-0.5 border-white/30 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
+                    required
+                    aria-required="true"
+                  />
+                  <Label htmlFor="acceptTerms" className="text-gray-400 text-sm leading-relaxed font-normal">
+                    I agree to the{" "}
+                    <Link href="/terms">
+                      <a className="text-red-400 hover:text-red-300 underline-offset-2 hover:underline">
+                        Terms of Use
+                      </a>
+                    </Link>{" "}
+                    and{" "}
+                    <Link href="/privacy">
+                      <a className="text-red-400 hover:text-red-300 underline-offset-2 hover:underline">
+                        Privacy Policy
+                      </a>
+                    </Link>
+                    .
+                  </Label>
+                </div>
                 {error && <p className="text-red-400 text-sm">{error}</p>}
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !acceptedTerms}
                   className="w-full"
                   style={{
                     background:

@@ -61,6 +61,7 @@ export default function Map() {
 
   const venuesQuery = trpc.venues.list.useQuery({
     region: selectedRegion ?? undefined,
+    limit: 200,
   });
   const eventsQuery = trpc.events.list.useQuery({
     region: selectedRegion ?? undefined,
