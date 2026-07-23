@@ -11,7 +11,15 @@ interface ImageUploadProps {
   onChange: (url: string | null) => void;
   /** Tenant scope for upload.image (federation_admin must match) */
   federationId: number;
-  entity: "federation" | "club" | "event" | "athlete" | "news" | "venue";
+  entity:
+    | "federation"
+    | "club"
+    | "event"
+    | "athlete"
+    | "coach"
+    | "news"
+    | "venue"
+    | "stream";
   entityId: number | string;
   variant?: "logo" | "poster" | "photo";
   disabled?: boolean;

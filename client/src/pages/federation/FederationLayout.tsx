@@ -17,8 +17,11 @@ const FedAdminDashboard = lazy(() => import("./admin/FedAdminDashboard"));
 const FedAdminEvents = lazy(() => import("./admin/FedAdminEvents"));
 const FedAdminClubs = lazy(() => import("./admin/FedAdminClubs"));
 const FedAdminAthletes = lazy(() => import("./admin/FedAdminAthletes"));
+const FedAdminCoaches = lazy(() => import("./admin/FedAdminCoaches"));
 const FedAdminNews = lazy(() => import("./admin/FedAdminNews"));
 const FedAdminStreams = lazy(() => import("./admin/FedAdminStreams"));
+const FedAdminMedia = lazy(() => import("./admin/FedAdminMedia"));
+const FedAdminHpPrograms = lazy(() => import("./admin/FedAdminHpPrograms"));
 
 const TABS = [
   { path: "", label: "Home", icon: Home },
@@ -161,8 +164,11 @@ function FederationLayoutInner({
           {adminSection === "events" && <FedAdminEvents federationId={federation.id} />}
           {adminSection === "clubs" && <FedAdminClubs federationId={federation.id} />}
           {adminSection === "athletes" && <FedAdminAthletes federationId={federation.id} />}
+          {adminSection === "coaches" && <FedAdminCoaches federationId={federation.id} />}
           {adminSection === "news" && <FedAdminNews federationId={federation.id} />}
           {adminSection === "streams" && <FedAdminStreams federationId={federation.id} />}
+          {adminSection === "media" && <FedAdminMedia federationId={federation.id} />}
+          {adminSection === "hp-programs" && <FedAdminHpPrograms federationId={federation.id} />}
         </Suspense>
       </FedAdminLayout>
     );

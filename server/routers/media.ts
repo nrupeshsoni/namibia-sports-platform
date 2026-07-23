@@ -107,8 +107,8 @@ export const mediaRouter = router({
     .input(
       z.object({
         title: z.string().optional(),
-        fileUrl: z.string().url(),
-        thumbnailUrl: z.string().url().optional(),
+        fileUrl: z.string().min(1),
+        thumbnailUrl: z.string().min(1).optional(),
         type: z.enum(["image", "video", "document"]).default("image"),
         entityType: entityTypeSchema,
         entityId: z.number(),

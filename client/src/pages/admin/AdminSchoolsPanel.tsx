@@ -1,33 +1,29 @@
 import { useState } from "react";
-import { Plus, Edit, Trash2, Search } from "lucide-react";
+import { Plus, Search, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { EntityModal } from "@/components/admin/EntityModal";
-import { StreamForm, type StreamFormData } from "@/components/admin/StreamForm";
+import { SchoolForm, type SchoolFormData } from "@/components/admin/SchoolForm";
 
-export default function FedAdminStreams({ federationId }: { federationId: number }) {
+export function AdminSchoolsPanel() {
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState<
-    { mode: "create" } | { mode: "edit"; data: StreamFormData } | null
+    { mode: "create" } | { mode: "edit"; data: SchoolFormData } | null
   >(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const utils = trpc.useUtils();
-  const listQuery = trpc.streams.list.useQuery({ federationId });
-  const setLiveMut = trpc.streams.setLive.useMutation({
-    onSuccess: () => listQuery.refetch(),
-  });
-  const deleteMut = trpc.streams.delete.useMutation({
+  const listQuery = trpc.schools.list.useQuery({});
+  const deleteMut = trpc.schools.delete.useMutation({
     onSuccess: () => {
-      utils.streams.list.invalidate();
+      utils.schools.list.invalidate();
       setDeleteId(null);
     },
   });
 
   const items = (listQuery.data ?? []).filter((s) =>
-    s.title.toLowerCase().includes(search.toLowerCase())
+    s.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -36,17 +32,16 @@ export default function FedAdminStreams({ federationId }: { federationId: number
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
           <Input
-            placeholder="Search streams..."
+            placeholder="Search schools..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10 bg-white/5 border-white/10 text-white"
           />
         </div>
         <Button className="gap-2 bg-red-600 hover:bg-red-700" onClick={() => setModal({ mode: "create" })}>
-          <Plus className="h-4 w-4" /> Add Stream
+          <Plus className="h-4 w-4" /> Add School
         </Button>
       </div>
-
       <div
         className="rounded-2xl overflow-hidden"
         style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}
@@ -54,21 +49,20 @@ export default function FedAdminStreams({ federationId }: { federationId: number
         <table className="w-full">
           <thead>
             <tr className="border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-              <th className="text-left px-4 py-3 text-xs tracking-widest text-gray-400 font-medium">Title</th>
-              <th className="text-left px-4 py-3 text-xs tracking-widest text-gray-400 font-medium">Platform</th>
-              <th className="text-left px-4 py-3 text-xs tracking-widest text-gray-400 font-medium">Status</th>
-              <th className="text-left px-4 py-3 text-xs tracking-widest text-gray-400 font-medium">Scheduled</th>
-              <th className="text-left px-4 py-3 text-xs tracking-widest text-gray-400 font-medium" />
+              <th className="text-left px-4 py-3 text-xs tracking-widest text-gray-400">Name</th>
+              <th className="text-left px-4 py-3 text-xs tracking-widest text-gray-400">City</th>
+              <th className="text-left px-4 py-3 text-xs tracking-widest text-gray-400">Region</th>
+              <th />
             </tr>
           </thead>
           <tbody>
             {listQuery.isLoading ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">Loading...</td>
+                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">Loading...</td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">No streams found.</td>
+                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">No schools found.</td>
               </tr>
             ) : (
               items.map((s) => (
@@ -77,42 +71,9 @@ export default function FedAdminStreams({ federationId }: { federationId: number
                   className="border-b hover:bg-white/[0.02]"
                   style={{ borderColor: "rgba(255,255,255,0.05)" }}
                 >
-                  <td className="px-4 py-3 text-sm text-white font-medium">{s.title}</td>
-                  <td className="px-4 py-3 text-sm text-gray-400">{s.platformType ?? "—"}</td>
-                  <td className="px-4 py-3">
-                    {s.isLive ? (
-                      <div className="flex items-center gap-2">
-                        <Badge className="bg-red-600/20 text-red-400 border-red-600/30 text-xs animate-pulse">
-                          ● LIVE
-                        </Badge>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-xs text-gray-400"
-                          onClick={() => setLiveMut.mutate({ id: s.id, federationId, isLive: false })}
-                          disabled={setLiveMut.isPending}
-                        >
-                          End
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="text-xs">Offline</Badge>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-xs text-green-400 hover:text-green-300"
-                          onClick={() => setLiveMut.mutate({ id: s.id, federationId, isLive: true })}
-                          disabled={setLiveMut.isPending}
-                        >
-                          Go Live
-                        </Button>
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-400">
-                    {s.scheduledStart ? new Date(s.scheduledStart).toLocaleString() : "—"}
-                  </td>
+                  <td className="px-4 py-3 text-sm text-white font-medium">{s.name}</td>
+                  <td className="px-4 py-3 text-sm text-gray-400">{s.city ?? "—"}</td>
+                  <td className="px-4 py-3 text-sm text-gray-400">{s.region ?? "—"}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1 justify-end">
                       <Button
@@ -124,15 +85,12 @@ export default function FedAdminStreams({ federationId }: { federationId: number
                             mode: "edit",
                             data: {
                               id: s.id,
-                              title: s.title,
-                              platformType: s.platformType ?? "youtube",
-                              streamUrl: s.streamUrl,
-                              embedUrl: s.embedUrl,
-                              thumbnailUrl: s.thumbnailUrl,
-                              scheduledStart: s.scheduledStart,
-                              scheduledEnd: s.scheduledEnd,
-                              isLive: s.isLive,
-                              federationId,
+                              name: s.name,
+                              region: s.region,
+                              city: s.city,
+                              contactEmail: s.contactEmail,
+                              contactPhone: s.contactPhone,
+                              sportsOffered: s.sportsOffered,
                             },
                           })
                         }
@@ -155,22 +113,19 @@ export default function FedAdminStreams({ federationId }: { federationId: number
           </tbody>
         </table>
       </div>
-
       <EntityModal
         open={modal !== null}
         onClose={() => setModal(null)}
-        title={modal?.mode === "create" ? "Add Stream" : "Edit Stream"}
+        title={modal?.mode === "create" ? "Add School" : "Edit School"}
       >
         {modal && (
-          <StreamForm
+          <SchoolForm
             mode={modal.mode}
-            federationId={federationId}
             initialData={modal.mode === "edit" ? modal.data : undefined}
             onSuccess={() => setModal(null)}
           />
         )}
       </EntityModal>
-
       {deleteId != null && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
@@ -182,7 +137,7 @@ export default function FedAdminStreams({ federationId }: { federationId: number
             style={{ background: "rgba(17,17,17,0.95)", border: "1px solid rgba(255,255,255,0.1)" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="text-white font-medium">Delete this stream?</p>
+            <p className="text-white font-medium">Delete this school?</p>
             <div className="flex gap-3">
               <Button variant="ghost" className="flex-1 border border-white/10" onClick={() => setDeleteId(null)}>
                 Cancel
@@ -190,7 +145,7 @@ export default function FedAdminStreams({ federationId }: { federationId: number
               <Button
                 className="flex-1 bg-red-600 hover:bg-red-700"
                 disabled={deleteMut.isPending}
-                onClick={() => deleteMut.mutate({ id: deleteId, federationId })}
+                onClick={() => deleteMut.mutate({ id: deleteId })}
               >
                 Delete
               </Button>

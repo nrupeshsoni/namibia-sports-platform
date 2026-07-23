@@ -8,6 +8,9 @@ import {
   Radio,
   Shield,
   ChevronLeft,
+  GraduationCap,
+  Image,
+  Target,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -16,8 +19,11 @@ const ADMIN_TABS = [
   { path: "events", label: "Events", icon: Calendar },
   { path: "clubs", label: "Clubs", icon: Users },
   { path: "athletes", label: "Athletes", icon: User },
+  { path: "coaches", label: "Coaches", icon: GraduationCap },
   { path: "news", label: "News", icon: Newspaper },
   { path: "streams", label: "Streams", icon: Radio },
+  { path: "media", label: "Media", icon: Image },
+  { path: "hp-programs", label: "HP Programs", icon: Target },
 ] as const;
 
 function getAdminSection(pathname: string, slug: string): string {

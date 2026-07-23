@@ -16,10 +16,12 @@ import { uploadRouter } from "./upload";
 import { whatsappRouter } from "./whatsapp";
 import { aiRouter } from "./ai";
 import { searchRouter } from "./search";
+import { usersRouter } from "./users";
 
 export const appRouter = router({
   system: systemRouter,
   auth: authRouter,
+  users: usersRouter,
   federations: federationsRouter,
   clubs: clubsRouter,
   events: eventsRouter,

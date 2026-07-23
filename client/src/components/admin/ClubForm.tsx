@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ImageUpload } from "./ImageUpload";
 import { trpc } from "@/lib/trpc";
 
 export interface ClubFormData {
@@ -19,6 +20,7 @@ export interface ClubFormData {
   slug: string;
   federationId: number;
   description?: string | null;
+  logoUrl?: string | null;
   city?: string | null;
   region?: string | null;
   contactEmail?: string | null;
@@ -60,6 +62,7 @@ export function ClubForm({ mode, initialData, onSuccess, federationIdLock }: Pro
     slug: initialData?.slug ?? "",
     federationId: (lockedFedId ?? initialData?.federationId)?.toString() ?? "",
     description: initialData?.description ?? "",
+    logoUrl: initialData?.logoUrl ?? "",
     city: initialData?.city ?? "",
     region: initialData?.region ?? "",
     contactEmail: initialData?.contactEmail ?? "",
@@ -97,6 +100,7 @@ export function ClubForm({ mode, initialData, onSuccess, federationIdLock }: Pro
     const payload = {
       name: form.name,
       description: form.description || undefined,
+      logoUrl: form.logoUrl || undefined,
       city: form.city || undefined,
       region: form.region || undefined,
       contactEmail: form.contactEmail || undefined,
@@ -166,6 +170,20 @@ export function ClubForm({ mode, initialData, onSuccess, federationIdLock }: Pro
         <Label className={L}>Description</Label>
         <Textarea className={F} value={form.description} onChange={set("description")} placeholder="About the club..." rows={3} />
       </div>
+
+      {(federationIdLock ?? (form.federationId ? parseInt(form.federationId, 10) : undefined)) != null && (
+        <ImageUpload
+          label="Club logo"
+          value={form.logoUrl || null}
+          onChange={(url) => setForm((p) => ({ ...p, logoUrl: url ?? "" }))}
+          federationId={
+            (federationIdLock ?? parseInt(form.federationId, 10)) as number
+          }
+          entity="club"
+          entityId={initialData?.id ?? 0}
+          variant="logo"
+        />
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
