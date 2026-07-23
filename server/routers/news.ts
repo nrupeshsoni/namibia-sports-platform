@@ -5,7 +5,6 @@ import { newsArticles } from "../../drizzle/schema";
 import { eq, desc, and } from "drizzle-orm";
 import {
   publicProcedure,
-  adminProcedure,
   federationAdminProcedure,
   router,
 } from "../_core/trpc";
@@ -148,13 +147,17 @@ export const newsRouter = router({
       return { success: true };
     }),
 
-  delete: adminProcedure
-    .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+  delete: federationAdminProcedure
+    .input(z.object({ id: z.number(), federationId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      assertSameFederation(ctx.user, input.federationId);
+
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      await db.delete(newsArticles).where(eq(newsArticles.id, input.id));
+      await db
+        .delete(newsArticles)
+        .where(and(eq(newsArticles.id, input.id), eq(newsArticles.federationId, input.federationId)));
       return { success: true };
     }),
 });
