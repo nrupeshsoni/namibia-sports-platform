@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Changed
-- CI quality gate: `npm run ci:gate` runs `check` + `test` + `build`. Local `cf:deploy` / `cf:deploy:staging` invoke it before wrangler. `docs/CI.md` documents Workers Builds dashboard build-command update to `npm run ci:gate` (not always changeable via repo / `wrangler.jsonc`).
+- CI quality gate: `npm run ci:gate` runs `check` + `test` + `build`. Local `cf:deploy` / `cf:deploy:staging` invoke it before wrangler. `docs/CI.md` **Workers Builds dashboard** section has the exact click path + API note to set build command to `npm run ci:gate` (MCP/Wrangler OAuth cannot change trigger settings).
 
 ### Added
 - Expanded `server/federationScope.test.ts`: unit coverage for `assertSameFederation` / unpublished-inactive helpers; same-tenant pass-through for events/news/streams/upload; `athletes.delete` + `streams.delete` cross-tenant FORBIDDEN (input asserted before DB).

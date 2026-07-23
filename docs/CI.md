@@ -34,18 +34,37 @@ npm run ci:gate
 Local scripts `npm run cf:deploy` and `npm run cf:deploy:staging` already run
 `ci:gate` before `wrangler deploy`.
 
-### Workers Builds dashboard note
+### Workers Builds dashboard
 
-Workers Builds build/deploy commands live in the **Cloudflare dashboard** (or
-Workers Builds API), not in `wrangler.jsonc`. Repo code cannot always change
-them. Until the dashboard build command is set to `npm run ci:gate`:
+Build/deploy commands live in the **Cloudflare dashboard** (or Builds Triggers
+API), not in `wrangler.jsonc`. The Builds MCP can **read** build history
+(including the commands used) but **cannot** change trigger settings. Wrangler
+OAuth also lacks **Workers Builds Configuration** edit, so agents cannot PATCH
+triggers without a dedicated API token.
 
-1. Treat `npm run ci:gate` as the local/PR gate on every change destined for `main`.
-2. Update the Workers Builds **build command** for `namibia-sports-platform` to
-   `npm run ci:gate` when you have dashboard access (Deploy command stays
-   `npx wrangler deploy`).
-3. Do **not** add a `prepare` hook that runs the full gate — that would slow
-   every `npm install` and is the wrong place for CI.
+**Verified 2026-07-23** (account `172d6c3857f7ef25ecc5caadc9381e9f`, Worker
+`namibia-sports-platform`): latest successful build still ran
+`npm run build` → `npx wrangler deploy`. Change the dashboard so the next push
+runs the full gate:
+
+1. Open [Cloudflare Dashboard](https://dash.cloudflare.com/) → account
+   **Nrupesh@facilit8.com.na** (not The Dome Namibia).
+2. **Workers & Pages** → **namibia-sports-platform**.
+3. **Settings** → **Build**.
+4. Set **Build command** to `npm run ci:gate` (was `npm run build`).
+5. Leave **Deploy command** as `npx wrangler deploy` (do not change secrets).
+6. **Save**. Applies to the **next** build only (retries use settings at retry time).
+
+Optional API (needs a user API token with **Workers Builds Configuration: Edit**):
+
+```bash
+# GET …/builds/workers/{worker_tag}/triggers  → trigger_uuid
+# PATCH …/builds/triggers/{trigger_uuid}
+# body: {"build_command":"npm run ci:gate"}
+```
+
+Do **not** add a `prepare` hook that runs the full gate — that would slow every
+`npm install`.
 
 Every push to `main` builds and deploys automatically. Secrets
 (`SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) live in the Worker and are
