@@ -82,6 +82,9 @@
   //   SUPABASE_SERVICE_ROLE_KEY  storage uploads only — never for normal reads
   //   ANTHROPIC_API_KEY          ai router
   //
+  // Optional vars (wrangler.toml vars / dashboard — not secrets):
+  //   ENABLE_WHATSAPP_SUBSCRIBE  "true" to accept whatsapp.subscribe (default off)
+  //
   // As with DOME X: SUPABASE_ANON_KEY must never hold a service-role key.
   // Doing so bypasses RLS silently, with no error surfaced anywhere.
 

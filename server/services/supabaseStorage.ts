@@ -11,8 +11,10 @@ const BUCKETS = {
   club: "sportsplatform_images",
   event: "sportsplatform_event_posters",
   athlete: "sportsplatform_athlete_photos",
+  coach: "sportsplatform_athlete_photos",
   news: "sportsplatform_news_images",
   venue: "sportsplatform_images",
+  stream: "sportsplatform_images",
 } as const;
 
 export type UploadEntity = keyof typeof BUCKETS;

@@ -9,6 +9,7 @@
 
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { createContext } from "./_core/context";
+import { corsHeadersForOrigin, isCorsPreflight } from "./_core/cors";
 import { initEnv, type Env, type ExecutionContext } from "./_core/env";
 import { runWithDb } from "./db";
 import { appRouter } from "./routers";
@@ -63,10 +64,16 @@ const SECURITY_HEADERS: Record<string, string> = {
   "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
 };
 
-function withSecurityHeaders(response: Response): Response {
+function withSecurityHeaders(response: Response, request?: Request): Response {
   const headers = new Headers(response.headers);
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
     headers.set(key, value);
+  }
+  const cors = corsHeadersForOrigin(request?.headers.get("Origin") ?? null);
+  if (cors) {
+    for (const [key, value] of Object.entries(cors)) {
+      headers.set(key, value);
+    }
   }
   return new Response(response.body, {
     status: response.status,
@@ -111,9 +118,15 @@ async function fetchStaticAsset(request: Request, env: Env): Promise<Response> {
   const assetResponse = await env.ASSETS.fetch(request);
   const contentType = assetResponse.headers.get("content-type") ?? "";
   if (assetResponse.status === 404 || contentType.includes("text/html")) {
-    return notFoundResponse();
+    return withSecurityHeaders(
+      new Response("Not Found", {
+        status: 404,
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+      }),
+      request
+    );
   }
-  return withSecurityHeaders(assetResponse);
+  return withSecurityHeaders(assetResponse, request);
 }
 
 export default {
@@ -126,8 +139,23 @@ export default {
 
     const url = new URL(request.url);
 
+    // CORS preflight for allowlisted origins only (never reflect *).
+    if (isCorsPreflight(request) && url.pathname.startsWith("/api/")) {
+      const cors = corsHeadersForOrigin(request.headers.get("Origin"));
+      if (!cors) {
+        return new Response(null, { status: 403 });
+      }
+      return new Response(null, { status: 204, headers: cors });
+    }
+
     if (url.pathname === "/api/health") {
-      return jsonResponse({ status: "ok", timestamp: new Date().toISOString() });
+      return withSecurityHeaders(
+        new Response(JSON.stringify({ status: "ok", timestamp: new Date().toISOString() }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+        request
+      );
     }
 
     if (url.pathname.startsWith(TRPC_ENDPOINT)) {
@@ -144,11 +172,17 @@ export default {
           },
         })
       );
-      return withSecurityHeaders(trpcResponse);
+      return withSecurityHeaders(trpcResponse, request);
     }
 
     if (url.pathname.startsWith("/api/")) {
-      return jsonResponse({ error: "Not found" }, 404);
+      return withSecurityHeaders(
+        new Response(JSON.stringify({ error: "Not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }),
+        request
+      );
     }
 
     if (isStaticAssetPath(url.pathname)) {
@@ -156,6 +190,6 @@ export default {
     }
 
     // App routes: SPA fallback via Assets binding.
-    return withSecurityHeaders(await env.ASSETS.fetch(request));
+    return withSecurityHeaders(await env.ASSETS.fetch(request), request);
   },
 };

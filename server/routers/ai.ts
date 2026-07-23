@@ -6,7 +6,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { generateSummary, suggestTags, chatAssistant } from "../services/anthropic";
 import { protectedProcedure, router } from "../_core/trpc";
-import { clientKey, enforceRateLimit } from "../_core/rateLimit";
+import { clientKey, enforceRateLimit, RATE_LIMITS } from "../_core/rateLimit";
 
 /**
  * Every chat call spends real money at Anthropic, so the cost of a single
@@ -18,18 +18,23 @@ const MAX_HISTORY_MESSAGES = 10;
 const MAX_MESSAGE_CHARS = 2_000;
 const MAX_CONVERSATION_CHARS = 12_000;
 
-/** Per-caller ceiling. Generous for a human, useless for a script. */
-const CHAT_RATE_LIMIT = { limit: 10, windowMs: 60_000 };
-
 const messageSchema = z.object({
   role: z.enum(["user", "assistant"]),
   content: z.string().max(MAX_MESSAGE_CHARS),
 });
 
+function enforceAiRateLimit(procedure: string, userId: number | undefined, req: Request): void {
+  enforceRateLimit(`ai.${procedure}:${userId ?? clientKey(req)}`, {
+    ...RATE_LIMITS.ai,
+    message: "Too many AI requests. Please wait a moment before continuing.",
+  });
+}
+
 export const aiRouter = router({
   generateSummary: protectedProcedure
     .input(z.object({ text: z.string().min(1).max(50_000) }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      enforceAiRateLimit("generateSummary", ctx.user.id, ctx.req);
       try {
         return await generateSummary(input.text);
       } catch (e) {
@@ -40,7 +45,8 @@ export const aiRouter = router({
 
   suggestTags: protectedProcedure
     .input(z.object({ content: z.string().min(1).max(50_000) }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      enforceAiRateLimit("suggestTags", ctx.user.id, ctx.req);
       try {
         return await suggestTags(input.content);
       } catch (e) {
@@ -59,10 +65,7 @@ export const aiRouter = router({
       // Keyed on the account rather than the IP: one abusive user must not
       // consume the allowance of everyone else behind the same office NAT, and
       // cannot shed the counter by moving networks.
-      enforceRateLimit(`ai.chat:${ctx.user?.id ?? clientKey(ctx.req)}`, {
-        ...CHAT_RATE_LIMIT,
-        message: "Too many messages. Please wait a moment before continuing.",
-      });
+      enforceAiRateLimit("chatAssistant", ctx.user.id, ctx.req);
 
       const totalChars =
         input.message.length +

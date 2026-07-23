@@ -2,8 +2,18 @@ import { z } from "zod";
 import { uploadImage, type UploadEntity } from "../services/supabaseStorage";
 import { federationAdminProcedure, router } from "../_core/trpc";
 import { assertSameFederation } from "../_core/federationScope";
+import { clientKey, enforceRateLimit, RATE_LIMITS } from "../_core/rateLimit";
 
-const entitySchema = z.enum(["federation", "club", "event", "athlete", "news", "venue"]);
+const entitySchema = z.enum([
+  "federation",
+  "club",
+  "event",
+  "athlete",
+  "coach",
+  "news",
+  "venue",
+  "stream",
+]);
 
 export const uploadRouter = router({
   image: federationAdminProcedure
@@ -18,6 +28,10 @@ export const uploadRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      enforceRateLimit(`upload.image:${ctx.user.id ?? clientKey(ctx.req)}`, {
+        ...RATE_LIMITS.upload,
+        message: "Too many uploads. Please try again shortly.",
+      });
       assertSameFederation(ctx.user, input.federationId);
 
       let buffer: Buffer;

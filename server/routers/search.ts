@@ -8,6 +8,7 @@ import {
   athletes,
 } from "../../drizzle/schema";
 import { ilike, or, and, eq } from "drizzle-orm";
+import { clientKey, enforceRateLimit, RATE_LIMITS } from "../_core/rateLimit";
 import { publicProcedure, router } from "../_core/trpc";
 
 const LIMIT_PER_TYPE = 5;
@@ -19,7 +20,12 @@ const LIMIT_PER_TYPE = 5;
 export const searchRouter = router({
   global: publicProcedure
     .input(z.object({ query: z.string().min(1).max(200) }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
+      enforceRateLimit(`search.global:${clientKey(ctx.req)}`, {
+        ...RATE_LIMITS.search,
+        message: "Too many searches. Please try again shortly.",
+      });
+
       const db = await getDb();
       if (!db) {
         return {

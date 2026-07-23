@@ -41,6 +41,11 @@ export interface Env {
   SUPABASE_SERVICE_ROLE_KEY?: string;
   /** Anthropic key for the AI router. */
   ANTHROPIC_API_KEY?: string;
+  /**
+   * When `"true"`, `whatsapp.subscribe` accepts traffic. Default off — the UI
+   * flag (`VITE_SHOW_WHATSAPP_SUBSCRIBE`) alone must not leave the API open.
+   */
+  ENABLE_WHATSAPP_SUBSCRIBE?: string;
   BUILT_IN_FORGE_API_URL?: string;
   BUILT_IN_FORGE_API_KEY?: string;
 }
@@ -51,6 +56,7 @@ export const ENV = {
   supabaseAnonKey: "",
   supabaseServiceRoleKey: "",
   anthropicApiKey: "",
+  enableWhatsAppSubscribe: "",
   forgeApiUrl: "",
   forgeApiKey: "",
 };
@@ -61,6 +67,7 @@ export function initEnv(env: Env): void {
   ENV.supabaseAnonKey = env.SUPABASE_ANON_KEY ?? "";
   ENV.supabaseServiceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY ?? "";
   ENV.anthropicApiKey = env.ANTHROPIC_API_KEY ?? "";
+  ENV.enableWhatsAppSubscribe = env.ENABLE_WHATSAPP_SUBSCRIBE ?? "";
   ENV.forgeApiUrl = env.BUILT_IN_FORGE_API_URL ?? "";
   ENV.forgeApiKey = env.BUILT_IN_FORGE_API_KEY ?? "";
 }

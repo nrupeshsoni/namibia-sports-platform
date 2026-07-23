@@ -281,6 +281,8 @@ export const whatsappSubscriptions = pgTable("sportsplatform_whatsapp_subscripti
   federationId: integer("federation_id"),
   subscriptionTypes: text("subscription_types").array(),
   isActive: boolean("is_active").default(true).notNull(),
+  /** When the subscriber consented (POPIA / Meta WhatsApp opt-in). */
+  consentAt: timestamp("consent_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

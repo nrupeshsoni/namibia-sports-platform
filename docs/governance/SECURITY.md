@@ -45,6 +45,35 @@
 
 **Out of scope:** Feature requests, dependency update suggestions (use regular issues)
 
+## Abuse controls (2026-07-23 hardening)
+
+### WhatsApp tRPC
+| Procedure | Auth | Notes |
+|-----------|------|-------|
+| `whatsapp.subscribe` | Public **only if** Worker `ENABLE_WHATSAPP_SUBSCRIBE=true` | Rate-limited; sets `consent_at`. Default **off**. |
+| `whatsapp.unsubscribe` | `protectedProcedure` | Own rows only (`userId`); phone-only opt-outs via Meta webhook. |
+| `whatsapp.getSubscriptions` | `protectedProcedure` | Own rows only — no phone enumeration. |
+
+UI flag `VITE_SHOW_WHATSAPP_SUBSCRIBE` does **not** open the API; both must be enabled deliberately.
+
+### Rate limits (`server/_core/rateLimit.ts`)
+Per-isolate fixed windows (not global — see module comment):
+
+| Key prefix | Ceiling | Procedures |
+|------------|---------|------------|
+| `ai.*` | 10 / min | `generateSummary`, `suggestTags`, `chatAssistant` |
+| `whatsapp.*` | 5 / min | `subscribe`, `unsubscribe`, `getSubscriptions` |
+| `upload.image` | 20 / min | federation-admin image upload |
+| `search.global` | 30 / min | public search fan-out |
+
+### CORS
+Worker allowlist (`server/_core/cors.ts`): `https://sports.com.na`, `https://www.sports.com.na`, staging `https://namibia-sports-platform-staging.facilit8.workers.dev`, local Vite/wrangler. Unlisted origins get no CORS headers; API preflight → 403.
+
+### Supabase Storage (`sportsplatform_*` buckets)
+- `allowed_mime_types`: `image/jpeg`, `image/png`, `image/webp`, `image/gif`
+- Public **SELECT** policies only; **no** anon/authenticated INSERT — uploads use Worker `service_role` via `upload.image`
+- Buckets remain `public: true` for CDN URLs
+
 ## Security Maintenance
 
 - **Dependency audit:** Run `npm audit` before each release

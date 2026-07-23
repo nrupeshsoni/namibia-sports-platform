@@ -129,7 +129,7 @@
 - [ ] Input validation (Zod) on all tRPC procedures
 - [ ] Auth on every non-public procedure
 - [ ] Rate limiting on auth endpoints
-- [ ] CORS restrictive (sports.com.na only)
+- [x] CORS restrictive allowlist (`server/_core/cors.ts`: sports.com.na + staging + local)
 - [ ] RLS on all Supabase tables
 - [ ] No secrets in client code
 - [ ] Webhook signature verification

@@ -47,6 +47,21 @@ export type RateLimitOptions = {
   message?: string;
 };
 
+/**
+ * Shared ceilings for costly / abuse-prone procedures.
+ * Keep in sync with docs/governance/SECURITY.md.
+ */
+export const RATE_LIMITS = {
+  /** Anthropic-backed AI mutations (per user or IP). */
+  ai: { limit: 10, windowMs: 60_000 } satisfies RateLimitOptions,
+  /** WhatsApp subscribe / unsubscribe / list. */
+  whatsapp: { limit: 5, windowMs: 60_000 } satisfies RateLimitOptions,
+  /** Federation-admin image uploads (storage + bandwidth). */
+  upload: { limit: 20, windowMs: 60_000 } satisfies RateLimitOptions,
+  /** Public global search (DB fan-out). */
+  search: { limit: 30, windowMs: 60_000 } satisfies RateLimitOptions,
+} as const;
+
 /** Throws TOO_MANY_REQUESTS once `limit` is exceeded within the window. */
 export function enforceRateLimit(key: string, opts: RateLimitOptions): void {
   const now = Date.now();

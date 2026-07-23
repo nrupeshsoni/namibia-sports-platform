@@ -69,10 +69,13 @@ ai.suggestTags({ content: string })            // protectedProcedure
 ai.chatAssistant({ message: string, history: Message[] })
 ```
 
-### `whatsapp` (TO BE ADDED)
+### `whatsapp`
 ```typescript
+// Public only when Worker ENABLE_WHATSAPP_SUBSCRIBE=true (default off)
 whatsapp.subscribe({ phone: string, federationId?: number, types: string[] })
-whatsapp.unsubscribe({ phone: string })
+// Auth required — own rows only
+whatsapp.unsubscribe({ phone?: string })
+whatsapp.getSubscriptions()
 ```
 
 ---
