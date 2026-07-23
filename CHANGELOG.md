@@ -1,4 +1,4 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to this project are documented in this file.
 
@@ -11,7 +11,8 @@ All notable changes to this project are documented in this file.
 - Expanded `server/federationScope.test.ts`: unit coverage for `assertSameFederation` / unpublished-inactive helpers; same-tenant pass-through for events/news/streams/upload; `athletes.delete` cross-tenant FORBIDDEN (input asserted before DB).
 
 ### Security
-- **Production hardening (2026-07-23):** WhatsApp `unsubscribe` / `getSubscriptions` require auth (own rows only); `subscribe` gated by Worker `ENABLE_WHATSAPP_SUBSCRIBE` (default off) + rate limit + `consent_at`. Rate limits extended to `ai.*`, `whatsapp.*`, `upload.image`, `search.global`. Worker CORS allowlist for sports.com.na + staging + local. Supabase Storage: MIME allowlist + public SELECT policies on `sportsplatform_*` buckets (no anon INSERT). See `docs/governance/SECURITY.md`.
+- **Full production security audit (2026-07-23):** `docs/research/PRODUCTION_SECURITY_AUDIT.md`. Code: WhatsApp tRPC hard-disabled (`WHATSAPP_API_ENABLED=false`); athlete/coach `includePii` tenant-scoped; HP programs + `federations.getById` hide inactive; stream URLs require `https://`. **Human Critical remains:** rotate DB password + service_role + Hyperdrive least-privilege — `SECURITY_CREDENTIAL_ROTATION.md`.
+- **Production hardening (2026-07-23):** Rate limits on `ai.*`, `upload.image`, `search.global`; Worker CORS allowlist; Storage MIME + public SELECT on `sportsplatform_*`; WhatsApp `consent_at` prepared for future re-enable. See `docs/governance/SECURITY.md`.
 - Closed public detail/search leaks for drafts and inactive entities: `events.getById` returns null unless `isPublished` (admin / same-federation `federation_admin` may see drafts); `athletes.getById` / `getBySlug`, `clubs.getById`, `coaches.getById` return null unless `isActive` (same staff exception); `search.global` events require `isPublished`. List `includeInactive` for `federation_admin` requires matching `federationId` (same gate as `includeUnpublished`).
 - Worker responses now set security headers on all routes: `Content-Security-Policy` (Vite SPA + Supabase + YouTube embeds + Maps forge), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security`. Missing static assets under `/sports/`, `/logos/`, `/athletes/`, `/venues/`, and `/news/*` with a file extension return real **404** (not SPA `index.html`); app routes keep SPA fallback.
 - Public `athletes.list` / `getById` / `getBySlug` and `coaches.list` / `getById` omit `email`, `phone`, and (athletes) `dateOfBirth`; inactive rows hidden on get; staff may pass `includePii` for full rows. Public AthleteProfile no longer shows contact/DOB.
