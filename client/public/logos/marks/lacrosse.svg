@@ -1,0 +1,15 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Lacrosse mark">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#g)"/>
+  <g fill="none" stroke="#f8fafc" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="78" cy="36" rx="16" ry="22"/>
+    <line x1="66" y1="52" x2="36" y2="100"/>
+    <path d="M70 28 L86 28 M70 36 L86 36 M70 44 L86 44"/>
+  </g>
+
+</svg>

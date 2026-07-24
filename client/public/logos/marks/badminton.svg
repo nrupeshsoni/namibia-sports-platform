@@ -1,0 +1,16 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Badminton mark">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#g)"/>
+  <g fill="none" stroke="#f8fafc" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="78" cy="42" rx="22" ry="28"/>
+    <line x1="62" y1="62" x2="36" y2="96"/>
+    <path d="M40 28 L48 18 L56 28"/>
+    <line x1="44" y1="28" x2="52" y2="28"/>
+  </g>
+
+</svg>
