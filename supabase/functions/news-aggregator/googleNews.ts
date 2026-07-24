@@ -7,7 +7,7 @@
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36";
 const BATCH = "https://news.google.com/_/DotsSplashUi/data/batchexecute";
-const UNWRAP_MS = 8_000;
+const UNWRAP_MS = 15_000;
 
 function articleIdFromUrl(url: string): string | null {
   try {
@@ -76,15 +76,21 @@ export async function unwrapGoogleNewsUrl(articleUrl: string): Promise<string | 
     });
     if (!postRes.ok) return null;
 
-    let body = await postRes.text();
-    if (body.startsWith(")]}'")) body = body.split("\n", 2)[1] ?? body;
-    body = body.trimStart();
-    const nl = body.indexOf("\n");
-    if (nl > 0 && /^\d+$/.test(body.slice(0, nl).trim())) {
-      body = body.slice(nl + 1);
-    }
+    const body = await postRes.text();
+    // batchexecute embeds JSON as an escaped string: \"garturlres\",\"https://...\"
+    const embedded = body.match(/\\"garturlres\\",\\"(https?:[^\\"]+)/);
+    if (embedded?.[1]) return embedded[1].replace(/\\\//g, "/");
+    const plain = body.match(/"garturlres","(https?:\/\/[^"]+)"/);
+    if (plain?.[1]) return plain[1];
 
-    const envelopes = JSON.parse(body) as unknown;
+    let jsonText = body;
+    if (jsonText.startsWith(")]}'")) jsonText = jsonText.split("\n", 2)[1] ?? jsonText;
+    jsonText = jsonText.trimStart();
+    const nl = jsonText.indexOf("\n");
+    if (nl > 0 && /^\d+$/.test(jsonText.slice(0, nl).trim())) {
+      jsonText = jsonText.slice(nl + 1);
+    }
+    const envelopes = JSON.parse(jsonText) as unknown;
     if (!Array.isArray(envelopes)) return null;
     for (const env of envelopes) {
       if (!Array.isArray(env) || env[0] !== "wrb.fr" || env[1] !== "Fbv4je") continue;
