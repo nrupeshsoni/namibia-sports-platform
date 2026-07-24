@@ -2,10 +2,15 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { getDb } from "../db";
-import { users } from "../../drizzle/schema";
+import { federations, users } from "../../drizzle/schema";
 import { adminProcedure, router } from "../_core/trpc";
 
-const roleSchema = z.enum(["user", "admin", "federation_admin", "club_manager"]);
+/**
+ * Assignable roles in Admin UI / API.
+ * `club_manager` remains in the DB enum for forward-compat but is not grantable
+ * until club-scoped procedures ship (no write capabilities today).
+ */
+const assignableRoleSchema = z.enum(["user", "admin", "federation_admin"]);
 
 /**
  * Platform-admin user directory and role assignment.
@@ -33,12 +38,30 @@ export const usersRouter = router({
 
   setRole: adminProcedure
     .input(
-      z.object({
-        id: z.number(),
-        role: roleSchema,
-        federationId: z.number().nullable().optional(),
-        clubId: z.number().nullable().optional(),
-      })
+      z
+        .object({
+          id: z.number(),
+          role: assignableRoleSchema,
+          federationId: z.number().nullable().optional(),
+          /** Reserved — rejected until club_manager capabilities exist */
+          clubId: z.number().nullable().optional(),
+        })
+        .superRefine((val, ctx) => {
+          if (val.role === "federation_admin" && val.federationId == null) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "federationId is required for federation_admin",
+              path: ["federationId"],
+            });
+          }
+          if (val.clubId != null) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "club_manager role is not assignable yet",
+              path: ["clubId"],
+            });
+          }
+        })
     )
     .mutation(async ({ ctx, input }) => {
       if (input.id === ctx.user.id && input.role !== "admin") {
@@ -48,37 +71,40 @@ export const usersRouter = router({
         });
       }
 
-      if (input.role === "federation_admin" && input.federationId == null) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "federationId is required for federation_admin",
-        });
-      }
-
-      if (input.role === "club_manager" && input.clubId == null) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "clubId is required for club_manager",
-        });
-      }
-
       const db = await getDb();
       if (!db) {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       }
 
+      const [target] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.id, input.id))
+        .limit(1);
+      if (!target) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      if (input.role === "federation_admin" && input.federationId != null) {
+        const [fed] = await db
+          .select({ id: federations.id })
+          .from(federations)
+          .where(eq(federations.id, input.federationId))
+          .limit(1);
+        if (!fed) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "federationId does not exist" });
+        }
+      }
+
       const federationId =
-        input.role === "federation_admin" || input.role === "club_manager"
-          ? (input.federationId ?? null)
-          : null;
-      const clubId = input.role === "club_manager" ? (input.clubId ?? null) : null;
+        input.role === "federation_admin" ? (input.federationId ?? null) : null;
 
       await db
         .update(users)
         .set({
           role: input.role,
           federationId,
-          clubId,
+          clubId: null,
           updatedAt: new Date(),
         })
         .where(eq(users.id, input.id));

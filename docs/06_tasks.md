@@ -4,11 +4,11 @@
 - [x] Federation pages broken (/federation/karate-namibia) — fixed getBySlug fallbacks, migration for slugs, Home→tRPC
 - [~] **CRITICAL credentials in git** — plaintext Postgres password + service_role JWT scrubbed from tree (2026-07-21); **human must rotate Supabase DB password + API keys + Hyperdrive/Worker secrets NOW** — see `docs/research/SECURITY_CREDENTIAL_ROTATION.md`
 - [ ] Verify .env.example is complete and matches actual usage
-- [~] Federation logos — **53/83** active have logos (live 2026-07-21; pass 4 `20260720000055` +MMA/Fistball); still null: Karate/Golf/Badminton/PWFN/Dance/Horse Racing/Taekwondo + umbrellas NNSSU/NUFS/TISAN — see `docs/research/federation_data_gap_list.md` / `beta_readiness_data_audit.md`
+- [x] Federation logos — **83/83** active have logo or sport mark (live 2026-07-24; `20260724120000`); **55** crests/identity + **28** `/logos/marks/*`; replace marks when real crests found — `docs/research/FEDERATION_PHOTOS_COVERAGE.md`
 - [x] **RLS write policies unsafe for prod** — hardened `20260720000030` + residual `20260720000034` (applied live): open writes dropped; public SELECT = published/active/visible only; staff draft SELECT; write GRANTs revoked from anon/authenticated
 - [x] **Auth/API gap hotfix** — `getRawInput()` tenant middleware; close `news.list`/`events.list` draft leak; Admin UI role gate; require federationId on athlete/coach create; ownership checks on coaches/media/hp mutations
 - [x] **Public athlete/coach PII stripped** — list/get omit email/phone/DOB; getById/getBySlug enforce `is_active`; staff `includePii` for admin forms
-- [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated; media: **61**; news **79** (+ hollow fill `20260721140200`); clubs **169** (+ `20260721140100`); athletes **162** active incl. **NBF 14** (`20260721140000`); hollow core-5 **24** (was 26); venues **42** + HP **10**; coaches **47**; crests **30** null (no new verified); see `docs/research/hollow_federations_content_fill.md`
+- [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated; media: **61**; news **79** (+ hollow fill `20260721140200`); clubs **169** (+ `20260721140100`); athletes **162** active incl. **NBF 14** (`20260721140000`); hollow core-5 **24** (was 26); venues **42** + HP **10**; coaches **47**; crests/marks **83/83** (`20260724120000`; 28 marks interim); see `docs/research/hollow_federations_content_fill.md`
 
 ## ⚠️ HIGH PRIORITY
 - [x] RLS enabled on all `sportsplatform_*` tables — write + SELECT harden complete (`20260720000030`, `20260720000034`)

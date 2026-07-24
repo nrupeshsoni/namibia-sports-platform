@@ -40,8 +40,26 @@ function getBucket(entity: UploadEntity): string {
   return BUCKETS[entity];
 }
 
+/**
+ * Normalize entity ids used in Storage object keys.
+ * Rejects path traversal / separator characters so uploads stay under `{entity}/`.
+ */
+export function sanitizeStorageEntityId(id: number | string): string {
+  if (typeof id === "number") {
+    if (!Number.isInteger(id) || id < 0) {
+      throw new Error("Invalid entity id for storage path");
+    }
+    return String(id);
+  }
+  if (!/^[a-zA-Z0-9_-]{1,64}$/.test(id)) {
+    throw new Error("Invalid entity id for storage path");
+  }
+  return id;
+}
+
 function buildPath(entity: UploadEntity, id: number | string, ext: string): string {
-  const slug = `${entity}-${id}-${Date.now()}`;
+  const safeId = sanitizeStorageEntityId(id);
+  const slug = `${entity}-${safeId}-${Date.now()}`;
   return `${entity}/${slug}.${ext}`;
 }
 

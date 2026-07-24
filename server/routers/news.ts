@@ -8,7 +8,12 @@ import {
   federationAdminProcedure,
   router,
 } from "../_core/trpc";
-import { assertSameFederation, canIncludeUnpublished } from "../_core/federationScope";
+import {
+  assertClaimMatchesOwnedRow,
+  assertSameFederation,
+  canIncludeUnpublished,
+} from "../_core/federationScope";
+import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 export const newsRouter = router({
   list: publicProcedure
@@ -17,7 +22,7 @@ export const newsRouter = router({
         .object({
           federationId: z.number().optional(),
           category: z.string().optional(),
-          limit: z.number().optional(),
+          limit: listLimitSchema,
           /** Staff-only: ignored for public/anonymous; federation_admin limited to own federation */
           includeUnpublished: z.boolean().optional(),
         })
@@ -48,7 +53,7 @@ export const newsRouter = router({
           .from(newsArticles)
           .where(conditions.length > 0 ? and(...conditions) : undefined)
           .orderBy(desc(newsArticles.publishedAt))
-          .limit(input?.limit ?? 50);
+          .limit(resolveListLimit(input?.limit));
 
         return result;
       } catch (e) {
@@ -124,6 +129,21 @@ export const newsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
+      const [existing] = await db
+        .select({ federationId: newsArticles.federationId })
+        .from(newsArticles)
+        .where(eq(newsArticles.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
+      }
+      assertClaimMatchesOwnedRow(
+        ctx.user,
+        input.federationId,
+        existing.federationId,
+        "Article not found"
+      );
+
       const { id, federationId, ...data } = input;
       await db
         .update(newsArticles)
@@ -140,6 +160,21 @@ export const newsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
+      const [existing] = await db
+        .select({ federationId: newsArticles.federationId })
+        .from(newsArticles)
+        .where(eq(newsArticles.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
+      }
+      assertClaimMatchesOwnedRow(
+        ctx.user,
+        input.federationId,
+        existing.federationId,
+        "Article not found"
+      );
+
       await db
         .update(newsArticles)
         .set({ isPublished: true, publishedAt: new Date(), updatedAt: new Date() })
@@ -154,6 +189,21 @@ export const newsRouter = router({
 
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const [existing] = await db
+        .select({ federationId: newsArticles.federationId })
+        .from(newsArticles)
+        .where(eq(newsArticles.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
+      }
+      assertClaimMatchesOwnedRow(
+        ctx.user,
+        input.federationId,
+        existing.federationId,
+        "Article not found"
+      );
 
       await db
         .delete(newsArticles)

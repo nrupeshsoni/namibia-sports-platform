@@ -15,3 +15,18 @@ export const optionalHttpsUrlSchema = z.union([
   z.literal(""),
   httpsUrlSchema,
 ]).optional();
+
+/**
+ * Return a safe `https://` href, or null for legacy/unsafe values
+ * (`javascript:`, `http:`, relative junk, malformed).
+ */
+export function safeHttpsHref(url: string | null | undefined): string | null {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:") return null;
+    return parsed.href;
+  } catch {
+    return null;
+  }
+}

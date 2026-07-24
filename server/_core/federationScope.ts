@@ -26,6 +26,23 @@ export function assertSameFederation(
 }
 
 /**
+ * After loading a row by id: assert the caller owns the stored federationId and
+ * that the claimed input federationId matches (avoids silent no-op on mismatch).
+ * Call {@link assertSameFederation} on the input first for early cross-tenant reject.
+ */
+export function assertClaimMatchesOwnedRow(
+  user: ScopedUser,
+  claimedFederationId: number,
+  existingFederationId: number | null | undefined,
+  notFoundMessage: string
+): void {
+  assertSameFederation(user, existingFederationId);
+  if (existingFederationId !== claimedFederationId) {
+    throw new TRPCError({ code: "NOT_FOUND", message: notFoundMessage });
+  }
+}
+
+/**
  * Whether the caller may request unpublished/draft rows for a list query.
  * Public and mismatched federation_admin callers always get published-only.
  */

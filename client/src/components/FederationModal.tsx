@@ -3,6 +3,7 @@ import { X, Mail, Phone, MapPin, Users, Globe, Facebook, Instagram, Twitter, You
 import { useLocation } from "wouter";
 import type { Federation } from "../data/federations";
 import { getFederationSlug } from "../data/federations";
+import { safeHttpsHref } from "@/lib/safeHref";
 
 interface FederationModalProps {
   federation: Federation | null;
@@ -14,6 +15,13 @@ export default function FederationModal({ federation, onClose }: FederationModal
   if (!federation) return null;
 
   const federationSlug = getFederationSlug(federation);
+  const websiteHref = safeHttpsHref(federation.website);
+  const facebookHref = safeHttpsHref(federation.facebook);
+  const instagramHref = safeHttpsHref(federation.instagram);
+  const twitterHref = safeHttpsHref(federation.twitter);
+  const youtubeHref = safeHttpsHref(federation.youtube);
+  const hasSafeSocial =
+    !!(websiteHref || facebookHref || instagramHref || twitterHref || youtubeHref);
 
   const getCategoryLabel = (category: string) => {
     switch (category) {
@@ -171,7 +179,7 @@ export default function FederationModal({ federation, onClose }: FederationModal
               </motion.div>
 
               {/* Social Media - Glass Pills */}
-              {(federation.website || federation.facebook || federation.instagram || federation.twitter || federation.youtube) && (
+              {hasSafeSocial && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -180,11 +188,11 @@ export default function FederationModal({ federation, onClose }: FederationModal
                 >
                   <h2 className="text-xl font-serif tracking-wider mb-4 text-white/80">CONNECT</h2>
                   <div className="flex flex-wrap gap-3">
-                    {federation.website && (
+                    {websiteHref && (
                       <motion.a
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.98 }}
-                        href={federation.website}
+                        href={websiteHref}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all"
@@ -200,11 +208,11 @@ export default function FederationModal({ federation, onClose }: FederationModal
                         <ExternalLink className="h-3 w-3 opacity-60" />
                       </motion.a>
                     )}
-                    {federation.facebook && (
+                    {facebookHref && (
                       <motion.a
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.98 }}
-                        href={federation.facebook}
+                        href={facebookHref}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all"
@@ -219,11 +227,11 @@ export default function FederationModal({ federation, onClose }: FederationModal
                         Facebook
                       </motion.a>
                     )}
-                    {federation.instagram && (
+                    {instagramHref && (
                       <motion.a
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.98 }}
-                        href={federation.instagram}
+                        href={instagramHref}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all"
@@ -238,11 +246,11 @@ export default function FederationModal({ federation, onClose }: FederationModal
                         Instagram
                       </motion.a>
                     )}
-                    {federation.twitter && (
+                    {twitterHref && (
                       <motion.a
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.98 }}
-                        href={federation.twitter}
+                        href={twitterHref}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all"
@@ -257,11 +265,11 @@ export default function FederationModal({ federation, onClose }: FederationModal
                         Twitter
                       </motion.a>
                     )}
-                    {federation.youtube && (
+                    {youtubeHref && (
                       <motion.a
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.98 }}
-                        href={federation.youtube}
+                        href={youtubeHref}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all"

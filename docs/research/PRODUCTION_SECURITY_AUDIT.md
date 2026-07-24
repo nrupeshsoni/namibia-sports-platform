@@ -53,8 +53,8 @@
 |----|---------|----------|-----------------|
 | M1 | Rate limiter is **per-isolate** (not global). Multi-isolate abuse still possible. | `server/_core/rateLimit.ts:1–9` | Cloudflare Rate Limiting binding or WAF rules for `/api/trpc/*`. |
 | M2 | CSP allows `'unsafe-inline'` scripts (Vite/glass tradeoff). | `server/worker.ts:38–54` | Longer-term: nonces / strict-dynamic if bundle allows. |
-| M3 | Federation website/social fields rendered as `href={federation.website}` without https-only validation. | `client/src/components/FederationModal.tsx:187+`; admin federation update | Validate `https://` (or relative) on federation create/update like streams. |
-| M4 | `events`/`news`/`streams` update/delete assert on **input** `federationId` + WHERE; wrong id+own-fed is silent no-op (not cross-tenant write). Prefer load-then-assert like `coaches`/`hpPrograms`. | `server/routers/events.ts:136–163`; `news.ts:122–148`; `streams.ts:107–152` | Load existing row → `assertSameFederation(existing)` → mutate. |
+| M3 | Federation website/social fields rendered as `href={federation.website}` without https-only validation. | `client/src/components/FederationModal.tsx`; admin federation update | **Fixed:** create/update `httpsUrlSchema`; modal uses `safeHttpsHref` (suppresses non-https). |
+| M4 | `events`/`news`/`streams` update/delete assert on **input** `federationId` + WHERE; wrong id+own-fed is silent no-op (not cross-tenant write). Prefer load-then-assert like `coaches`/`hpPrograms`. | `server/routers/events.ts`; `news.ts`; `streams.ts` | **Fixed:** input assert + load-then-assert via `assertClaimMatchesOwnedRow`. |
 | M5 | `.env.production` commits **anon** JWT (intentional for CI). Anon is public-by-design; still rotate if ever paired with leaked service_role. | `.env.production:6–7` | Keep anon only; never commit service_role. |
 | M6 | Shared Supabase project (~737 tables). Storage buckets of other products (e.g. `player-photos` anon INSERT) are out of sportsplatform scope but raise shared-project risk. | Storage policies (other products) | Org-level hygiene; not sportsplatform code. |
 
@@ -128,7 +128,7 @@ See **C2**. Role `sportsplatform_app` + grants exist in DB; Hyperdrive still on 
 
 - Stream URLs: https-validated server-side (**H6**).
 - Login redirect uses `window.location.origin` (not query param) — **OK**.
-- Federation social `href` — residual **M3**.
+- Federation social `href` — **M3 fixed** (`safeHttpsHref` in FederationModal).
 
 ### 10. Admin UI gates
 
@@ -184,8 +184,8 @@ npm run test -- --run server/federationScope.test.ts server/rateLimit.test.ts  #
 |-------|--------|
 | `users.list` / `users.setRole` | `adminProcedure` only — `federation_admin` cannot call (role gate in `adminProcedure`). |
 | Demote last admin | Self-demotion blocked (`id === ctx.user.id && role !== "admin"`). Sole admin cannot remove own admin role. |
-| `federation_admin` + null `federationId` | Rejected at runtime (`federationId == null` → `BAD_REQUEST`). Zod input allows `nullable().optional()`; couple is enforced in the mutation body (Medium defense-in-depth only — not exploitable). |
-| `news.delete` / `streams.delete` | `assertSameFederation(input.federationId)` then `DELETE … WHERE id AND federationId` — no cross-tenant delete. Ownership load-then-assert still preferred (see M4); silent no-op on id/fed mismatch is not escalation. |
+| `federation_admin` + null `federationId` | **Fixed:** Zod `superRefine` requires `federationId` for `federation_admin`; `club_manager` not assignable; covered by `server/mediumGuards.test.ts`. |
+| `news.delete` / `streams.delete` | **Fixed (M4):** input assert + load-then-assert via `assertClaimMatchesOwnedRow`. |
 | Upload `coach` / `stream` | `entitySchema` includes both; `assertSameFederation` on `federationId` before storage write (same pattern as club/athlete). |
 | Platform Admin UI | `Admin.tsx`: `role === "admin"` redirect + early return before mutation UI; queries `enabled: isPlatformAdmin`. |
 | FedAdmin new tabs | Props use `federation.id` from slug lookup (`FederationLayout`); coaches/media/HP/news/streams lock that id — client cannot pass another federation via UI. API still enforces `assertSameFederation`. |

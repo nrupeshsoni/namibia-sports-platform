@@ -1,9 +1,11 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { events } from "../../drizzle/schema";
 import { eq, desc, asc, like, and, gte } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
 import {
+  assertClaimMatchesOwnedRow,
   assertSameFederation,
   canIncludeUnpublished,
   canViewNonPublic,
@@ -134,10 +136,26 @@ export const eventsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // Input assert first (cross-tenant reject before DB); then load-then-assert ownership.
       assertSameFederation(ctx.user, input.federationId);
 
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      const [existing] = await db
+        .select({ federationId: events.federationId })
+        .from(events)
+        .where(eq(events.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+      }
+      assertClaimMatchesOwnedRow(
+        ctx.user,
+        input.federationId,
+        existing.federationId,
+        "Event not found"
+      );
 
       const { id, federationId, eventType, ...rest } = input;
       const data = eventType !== undefined ? { ...rest, type: eventType } : rest;
@@ -155,6 +173,21 @@ export const eventsRouter = router({
 
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      const [existing] = await db
+        .select({ federationId: events.federationId })
+        .from(events)
+        .where(eq(events.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+      }
+      assertClaimMatchesOwnedRow(
+        ctx.user,
+        input.federationId,
+        existing.federationId,
+        "Event not found"
+      );
 
       await db
         .delete(events)

@@ -16,6 +16,7 @@ import { TRPCError } from "@trpc/server";
 import { appRouter } from "./routers";
 import { NOT_FEDERATION_ADMIN_ERR_MSG } from "../shared/const";
 import {
+  assertClaimMatchesOwnedRow,
   assertSameFederation,
   canIncludeInactive,
   canIncludeUnpublished,
@@ -105,6 +106,35 @@ describe("assertSameFederation (unit)", () => {
         OWN_FEDERATION
       )
     ).toThrow(NOT_FEDERATION_ADMIN_ERR_MSG);
+  });
+});
+
+describe("assertClaimMatchesOwnedRow (unit)", () => {
+  it("allows matching claim + owned row", () => {
+    expect(() =>
+      assertClaimMatchesOwnedRow(
+        { role: "federation_admin", federationId: OWN_FEDERATION },
+        OWN_FEDERATION,
+        OWN_FEDERATION,
+        "missing"
+      )
+    ).not.toThrow();
+  });
+
+  it("rejects mismatched claim vs stored federationId as NOT_FOUND", () => {
+    try {
+      assertClaimMatchesOwnedRow(
+        { role: "admin", federationId: null },
+        OWN_FEDERATION,
+        OTHER_FEDERATION,
+        "Event not found"
+      );
+      expect.fail("expected NOT_FOUND");
+    } catch (err) {
+      expect(err).toBeInstanceOf(TRPCError);
+      expect((err as TRPCError).code).toBe("NOT_FOUND");
+      expect((err as TRPCError).message).toBe("Event not found");
+    }
   });
 });
 

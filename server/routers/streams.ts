@@ -8,7 +8,10 @@ import {
   federationAdminProcedure,
   router,
 } from "../_core/trpc";
-import { assertSameFederation } from "../_core/federationScope";
+import {
+  assertClaimMatchesOwnedRow,
+  assertSameFederation,
+} from "../_core/federationScope";
 import { httpsUrlSchema } from "../_core/httpsUrl";
 import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
@@ -111,6 +114,21 @@ export const streamsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
+      const [existing] = await db
+        .select({ federationId: liveStreams.federationId })
+        .from(liveStreams)
+        .where(eq(liveStreams.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Stream not found" });
+      }
+      assertClaimMatchesOwnedRow(
+        ctx.user,
+        input.federationId,
+        existing.federationId,
+        "Stream not found"
+      );
+
       const { id, federationId, ...data } = input;
       await db
         .update(liveStreams)
@@ -126,6 +144,21 @@ export const streamsRouter = router({
 
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const [existing] = await db
+        .select({ federationId: liveStreams.federationId })
+        .from(liveStreams)
+        .where(eq(liveStreams.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Stream not found" });
+      }
+      assertClaimMatchesOwnedRow(
+        ctx.user,
+        input.federationId,
+        existing.federationId,
+        "Stream not found"
+      );
 
       await db
         .update(liveStreams)
@@ -146,6 +179,21 @@ export const streamsRouter = router({
 
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const [existing] = await db
+        .select({ federationId: liveStreams.federationId })
+        .from(liveStreams)
+        .where(eq(liveStreams.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Stream not found" });
+      }
+      assertClaimMatchesOwnedRow(
+        ctx.user,
+        input.federationId,
+        existing.federationId,
+        "Stream not found"
+      );
 
       await db
         .delete(liveStreams)

@@ -1,10 +1,11 @@
-﻿# Changelog
+# Changelog
 
 All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
 ### Changed
+- Federation visual coverage: active heroes remain **83/83**; logos **53→83/83** (Golf + Dance Sport verified crests + **28** `/logos/marks/*.svg` silhouettes where no crest; TISAN hero → traditional wrestling). Migration `20260724120000`. Evidence: `docs/research/FEDERATION_PHOTOS_COVERAGE.md`.
 - SEO/AIO + UX polish (2026-07-24): refreshed sitemap slug JSONs from live DB (**83** feds / **79** news / **178** athletes) + rebuilt `client/public/sitemap.xml`; News/Live/Map use shared `SiteLegalFooter` (Privacy/Terms); Federation Home + Streams empty states honest (incl. Recent Coverage); fixed Home fallback 404 `/sports/bCLTLTx2ggc5.jpeg` → `/sports/athletics.jpg`; added `/favicon.ico` + icon links; soft-public SEO copy (no “every sport / live streams” claims). Docs: `docs/04_features_audit.md` + `SKILLS.md` routers aligned to current `server/routers/`.
 - CI quality gate: `npm run ci:gate` runs `check` + `test` + `build`. Local `cf:deploy` / `cf:deploy:staging` invoke it before wrangler. `docs/CI.md` **Workers Builds dashboard** section has the exact click path + API note to set build command to `npm run ci:gate` (MCP/Wrangler OAuth cannot change trigger settings).
 - Sitemap hubs: include `/privacy` + `/terms`; omit `/live` while stream inventory is VOD-only (`scripts/generate-sitemap.mjs`).
@@ -15,6 +16,7 @@ All notable changes to this project are documented in this file.
 - Full backend content management for Platform Admin and Federation Admin: news (create/edit/publish/delete), streams (create/edit/setLive/delete), venues, coaches, schools, media library, HP programs, plus **Users** role assignment (`users.list` + `users.setRole` with `role` + `federationId`) so platform admins can grant federation editors. Shared forms with `ImageUpload` on news/streams/clubs/coaches/venues; FedAdmin nav adds Coaches, Media, HP Programs. `news.delete` is `federationAdminProcedure` with `assertSameFederation`; upload entities include `coach` and `stream`.
 
 ### Security
+- Go-live raise: clubs/athletes load-then-assert; club `website` https-only; `media.list` unscoped dump = platform admin only; Anthropic `timeout: 30_000`; Medium guards (setRole Zod, events/news/streams ownership, upload path/MIME, FederationModal https hrefs).
 - Public `venues.list` / `getById` default to `is_active = true` (platform admin may pass `includeInactive`).
 - Federation `website` / Facebook / Instagram / Twitter / YouTube on create/update require `https://` (shared `server/_core/httpsUrl.ts`; streams reuse the same schema).
 - Spot-audit of Admin CMS + `users` RBAC (`b6d1411` / `ae83765`): no Critical/High privilege-escalation or tenancy gaps; notes under “Admin CMS follow-up” in `docs/research/PRODUCTION_SECURITY_AUDIT.md`.

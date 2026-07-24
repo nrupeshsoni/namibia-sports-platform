@@ -63,8 +63,12 @@ export function ImageUpload({
     const reader = new FileReader();
     reader.onload = () => {
       const data = reader.result as string;
-      const match = data.match(/^data:([^;]+);/);
-      const contentType = match ? match[1] : "image/jpeg";
+      const match = data.match(/^data:(image\/(?:jpeg|png|webp|gif));/);
+      const contentType = (match?.[1] ?? "image/jpeg") as
+        | "image/jpeg"
+        | "image/png"
+        | "image/webp"
+        | "image/gif";
 
       uploadMut.mutate({
         federationId,
