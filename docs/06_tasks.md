@@ -17,6 +17,7 @@
 - [x] Production security audit 2026-07-23 — `docs/research/PRODUCTION_SECURITY_AUDIT.md` (Critical remaining: credential rotation + Hyperdrive least-privilege)
 - [x] Ensure all list queries have .limit() — news default 50; events/clubs/athletes/coaches/streams/venues/federations/hpPrograms default 50 / max 200 (server/_core/listLimits.ts)
 - [x] Reconcile federation roster to NSC 2026 list (85 entities; migration `20260720000001`)
+- [x] Explain official **61** vs platform **85** — `docs/research/FEDERATION_COUNT_OFFICIAL_VS_PLATFORM.md`; Admin Directory card breaks down sports · bodies · merged (no mass-delete)
 - [x] Populate new federation descriptions/contacts from NSC Feb 2025 extract (migration `20260720000002`)
 - [x] Restore recoverable logos + null broken paths (migration `20260720000003`)
 - [x] Priority crests: Ministry, Paralympic, NRU, Bowls (migration `20260720000004`)

@@ -111,8 +111,31 @@ export default function Admin() {
     else if (entity === "athletes" && federationId != null) deleteAth.mutate({ id, federationId });
   };
 
+  const fedRows = federationsQuery.data;
+  const fedSportCount = fedRows?.filter((f) => f.type === "federation" && f.isActive !== false).length;
+  const fedBodyCount = fedRows?.filter(
+    (f) => (f.type === "ministry" || f.type === "commission" || f.type === "umbrella") && f.isActive !== false
+  ).length;
+  const fedMergedCount = fedRows?.filter((f) => f.isActive === false || Boolean(f.mergedIntoSlug)).length;
+  const fedStatDetail =
+    fedRows == null
+      ? undefined
+      : [
+          `${fedSportCount ?? 0} sports`,
+          `${fedBodyCount ?? 0} bodies`,
+          (fedMergedCount ?? 0) > 0 ? `${fedMergedCount} merged` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ");
+
   const stats = [
-    { label: "Federations", value: federationsQuery.data?.length ?? "—", color: "#EF4444", icon: Trophy },
+    {
+      label: "Directory",
+      value: fedRows?.length ?? "—",
+      detail: fedStatDetail,
+      color: "#EF4444",
+      icon: Trophy,
+    },
     { label: "Events", value: eventsQuery.data?.length ?? "—", color: "#3B82F6", icon: Calendar },
     { label: "Clubs", value: clubsQuery.data?.length ?? "—", color: "#10B981", icon: Users },
     { label: "Athletes", value: athletesQuery.data?.length ?? "—", color: "#FBBF24", icon: BarChart3 },
@@ -154,6 +177,9 @@ export default function Admin() {
                 <Icon className="w-6 h-6 mb-3" style={{ color: stat.color }} />
                 <p className="text-3xl font-serif text-white">{stat.value}</p>
                 <p className="text-sm text-gray-400 mt-1">{stat.label}</p>
+                {"detail" in stat && stat.detail ? (
+                  <p className="text-xs text-gray-500 mt-1">{stat.detail}</p>
+                ) : null}
               </div>
             );
           })}

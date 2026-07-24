@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- `docs/research/FEDERATION_COUNT_OFFICIAL_VS_PLATFORM.md` — reconciles Ministry **61** registered federations vs Admin **85** directory entities (live DB breakdown).
+
+### Changed
+- Admin stats: first card is **Directory** (85) with breakdown `sports · bodies · merged` so it is not confused with NSC/Ministry federation counts.
+
 ### Fixed
 - Home **14 Regions** cards were dead clicks; each region now links to `/map?region=…` and Map reads/syncs the query so venues/events filter for that region.
 
