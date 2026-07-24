@@ -1,17 +1,20 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
 ### Changed
+- Production go-live scorecard raised **74 → 83 / 100** (code+data bar). Still **CONDITIONAL / NO-GO** until human credential rotation (ops cap ≤52). Soft public ~**87** after rotation; ≥90 needs hollow gate + Builds `ci:gate`. See `docs/research/PRODUCTION_GO_LIVE_SCORECARD.md`.
+- `users.setRole` assignable roles: `user` | `admin` | `federation_admin` only (`club_manager` not grantable until club-scoped procedures exist).
 - Federation visual coverage: active heroes remain **83/83**; logos **53→83/83** (Golf + Dance Sport verified crests + **28** `/logos/marks/*.svg` silhouettes where no crest; TISAN hero → traditional wrestling). Migration `20260724120000`. Evidence: `docs/research/FEDERATION_PHOTOS_COVERAGE.md`.
-- SEO/AIO + UX polish (2026-07-24): refreshed sitemap slug JSONs from live DB (**83** feds / **79** news / **178** athletes) + rebuilt `client/public/sitemap.xml`; News/Live/Map use shared `SiteLegalFooter` (Privacy/Terms); Federation Home + Streams empty states honest (incl. Recent Coverage); fixed Home fallback 404 `/sports/bCLTLTx2ggc5.jpeg` → `/sports/athletics.jpg`; added `/favicon.ico` + icon links; soft-public SEO copy (no “every sport / live streams” claims). Docs: `docs/04_features_audit.md` + `SKILLS.md` routers aligned to current `server/routers/`.
+- SEO/AIO + UX polish (2026-07-24): refreshed sitemap slug JSONs from live DB (**83** feds / **79** news / **178** athletes) + rebuilt `client/public/sitemap.xml`; News/Live/Map use shared `SiteLegalFooter` (Privacy/Terms); Federation Home + Streams empty states honest (incl. Recent Coverage); fixed Home fallback 404 `/sports/bCLTLTx2ggc5.jpeg` → `/sports/athletics.jpg`; added `/favicon.ico` + icon links; soft-public SEO copy (no “every sport / live streams” claims); page-level ErrorBoundaries (Federation + Admin); Live inventory-honest hero. Docs: `docs/04_features_audit.md` + `SKILLS.md` routers aligned to current `server/routers/`.
 - CI quality gate: `npm run ci:gate` runs `check` + `test` + `build`. Local `cf:deploy` / `cf:deploy:staging` invoke it before wrangler. `docs/CI.md` **Workers Builds dashboard** section has the exact click path + API note to set build command to `npm run ci:gate` (MCP/Wrangler OAuth cannot change trigger settings).
 - Sitemap hubs: include `/privacy` + `/terms`; omit `/live` while stream inventory is VOD-only (`scripts/generate-sitemap.mjs`).
 
 ### Added
-- Production go-live scorecard (orchestrator): `docs/research/PRODUCTION_GO_LIVE_SCORECARD.md` — full public **74/100**, **CONDITIONAL** (soft public after human credential rotation; full national still NO-GO). Caps ≤52 while DB/`service_role` unrotated.
+- Production go-live scorecard (orchestrator): `docs/research/PRODUCTION_GO_LIVE_SCORECARD.md` — full public **83/100** code bar, **CONDITIONAL** (soft public after human credential rotation; full national still NO-GO until hollow). Caps ≤52 while DB/`service_role` unrotated.
+- Vitest: `server/mediumGuards.test.ts`, `client/src/lib/features.test.ts`.
 - Expanded `server/federationScope.test.ts`: unit coverage for `assertSameFederation` / unpublished-inactive helpers; same-tenant pass-through for events/news/streams/upload; `athletes.delete` + `streams.delete` cross-tenant FORBIDDEN (input asserted before DB).
 - Full backend content management for Platform Admin and Federation Admin: news (create/edit/publish/delete), streams (create/edit/setLive/delete), venues, coaches, schools, media library, HP programs, plus **Users** role assignment (`users.list` + `users.setRole` with `role` + `federationId`) so platform admins can grant federation editors. Shared forms with `ImageUpload` on news/streams/clubs/coaches/venues; FedAdmin nav adds Coaches, Media, HP Programs. `news.delete` is `federationAdminProcedure` with `assertSameFederation`; upload entities include `coach` and `stream`.
 
