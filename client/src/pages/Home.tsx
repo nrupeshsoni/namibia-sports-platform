@@ -10,6 +10,7 @@ import { ChevronDown, Search, Menu, Loader2, MapPin, Users, Calendar, Trophy, X,
 import { trpc } from '../lib/trpc';
 import { fadeUp, staggerContainer, scaleIn } from '../lib/animations';
 import { useShowLiveNav } from '../hooks/useShowLiveNav';
+import { NewsCard } from '../components/NewsCard';
 
 const EVENT_TYPE_IMAGES: Record<string, string> = {
   competition: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800&q=80',
@@ -19,8 +20,6 @@ const EVENT_TYPE_IMAGES: Record<string, string> = {
   meeting: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
   other: 'https://images.unsplash.com/photo-1461896836934-4f16cf7d507c?w=800&q=80',
 };
-
-const NEWS_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80';
 
 /** Federation row from tRPC (camelCase, matches getBySlug) */
 type TrpcFederation = {
@@ -208,13 +207,13 @@ export default function Home() {
     summary: string | null;
     category: string | null;
     featuredImage: string | null;
+    sourceUrl?: string | null;
+    sourceName?: string | null;
     publishedAt: string | null;
   }>;
 
   const formatEventDate = (d: Date | string) =>
     new Date(d).toLocaleDateString('en-NA', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-  const formatNewsDate = (d: string | null) =>
-    d ? new Date(d).toLocaleDateString('en-NA', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 
   return (
     <div className="min-h-screen theme-page overflow-x-hidden">
@@ -517,45 +516,7 @@ export default function Home() {
               {newsArticles.map((article) => (
                 <motion.div key={article.id} variants={fadeUp}>
                   <Link href={`/news/${article.slug}`}>
-                    <div
-                      className="h-full rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 hover:scale-[1.02] hover:shadow-xl"
-                      style={{
-                        background: 'rgba(255,255,255,0.05)',
-                        backdropFilter: 'blur(20px)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        boxShadow: '0 15px 35px -10px rgba(0,0,0,0.3)',
-                      }}
-                    >
-                      <div className="aspect-video relative overflow-hidden">
-                        <div
-                          className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                          style={{
-                            backgroundImage: `url(${article.featuredImage || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80'})`,
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                        {article.category && (
-                          <span
-                            className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-medium"
-                            style={{ background: 'rgba(16,185,129,0.8)', color: 'white' }}
-                          >
-                            {article.category}
-                          </span>
-                        )}
-                      </div>
-                      <div className="p-5">
-                        <h3 className="text-white font-serif text-lg line-clamp-2 mb-2">{article.title}</h3>
-                        {article.summary && (
-                          <p className="text-gray-400 text-sm line-clamp-2 mb-3">{article.summary}</p>
-                        )}
-                        {article.publishedAt && (
-                          <p className="text-xs text-gray-500 flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5" />
-                            {formatNewsDate(article.publishedAt)}
-                          </p>
-                        )}
-                      </div>
-                    </div>
+                    <NewsCard article={article} accent="emerald" />
                   </Link>
                 </motion.div>
               ))}

@@ -6,6 +6,8 @@ import { trpc } from "@/lib/trpc";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 import { SiteLegalFooter } from "@/components/SiteLegalFooter";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NewsCard } from "@/components/NewsCard";
+import { FeaturedNewsCard } from "@/components/FeaturedNewsCard";
 
 /** Fallback when older rows lack source_* columns. */
 function parseSourceFooter(content: string | null | undefined): {
@@ -28,16 +30,13 @@ function formatDate(val: string | null | undefined): string {
 function SkeletonCard() {
   return (
     <div
-      className="rounded-2xl overflow-hidden animate-pulse"
-      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+      className="rounded-2xl overflow-hidden animate-pulse p-5 space-y-3"
+      style={{ background: "var(--glass-surface)", border: "1px solid var(--glass-surface-border)" }}
     >
-      <div className="aspect-video" style={{ background: "rgba(255,255,255,0.07)" }} />
-      <div className="p-5 space-y-3">
-        <div className="h-3 rounded w-1/4" style={{ background: "rgba(239,68,68,0.2)" }} />
-        <div className="h-4 rounded w-5/6" style={{ background: "rgba(255,255,255,0.1)" }} />
-        <div className="h-3 rounded w-full" style={{ background: "rgba(255,255,255,0.07)" }} />
-        <div className="h-3 rounded w-2/3" style={{ background: "rgba(255,255,255,0.07)" }} />
-      </div>
+      <div className="h-3 rounded w-1/4" style={{ background: "rgba(239,68,68,0.2)" }} />
+      <div className="h-4 rounded w-5/6" style={{ background: "var(--chrome-btn-bg)" }} />
+      <div className="h-3 rounded w-full" style={{ background: "var(--chrome-btn-bg)" }} />
+      <div className="h-3 rounded w-2/3" style={{ background: "var(--chrome-btn-bg)" }} />
     </div>
   );
 }
@@ -313,110 +312,24 @@ export default function News() {
 
           {!newsQuery.isLoading && !newsQuery.isError && filtered.length > 0 && (
             <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-8">
-              {/* Featured article */}
               {featured && (
-                <motion.div
-                  variants={fadeUp}
-                  className="relative rounded-2xl overflow-hidden cursor-pointer group"
-                  style={{ border: "1px solid rgba(255,255,255,0.1)" }}
-                  onClick={() => setSelectedArticle(featured)}
-                >
-                  <div
-                    className="w-full h-64 md:h-96 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-                    style={{
-                      backgroundImage: `url(${featured.featuredImage ?? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80"})`,
-                    }}
+                <motion.div variants={fadeUp}>
+                  <FeaturedNewsCard
+                    article={featured}
+                    onClick={() => setSelectedArticle(featured)}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                    <div className="flex items-center gap-3 mb-3">
-                      {featured.category && (
-                        <span
-                          className="px-3 py-1 rounded-lg text-xs font-medium"
-                          style={{ background: "rgba(239,68,68,0.8)", color: "white" }}
-                        >
-                          {featured.category}
-                        </span>
-                      )}
-                      <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-lg" style={{ background: "rgba(251,191,36,0.2)", color: "#FBBF24" }}>
-                        Featured
-                      </span>
-                    </div>
-                    <h2 className="text-2xl md:text-4xl font-serif text-white mb-2 leading-tight">
-                      {featured.title}
-                    </h2>
-                    {featured.summary && (
-                      <p className="text-gray-300 text-sm md:text-base line-clamp-2 max-w-2xl">{featured.summary}</p>
-                    )}
-                    <div className="flex items-center gap-4 mt-3">
-                      {featured.publishedAt && (
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {formatDate(featured.publishedAt)}
-                        </span>
-                      )}
-                      <span
-                        className="text-sm font-medium transition-colors group-hover:text-white"
-                        style={{ color: "#EF4444" }}
-                      >
-                        Read More →
-                      </span>
-                    </div>
-                  </div>
                 </motion.div>
               )}
 
-              {/* Remaining articles grid */}
               {rest.length > 0 && (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {rest.map((article) => (
-                    <motion.div
-                      key={article.id}
-                      variants={fadeUp}
-                      className="rounded-2xl overflow-hidden cursor-pointer transition-all hover:scale-[1.02] group"
-                      style={{
-                        background: "rgba(255,255,255,0.05)",
-                        backdropFilter: "blur(20px)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                      }}
-                      onClick={() => setSelectedArticle(article)}
-                    >
-                      <div
-                        className="aspect-video bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-                        style={{
-                          backgroundImage: `url(${article.featuredImage ?? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80"})`,
-                        }}
+                    <motion.div key={article.id} variants={fadeUp}>
+                      <NewsCard
+                        article={article}
+                        accent="red"
+                        onClick={() => setSelectedArticle(article)}
                       />
-                      <div className="p-5">
-                        <div className="flex items-center gap-2 mb-3 flex-wrap">
-                          {article.category && (
-                            <span
-                              className="px-2.5 py-0.5 rounded-lg text-xs font-medium"
-                              style={{ background: "rgba(239,68,68,0.2)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}
-                            >
-                              {article.category}
-                            </span>
-                          )}
-                          {article.publishedAt && (
-                            <span className="text-xs text-gray-500 flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {formatDate(article.publishedAt)}
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="text-lg font-serif text-white mb-2 line-clamp-2 leading-snug">
-                          {article.title}
-                        </h3>
-                        {article.summary && (
-                          <p className="text-gray-400 text-sm line-clamp-2">{article.summary}</p>
-                        )}
-                        <span
-                          className="inline-block mt-3 text-xs font-medium transition-colors group-hover:text-red-300"
-                          style={{ color: "#EF4444" }}
-                        >
-                          Read More →
-                        </span>
-                      </div>
                     </motion.div>
                   ))}
                 </div>

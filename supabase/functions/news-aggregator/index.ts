@@ -13,7 +13,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Anthropic from "npm:@anthropic-ai/sdk@0.32.1";
-import { fetchFeed, parseRssItems, resolveImage, type RssItem } from "./rss.ts";
+import { fetchFeed, fetchOgImage, parseRssItems, resolveImage, type RssItem } from "./rss.ts";
 
 type RssSource = {
   url: string;
@@ -239,7 +239,7 @@ Deno.serve(async () => {
       continue;
     }
     stats.fetchOk = true;
-    const items = parseRssItems(feed.xml);
+    const items = parseRssItems(feed.xml, source.url);
     stats.items = items.length;
 
     for (const item of items.slice(0, 3)) {
@@ -345,7 +345,7 @@ Deno.serve(async () => {
   for (const source of RSS_SOURCES.filter((s) => s.sportsOnly)) {
     const feed = await fetchFeed(source.url);
     if (!feed.ok || !feed.xml) continue;
-    for (const item of parseRssItems(feed.xml).slice(0, 12)) {
+    for (const item of parseRssItems(feed.xml, source.url).slice(0, 12)) {
       try {
         const slug = `agg-${await hashUrl(item.link)}`;
         const { data: row } = await supabase
@@ -367,9 +367,41 @@ Deno.serve(async () => {
     }
   }
 
+  // Third pass: backfill published rows missing featured_image via source_url og/twitter.
+  let backfilled = 0;
+  const { data: missingRows } = await supabase
+    .from("sportsplatform_news_articles")
+    .select("id, source_url")
+    .eq("is_published", true)
+    .is("featured_image", null)
+    .not("source_url", "is", null)
+    .order("published_at", { ascending: false })
+    .limit(30);
+
+  for (const row of missingRows ?? []) {
+    const url = typeof row.source_url === "string" ? row.source_url : "";
+    if (!url) continue;
+    try {
+      const img = await fetchOgImage(url);
+      if (!img) continue;
+      const { error } = await supabase
+        .from("sportsplatform_news_articles")
+        .update({ featured_image: img })
+        .eq("id", row.id)
+        .is("featured_image", null);
+      if (!error) {
+        enriched++;
+        backfilled++;
+      }
+    } catch {
+      /* timeout-safe: skip */
+    }
+  }
+
   console.log(
     `[news-aggregator] inserted=${inserted} published=${published} enriched=${enriched} ` +
-      `skippedNonSports=${skippedNonSports} skippedNonNamibia=${skippedNonNamibia} skippedExisting=${skippedExisting}`
+      `backfilled=${backfilled} skippedNonSports=${skippedNonSports} ` +
+      `skippedNonNamibia=${skippedNonNamibia} skippedExisting=${skippedExisting}`
   );
   return new Response(
     JSON.stringify({
@@ -377,6 +409,7 @@ Deno.serve(async () => {
       inserted,
       published,
       enriched,
+      backfilled,
       skippedNonSports,
       skippedNonNamibia,
       skippedExisting,

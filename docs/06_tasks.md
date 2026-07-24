@@ -37,6 +37,7 @@
 - [x] Namibian sports news ingestion research — `docs/research/NAMIBIAN_SPORTS_NEWS_SOURCES.md`; RSS Phase 1 wired in `news-aggregator` (opt-in `ENABLE_NEWS_AGGREGATOR`); no outlet APIs
 - [x] Deploy `news-aggregator` + `ENABLE_NEWS_AGGREGATOR=true` + `pg_cron` every 6h (`invoke-news-aggregator`); first smoke looked idle (`skippedNonSports:9`) but was retired Claude model 404 — fixed to `claude-sonnet-4-6` + trust sports category feeds; **`agg-*` drafts live** (Admin News)
 - [x] News auto-publish policy — trusted sports feeds publish when Namibia+sports pass; `source_url`/`source_name`; image enrich; 58 `agg-*` backfill published; kill-switch `ENABLE_NEWS_AGGREGATOR`
+- [x] News missing-image UX — text-first cards (Home/`/news`/federation); aggregator og/RSS backfill + timeouts; no fake Unsplash/initials placeholders
 - [x] Athletes + venues beta depth — dedupe/slugs/photos + 36 notables; venues 15→28 (`20260720000046`); see `docs/research/athletes_venues_enrichment_batch.md`
 - [x] Venues ≥40 + HP programs seed — venues 28→42 (**100%** photos); `sportsplatform_hp_programs` 0→10 (`20260720000062`); see `docs/research/venues_hp_enrichment_batch.md`
 - [x] Coaches + athletes depth — coaches 16→35 active (100% photos); +21 athletes for netball/hockey/cycling/swim/judo/para (`20260720000051`); see `docs/research/coaches_athletes_depth_batch.md`
