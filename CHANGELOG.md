@@ -9,6 +9,7 @@ All notable changes to this project are documented in this file.
 - `adminStats.counts` — uncapped event/club/athlete totals for Admin dashboard (not capped by list limit 50/200).
 - Migration `20260724210000_events_web_batch_C.sql` — **+14** verified niche/umbrella/para events (chess Open + Olympiad, AGA World Walvis Bay + Botswana, AUSC Region 5 / NYG Phase 1, World Bowls Indoor, CWG para-athletics, NAMEF Beach/Easter/RCO, IHF Trophy Zone VI, Redzone Handball) + fistball Cohen 2026 date correction. Evidence: `docs/research/events_web_batch_C_20260724.md`.
 - Migration `20260724200000_events_web_batch_A_big_sports.sql` — **+27** verified big-sports events (NFA/NRU/cricket/athletics/netball/hockey/tennis/`namibia-aquatics`/KBA) + **4** corrections (Davis Cup 7–8 Feb, CWC L2 Windhoek 2–12 Apr, NHU indoor finals + Nujoma boxing descriptions). Evidence: `docs/research/events_web_batch_A_20260724.md`. Live events **270** / published **268**.
+- Migration `20260724203000_events_web_batch_B.sql` — **+23** verified Batch B events (golf, cycling, motorsport, triathlon, karate, taekwondo, wrestling, powerlifting, gymnastics, dance sport, table tennis, beach volleyball). Badminton/judo/indoor volleyball skipped (no new dated public sources). Evidence: `docs/research/events_web_batch_B_20260724.md`.
 - `docs/research/FEDERATION_COUNT_OFFICIAL_VS_PLATFORM.md` — reconciles Ministry **61** registered federations vs Admin **85** directory entities (live DB breakdown).
 
 ### Changed
