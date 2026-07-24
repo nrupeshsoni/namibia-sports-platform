@@ -5,6 +5,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- Namibian sports news source research + RSS wiring: `docs/research/NAMIBIAN_SPORTS_NEWS_SOURCES.md` (outlet matrix; **no public APIs**; Phase 1 RSS / Phase 2 partnerships). Extended `supabase/functions/news-aggregator` with verified feeds (New Era Sports, Google News Namibia sports + The Namibian site-scoped, Economist/Eagle/Confidente sport categories, Informanté filtered), source attribution footer, sports filter, federation hint match, opt-in `ENABLE_NEWS_AGGREGATOR=true` (drafts only).
 - **Light theme** with accessible sun/moon toggle (Home, Events, News, Map, Admin, Federation, NavDrawer). Uses existing `ThemeContext` with `switchable`; preference in `localStorage.theme`. Cool-slate light chrome + theme-aware glass (`--chrome-*`, `--glass-*`). Audit: `docs/research/MOBILE_AND_THEME.md`.
 - `docs/research/SEO_AIO_AND_CONTENT_GAPS.md` — SEO/AIO scorecard (~72/100, **partial**), live DB population matrix, daily news options (manual CMS + Content Sync AI vs undeployed `news-aggregator`).
 - **Content Sync (Intelligence)** — Platform Admin tab + `contentSync.*` tRPC (admin-only, rate-limited). Workers AI binding (`ai: { binding: "AI" }` in `wrangler.jsonc`) generates structured news/event research leads; Anthropic is Phase 2 fallback when `ANTHROPIC_API_KEY` is set. **Create draft** always writes `isPublished=false`. Flag `ENABLE_CONTENT_SYNC` defaults ON. Docs: `docs/research/CONTENT_SYNC_AI.md`.

@@ -108,25 +108,28 @@ All queries use React Query with:
 
 ## AI Pipeline: News Aggregation
 
-```
-Supabase Edge Function (cron: every 6h)
-    │
-    ├── Fetch from Namibian sources:
-    │       - The Namibian (sports section RSS)
-    │       - New Era (sports RSS)
-    │       - NBC Sport (scrape)
-    │       - NSC press releases
-    │
-    ├── For each article:
-    │       ├── Deduplicate (check URL hash in DB)
-    │       ├── Claude API: extract sport/federation category
-    │       ├── Claude API: generate 150-word summary
-    │       ├── Claude API: suggest 3-5 tags
-    │       └── Insert into namibia_na_26_news_articles (isPublished: false)
-    │
-    └── Notify admin via WhatsApp: "X new articles pending review"
+Source research (verified feeds, no public outlet APIs):
+`docs/research/NAMIBIAN_SPORTS_NEWS_SOURCES.md`
 
-Federation admin reviews in dashboard → publishes selected articles
+```
+Supabase Edge Function news-aggregator (cron: every 6h; ENABLE_NEWS_AGGREGATOR=true)
+    │
+    ├── Fetch verified RSS (Phase 1):
+    │       - New Era /category/sports/feed/
+    │       - Google News "Namibia sports" (+ site:namibian.com.na sport)
+    │       - Economist / Eagle FM / Confidente sport category feeds
+    │       - Informanté site feed (keyword + Claude sports filter)
+    │       - Namibian Sun / NBC: no usable RSS yet (do not scrape)
+    │
+    ├── For each item:
+    │       ├── Deduplicate (URL hash slug agg-*)
+    │       ├── Claude: isSports + teaser summary + tags + federationHint
+    │       ├── Match federation_id from sportsplatform_federations (hint only)
+    │       └── Insert sportsplatform_news_articles (is_published: false)
+    │           with Source: name + URL footer (no fabricated body)
+    │
+    └── Platform admin reviews drafts → publishes via CMS
+        (Content Sync Workers AI is a separate on-demand assist path)
 ```
 
 ---

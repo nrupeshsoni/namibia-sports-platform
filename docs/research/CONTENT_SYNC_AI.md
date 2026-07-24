@@ -8,7 +8,7 @@
 
 Help Platform Admins populate federation **news**, **schedules**, and **events** by generating structured research *leads* — not verified facts. Admins review suggestions and click **Create draft**, which writes `isPublished = false` rows into `sportsplatform_news_articles` / `sportsplatform_events`.
 
-This is separate from the Supabase Edge Function `news-aggregator` (RSS + Claude cron). Content Sync is an on-demand, in-Worker admin tool.
+This is separate from the Supabase Edge Function `news-aggregator` (RSS + Claude cron; verified feeds in `docs/research/NAMIBIAN_SPORTS_NEWS_SOURCES.md`). Content Sync is an on-demand, in-Worker admin tool. Cloudflare Workers AI here (and Claude in the aggregator) **classify/tag/match federation** from real leads or RSS snippets — they must not fabricate articles.
 
 ## Providers
 
