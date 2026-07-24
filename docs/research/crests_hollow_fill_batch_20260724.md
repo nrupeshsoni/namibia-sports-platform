@@ -88,12 +88,14 @@ Remote: `news_hollow_verified_nesa_tkd_cue_dsn_niiha`
 
 | Metric | Before | After | Δ |
 |--------|-------:|------:|--:|
-| Real crests | 55 | **57** | +2 |
-| Mark placeholders | 28 | **26** | −2 |
+| Real crests (non-mark) | 53→55* | **55** | +2 Golf/DSN vs mark baseline |
+| Mark placeholders | 30→28* | **28** | −2 |
 | SQL-null logos | 0 | **0** | 0 |
 | Active athletes | 178 | **193** | +15 |
 | Active clubs | 171 | **189** | +18 |
-| Published news | 79 | **84** | +5 |
+| Published news | 79 | **83** | +4 net (+5 inserted; live total 83) |
+
+\*Sibling sport-mark pass zeroed SQL-nulls first; this pass upgraded Golf/DSN marks to NNOC JPG crests (live paths confirmed).
 
 Soft-merge check: `namibia-aquatics` / `weightlifting-namibia` still `is_active = false`.
 

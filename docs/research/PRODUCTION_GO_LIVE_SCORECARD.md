@@ -14,9 +14,9 @@
 
 | Metric | Value |
 |--------|------:|
-| **FULL PUBLIC launch score (code + data bar)** | **83 / 100** |
+| **FULL PUBLIC launch score (code + data bar)** | **84 / 100** |
 | **Score if DB password + service_role still unrotated** | **≤52** (hard ops cap — do not ship) |
-| **Max after human credential rotation alone** | **~87** (soft public **GO**) |
+| **Max after human credential rotation alone** | **~87–88** (soft public **GO**) |
 | **Path to ≥90 full public** | Rotation + Hyperdrive app role + Builds `ci:gate` + hollow long-tail ≤15% (see §7) |
 | **Go / No-Go** | **CONDITIONAL — NO-GO until human rotation** |
 | Soft / invite public (Home + Events + News + Big-8) | **GO after §6 human checklist** |
@@ -24,7 +24,7 @@
 
 ### One-line decision
 
-**Agent work maximized the code/data bar to ~83.** Credential rotation still hard-caps live risk at ≤52 and blocks any public GO. After rotation expect **~87 soft public GO**; **≥90 full public** needs hollow core fill (or honest long-tail demotion) plus Workers Builds `ci:gate`.
+**Agent work maximized the code/data bar to ~84.** Credential rotation still hard-caps live risk at ≤52 and blocks any public GO. After rotation expect **~87–88 soft public GO**; **≥90 full public** needs hollow core fill (or honest long-tail demotion) plus Workers Builds `ci:gate`.
 
 ---
 
@@ -33,12 +33,12 @@
 | Band | Meaning |
 |------|---------|
 | 90–100 | National launch — dense coverage, hardened abuse/legal surface |
-| **75–89** | **← code bar here (83)** Public OK with known long-tail gaps |
+| **75–89** | **← code bar here (84)** Public OK with known long-tail gaps |
 | 60–74 | Soft public / marketing to hubs + Big-8 |
 | 40–59 | Invite-only (also the **ops-capped** band while secrets unrotated → **≤52**) |
 | &lt;40 | Internal demo |
 
-Delta vs prior scorecard (**74**, 2026-07-23): **+9** from sport-mark logos **83/83**, Medium guards (load-then-assert, setRole, upload path/MIME), `club_manager` honesty, soft-public SEO copy, legal footers parity, page EBs, Anthropic timeout, media list scope, Live honesty + error UI, expanded vitest.
+Delta vs prior scorecard (**74**, 2026-07-23): **+10** from sport-mark logos **83/83** (+ Golf/DSN NNOC crest upgrades), hollow fill (clubs **189** / athletes **193** / news **83**), Medium guards, `club_manager` honesty, soft-public SEO, legal footers, page EBs, Anthropic timeout, media list scope, Live honesty, vitest.
 
 ---
 
@@ -110,7 +110,7 @@ Delta vs prior scorecard (**74**, 2026-07-23): **+9** from sport-mark logos **83
 | Big-8 calendars + logos + clubs + news | ✅ Pass |
 | Active federation logos **83/83 (100%)** | ✅ Done (crests + sport marks) |
 | Live streams: 0 live / 0 scheduled (4 VOD) | ⚠️ Honest gate |
-| Hollow long-tail (incomplete core-5 / empty club∨news) | ❌ Below full-public 15% gate |
+| Hollow long-tail improved (NIIHA/fistball/cue/NESA fills) but still above 15% incomplete | ❌ Below full-public 15% gate |
 | Crest/mark assets under `/logos` + `/logos/marks` | ✅ Deployable with Worker assets |
 
 ### Ops
@@ -134,7 +134,7 @@ Delta vs prior scorecard (**74**, 2026-07-23): **+9** from sport-mark logos **83
 | Security | **76** | 18% | App hardened; **creds + Hyperdrive still Critical** |
 | RBAC | **92** | 10% | Tenancy + setRole; `club_manager` not assignable |
 | Schema | **80** | 8% | A−; index hygiene residual |
-| Data | **84** | 12% | Logos 100%; hollow long-tail still misses full-public gate |
+| Data | **86** | 12% | Logos 100%; hollow fill +18 clubs/+15 athletes/+news; long-tail still misses 15% gate |
 | Flows | **84** | 8% | Empty states + Live error; long-tail hollow OK if honest |
 | API | **91** | 8% | Caps; WA off; load-assert; media scope; timeouts; https |
 | Frontend | **90** | 8% | SEO honesty; legal footers; page EBs; safeHref |
@@ -144,7 +144,7 @@ Delta vs prior scorecard (**74**, 2026-07-23): **+9** from sport-mark logos **83
 | Perf / SEO | **93** | 2% | Sitemap + honest meta; `/live` demoted |
 | CMS | **93** | 1% | CRUD + loading locks + route EBs |
 | Tests | **72** | 1% | federationScope + mediumGuards + features tests |
-| **Weighted** | **~83** | 100% | Caps to **≤52** while secrets unrotated |
+| **Weighted** | **~84** | 100% | Caps to **≤52** while secrets unrotated |
 
 ### Score math (after human rotation — estimate)
 
@@ -206,4 +206,4 @@ Agents **cannot** complete these. Full copy-paste checklist: [`SECURITY_CREDENTI
 
 ---
 
-*End of Production Go-Live Scorecard. Verdict: **CONDITIONAL** — agent bar **83**; soft public after human rotation (**~87**); full national **≥90** after rotation + Builds gate + hollow gate.*
+*End of Production Go-Live Scorecard. Verdict: **CONDITIONAL** — agent bar **84**; soft public after human rotation (**~87–88**); full national **≥90** after rotation + Builds gate + hollow gate.*
