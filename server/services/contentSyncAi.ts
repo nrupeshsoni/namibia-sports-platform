@@ -15,7 +15,7 @@ import { ENV } from "../_core/env";
 
 /** Preferred Workers AI instruct model for structured JSON suggestions. */
 export const WORKERS_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct";
-const ANTHROPIC_MODEL = "claude-sonnet-4-20250514";
+const ANTHROPIC_MODEL = "claude-sonnet-4-6";
 
 export type ContentSyncProvider = "workers-ai" | "anthropic";
 

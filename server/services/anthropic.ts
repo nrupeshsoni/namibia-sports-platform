@@ -1,12 +1,12 @@
 /**
  * Anthropic Claude API service.
- * Uses claude-sonnet-4-20250514 per CLAUDE.md.
+ * Uses claude-sonnet-4-6 per CLAUDE.md (same ID as news-aggregator).
  */
 
 import Anthropic from "@anthropic-ai/sdk";
 import { ENV } from "../_core/env";
 
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = "claude-sonnet-4-6";
 
 let _client: Anthropic | null = null;
 
