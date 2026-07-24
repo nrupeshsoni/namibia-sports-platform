@@ -21,6 +21,8 @@ Golf, cycling, motorsport, triathlon, karate, taekwondo, judo, wrestling, weight
 
 Applied via Supabase MCP `apply_migration` name `events_web_batch_B_20260724`.
 
+**Post-apply live counts:** `sportsplatform_events` total **293** / published **291** (2026-07-24).
+
 ## Inserts (23)
 
 | # | Event | Dates | Federation slug | Primary source |
