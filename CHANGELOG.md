@@ -5,11 +5,15 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- Platform Admin Users tab: **Add User** (`users.inviteOrPromote`) — Auth Admin create when `SUPABASE_SERVICE_ROLE_KEY` is set, else clear register-then-promote-by-email; assigns role + `federationId`. UI: Add User + Assign role.
+- `adminStats.counts` — uncapped event/club/athlete totals for Admin dashboard (not capped by list limit 50/200).
 - Migration `20260724210000_events_web_batch_C.sql` — **+14** verified niche/umbrella/para events (chess Open + Olympiad, AGA World Walvis Bay + Botswana, AUSC Region 5 / NYG Phase 1, World Bowls Indoor, CWG para-athletics, NAMEF Beach/Easter/RCO, IHF Trophy Zone VI, Redzone Handball) + fistball Cohen 2026 date correction. Evidence: `docs/research/events_web_batch_C_20260724.md`.
+- Migration `20260724200000_events_web_batch_A_big_sports.sql` — **+27** verified big-sports events (NFA/NRU/cricket/athletics/netball/hockey/tennis/`namibia-aquatics`/KBA) + **4** corrections (Davis Cup 7–8 Feb, CWC L2 Windhoek 2–12 Apr, NHU indoor finals + Nujoma boxing descriptions). Evidence: `docs/research/events_web_batch_A_20260724.md`. Live events **270** / published **268**.
 - `docs/research/FEDERATION_COUNT_OFFICIAL_VS_PLATFORM.md` — reconciles Ministry **61** registered federations vs Admin **85** directory entities (live DB breakdown).
 
 ### Changed
-- Admin stats: first card is **Directory** (85) with breakdown `sports · bodies · merged` so it is not confused with NSC/Ministry federation counts.
+- Platform Admin lists default to **all federations** with optional federation filter (limit 200). Former “Working federation” gate removed for news/streams/coaches/media/HP; filter seeds create forms when set. `/admin` remains `role===admin` only; FedAdmin stays tenant-scoped (`assertSameFederation`).
+- Admin stats: first card is **Directory** (85) with breakdown `sports · bodies · merged` so it is not confused with NSC/Ministry federation counts; Events/Clubs/Athletes use `adminStats.counts`.
 
 ### Fixed
 - Home **14 Regions** cards were dead clicks; each region now links to `/map?region=…` and Map reads/syncs the query so venues/events filter for that region.

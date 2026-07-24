@@ -46,10 +46,12 @@
 - [x] Events pass 5 — majors upcoming + poster backfill (`20260720000041`); live **217** events / **44** upcoming / **163** posters; NHU still 0 forward-dated (outdoor season start past)
 - [x] Events pass 6 — NHU SA women’s Cape Town tests (`20260720000053`); live **222** events / **49** upcoming; **21** zeros unchanged (no dated public fixtures)
 - [x] Events pass 7 — zero-fed deep-research + CWG bowls/boxing/gymnastics upcoming (`20260720000059`); live **230** events / **52** upcoming / **18** zeros
+- [x] Events web Batch A (big sports) — +27 verified inserts + 4 corrections (`20260724200000`); live **270** events / **268** published; evidence `docs/research/events_web_batch_A_20260724.md`
 - [ ] Events pass 8 / NSC ask: remaining 18 zeros; thin tennis/archery/chess seeds; NSSU federation row
 - [x] News pass 3 — +12 zero-news feds (`20260720000052`); live **59** published / **37** feds / **46** still zero news
 - [x] News pass 4 — +14 zero-news feds (`20260720000058`); live **73** published / **51** feds / **32** still zero news
 - [x] Admin page: connect to real tRPC CRUD for news/streams/venues/coaches/schools/media/HP + Users role assignment; FedAdmin coaches/media/HP + ImageUpload on news/streams/clubs
+- [x] Platform Admin: all-section lists without forced working federation; optional federation filter; real stats via `adminStats.counts`; Users Add User / inviteOrPromote + Assign role; `/admin` remains admin-only (FedAdmin tenant-scoped)
 - [x] Empty states for all list views — federation Clubs/Athletes/News/Events/Streams + Federation Home sections + Live VOD honesty; remaining: admin lists only
 - [ ] Loading states to prevent double-click submit
 - [ ] Error boundaries on page-level components
