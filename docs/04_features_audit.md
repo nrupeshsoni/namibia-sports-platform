@@ -24,7 +24,7 @@
 | **AI (summary / tags / chat)** | ⏸ | Off | `protectedProcedure` + caps; UI gated by `VITE_SHOW_AI_CHAT` |
 | **Federation pages (frontend)** | ✅ | Beta | Layout + Home/Events/Clubs/Athletes/News/Streams + FedAdmin |
 | **Platform Admin dashboard** | ✅ | Beta | Full CRUD UIs (not mock) |
-| **SEO / AIO** | ✅ | Beta | `SeoHead` + JSON-LD; build-time sitemap (83 feds / news / athletes) |
+| **SEO / AIO** | ✅ | Beta | `SeoHead` + JSON-LD; build-time sitemap (83 feds / 89 news / 198 athletes). Overall **partial** — see `docs/research/SEO_AIO_AND_CONTENT_GAPS.md` |
 | **Legal** | ✅ | Beta | `/privacy` + `/terms`; Register acceptance; hub footers |
 
 ## CRUD Matrix

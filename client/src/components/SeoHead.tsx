@@ -305,10 +305,12 @@ export function SeoHead() {
       return;
     }
 
+    // Unknown paths (incl. /404) must not compete for indexation.
     applySeo({
-      title: DEFAULT_TITLE,
-      description: DEFAULT_DESCRIPTION,
+      title: "Page not found",
+      description: "This page does not exist on sports.com.na.",
       path,
+      noIndex: true,
     });
     clearJsonLd();
   }, [

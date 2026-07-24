@@ -5,6 +5,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- `docs/research/SEO_AIO_AND_CONTENT_GAPS.md` — SEO/AIO scorecard (~72/100, **partial**), live DB population matrix, daily news options (manual CMS + Content Sync AI vs undeployed `news-aggregator`).
 - Platform Admin Users tab: **Add User** (`users.inviteOrPromote`) — Auth Admin create when `SUPABASE_SERVICE_ROLE_KEY` is set, else clear register-then-promote-by-email; assigns role + `federationId`. UI: Add User + Assign role.
 - `adminStats.counts` — uncapped event/club/athlete totals for Admin dashboard (not capped by list limit 50/200).
 - Migration `20260724210000_events_web_batch_C.sql` — **+14** verified niche/umbrella/para events (chess Open + Olympiad, AGA World Walvis Bay + Botswana, AUSC Region 5 / NYG Phase 1, World Bowls Indoor, CWG para-athletics, NAMEF Beach/Easter/RCO, IHF Trophy Zone VI, Redzone Handball) + fistball Cohen 2026 date correction. Evidence: `docs/research/events_web_batch_C_20260724.md`.
@@ -17,6 +18,8 @@ All notable changes to this project are documented in this file.
 - Admin stats: first card is **Directory** (85) with breakdown `sports · bodies · merged` so it is not confused with NSC/Ministry federation counts; Events/Clubs/Athletes use `adminStats.counts`.
 
 ### Fixed
+- SEO: unknown / unmatched routes (incl. SPA 404s) now emit `noindex,nofollow` instead of default homepage meta.
+- Sitemap slug JSONs refreshed from live DB — **83** feds / **89** news / **198** athletes (was 79 news / 178 athletes).
 - `/map` ErrorBoundary crash hardening: defer Leaflet `MapContainer` until after mount (avoids Suspense remount “already initialized”), guard invalid/`ǁKaras` region query + empty venues/events lists, page-level ErrorBoundary, safe `flyTo`. Helpers/tests in `client/src/lib/mapRegions.ts`.
 - Home **14 Regions** cards were dead clicks; each region now links to `/map?region=…` and Map reads/syncs the query so venues/events filter for that region.
 

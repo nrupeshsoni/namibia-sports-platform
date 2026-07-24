@@ -1,6 +1,6 @@
 {
-  "generatedFrom": "sportsplatform_federations where is_active=true (live SQL 2026-07-24)",
-  "refreshedAt": "2026-07-24",
+  "exportedAt": "2026-07-24",
+  "source": "supabase rbibqjgsnrueubrvyqps",
   "count": 83,
   "slugs": [
     "angling-namibia",
