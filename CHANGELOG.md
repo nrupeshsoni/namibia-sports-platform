@@ -5,6 +5,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Changed
+- SEO/AIO + UX polish (2026-07-24): refreshed sitemap slug JSONs from live DB (**83** feds / **79** news / **178** athletes) + rebuilt `client/public/sitemap.xml`; News/Live/Map use shared `SiteLegalFooter` (Privacy/Terms); Federation Home + Streams empty states honest (incl. Recent Coverage); fixed Home fallback 404 `/sports/bCLTLTx2ggc5.jpeg` → `/sports/athletics.jpg`; added `/favicon.ico` + icon links; soft-public SEO copy (no “every sport / live streams” claims). Docs: `docs/04_features_audit.md` + `SKILLS.md` routers aligned to current `server/routers/`.
 - CI quality gate: `npm run ci:gate` runs `check` + `test` + `build`. Local `cf:deploy` / `cf:deploy:staging` invoke it before wrangler. `docs/CI.md` **Workers Builds dashboard** section has the exact click path + API note to set build command to `npm run ci:gate` (MCP/Wrangler OAuth cannot change trigger settings).
 - Sitemap hubs: include `/privacy` + `/terms`; omit `/live` while stream inventory is VOD-only (`scripts/generate-sitemap.mjs`).
 
