@@ -730,27 +730,32 @@ export default function Home() {
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-            {['Khomas', 'Erongo', 'Oshana', 'Omusati', 'Ohangwena', 'Oshikoto', 'Kavango East', 
+            {['Khomas', 'Erongo', 'Oshana', 'Omusati', 'Ohangwena', 'Oshikoto', 'Kavango East',
               'Kavango West', 'Zambezi', 'Kunene', 'Otjozondjupa', 'Omaheke', 'Hardap', 'Karas'].map((region, index) => (
-              <div 
-                key={region} 
-                className="p-4 text-center transition-all duration-300 hover:scale-105 cursor-pointer rounded-2xl group"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                }}
+              <Link
+                key={region}
+                href={`/map?region=${encodeURIComponent(region)}`}
+                title={`View venues and events in ${region}`}
               >
-                <div 
-                  className="w-10 h-10 mx-auto mb-3 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                <div
+                  className="p-4 text-center transition-all duration-300 hover:scale-105 cursor-pointer rounded-2xl group h-full"
                   style={{
-                    background: `linear-gradient(135deg, rgba(${index % 2 === 0 ? '239, 68, 68' : '59, 130, 246'}, 0.3), rgba(${index % 2 === 0 ? '220, 38, 38' : '37, 99, 235'}, 0.3))`,
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
                   }}
                 >
-                  <MapPin className={`w-5 h-5 ${index % 2 === 0 ? 'text-red-400' : 'text-blue-400'}`} />
+                  <div
+                    className="w-10 h-10 mx-auto mb-3 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                    style={{
+                      background: `linear-gradient(135deg, rgba(${index % 2 === 0 ? '239, 68, 68' : '59, 130, 246'}, 0.3), rgba(${index % 2 === 0 ? '220, 38, 38' : '37, 99, 235'}, 0.3))`,
+                    }}
+                  >
+                    <MapPin className={`w-5 h-5 ${index % 2 === 0 ? 'text-red-400' : 'text-blue-400'}`} />
+                  </div>
+                  <p className="text-white text-sm font-medium">{region}</p>
                 </div>
-                <p className="text-white text-sm font-medium">{region}</p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -1041,35 +1046,6 @@ export default function Home() {
                 </span>
               </Link>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Partners & Sponsors - Glass Section */}
-      <section 
-        className="py-16 relative"
-        style={{
-          background: 'rgba(255, 255, 255, 0.02)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-        }}
-      >
-        <div className="container mx-auto px-4">
-          <p className="text-center text-sm tracking-[0.3em] text-gray-500 mb-10">PARTNERS & SPONSORS</p>
-          <div className="flex flex-wrap justify-center items-center gap-8">
-            {['FNB', 'MTC', 'DEBMARINE', 'BANK WINDHOEK', 'NAMPOWER'].map((partner) => (
-              <div 
-                key={partner}
-                className="px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105 cursor-pointer"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                }}
-              >
-                <span className="text-xl font-serif text-gray-400 hover:text-white transition-colors">{partner}</span>
-              </div>
-            ))}
           </div>
         </div>
       </section>

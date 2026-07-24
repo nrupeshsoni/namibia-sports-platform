@@ -40,6 +40,25 @@ const NAMIBIA_REGION_COORDS: Record<string, [number, number]> = {
 const NAMIBIA_CENTER: [number, number] = [-22.0, 17.5];
 const ALL_REGIONS = Object.keys(NAMIBIA_REGION_COORDS);
 
+/** Read `?region=` from the URL when deep-linking from Home region cards. */
+function regionFromSearch(): string | null {
+  const raw = new URLSearchParams(window.location.search).get("region");
+  if (!raw) return null;
+  return ALL_REGIONS.includes(raw) ? raw : null;
+}
+
+/** Keep the address bar in sync so region filters are shareable. */
+function syncRegionQuery(region: string | null): void {
+  const url = new URL(window.location.href);
+  if (region) url.searchParams.set("region", region);
+  else url.searchParams.delete("region");
+  const next = `${url.pathname}${url.search}`;
+  const current = `${window.location.pathname}${window.location.search}`;
+  if (next !== current) {
+    window.history.replaceState(null, "", next);
+  }
+}
+
 /** Fix for default marker icon in Vite/React */
 const createIcon = (color: string) =>
   L.divIcon({
@@ -57,8 +76,14 @@ function MapCenterController({ center }: { center: [number, number] }) {
 }
 
 export default function Map() {
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(() =>
+    regionFromSearch(),
+  );
   const [showRegionFilter, setShowRegionFilter] = useState(false);
+
+  useEffect(() => {
+    syncRegionQuery(selectedRegion);
+  }, [selectedRegion]);
 
   const venuesQuery = trpc.venues.list.useQuery({
     region: selectedRegion ?? undefined,

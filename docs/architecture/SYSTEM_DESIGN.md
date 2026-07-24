@@ -73,6 +73,12 @@ sports.com.na/federation/:slug  →  FederationLayout (fetches data by slug)
 9. Middleware checks role for protected procedures
 ```
 
+**Platform admin login:**
+1. Sign in at `https://sports.com.na/login` (or `/admin`, which redirects unauthenticated users to login).
+2. Role lives in `sportsplatform_users.role` (`admin`). Auth credentials are Supabase Auth — not stored in that table.
+3. Password reset: Supabase Dashboard → Authentication → Users → select user → Send password recovery / reset. There is no in-app “forgot password” UI yet.
+4. Promote after self-register: an existing platform admin uses `/admin` → Users → set role to `admin`, or run SQL: `UPDATE sportsplatform_users SET role = 'admin' WHERE email = '…';` (user must already exist via Auth + app login sync).
+
 **Federation admin onboarding:**
 1. Federation admin registers with email
 2. Super admin approves and sets `role = 'federation_admin'` + `federationId`

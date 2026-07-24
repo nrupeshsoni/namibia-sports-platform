@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- Home **14 Regions** cards were dead clicks; each region now links to `/map?region=…` and Map reads/syncs the query so venues/events filter for that region.
+
+### Removed
+- Home **Partners & Sponsors** placeholder strip (FNB / MTC / Debmarine / Bank Windhoek / Nampower) until real partner assets are ready.
+
 ### Changed
 - Production go-live scorecard **74 → 84 → 85 / 100** (hollow public UX gate closed). Still **CONDITIONAL / NO-GO** until human credential rotation (ops cap ≤52). Soft public ~**89** after rotation; **≥90** with Builds `ci:gate`. See `docs/research/PRODUCTION_GO_LIVE_SCORECARD.md`.
 - Public federation sticky nav hides **Clubs / Athletes / News / Streams** when that federation has zero published items; platform/`federation_admin` still see all tabs. Helper: `client/src/lib/federationPublicTabs.ts`.
