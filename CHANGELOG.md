@@ -17,6 +17,7 @@ All notable changes to this project are documented in this file.
 - Admin stats: first card is **Directory** (85) with breakdown `sports · bodies · merged` so it is not confused with NSC/Ministry federation counts; Events/Clubs/Athletes use `adminStats.counts`.
 
 ### Fixed
+- `/map` ErrorBoundary crash hardening: defer Leaflet `MapContainer` until after mount (avoids Suspense remount “already initialized”), guard invalid/`ǁKaras` region query + empty venues/events lists, page-level ErrorBoundary, safe `flyTo`. Helpers/tests in `client/src/lib/mapRegions.ts`.
 - Home **14 Regions** cards were dead clicks; each region now links to `/map?region=…` and Map reads/syncs the query so venues/events filter for that region.
 
 ### Removed
