@@ -6,11 +6,13 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 - **Home Sports News → ticker:** mid-page card grid replaced with a compact teaser; latest headlines scroll in a fixed top ticker (below header) that appears after ~160px scroll and hides at the top. Click opens shared `NewsArticleModal`. `/news` keeps card/list layout. `prefers-reduced-motion` uses a static horizontal chip list; pause on hover.
+- **News ticker chrome:** translucent glass (`bg-white/40` / `bg-black/40` + blur) instead of opaque `theme-chrome`; small 32–36px thumbs when `featuredImage` exists (`onError` hides thumb).
 
 ### Fixed
+- **News ticker marquee:** CSS `translate3d` infinite scroll with two equal segments; pause on hover only; no Framer Motion parent transform fighting the track animation. Reduced-motion stays static scrollable chips.
 - **Broken news images:** `NewsCard` / `FeaturedNewsCard` / modal only render `<img>` when URL is non-empty; `onError` hides the image (no browser broken-icon placeholder).
 - **News without photos:** list cards (Home, `/news`, federation news) use **text-first** glass layout when `featured_image` is null — no Unsplash/grey placeholders or giant initials. Image cards keep `object-cover` at a sensible aspect. Detail modal already skips hero when no image.
-- **news-aggregator image enrich:** stronger RSS media/`<img>` extraction (skips ad banners), twitter/og meta, WordPress **oEmbed thumbnail** fallback (Economist), capped fetch timeouts (12s feed / 6s og); DB backfill pass for published rows missing `featured_image` via `source_url` (skips Google News wrappers).
+- **news-aggregator image enrich:** stronger RSS media/`<img>` extraction (skips ad banners), twitter/og/JSON-LD meta, WordPress **oEmbed thumbnail** fallback (Economist), capped fetch timeouts (12s feed / 6s og); DB backfill via `source_url`; **Google News unwrap** (batchexecute) so outlet `og:image` can be fetched.
 
 ### Added
 - **News auto-feed:** trusted sports-category RSS (New Era, Economist, Eagle, Confidente, Google News NA sports / namibian.com.na) **auto-publishes** when Namibia+sports heuristics pass. Columns `source_url` / `source_name`; RSS/`og:image` featured images; News detail **Read original** + SEO NewsArticle author/source. Informante stays draft-only. Kill-switch: `ENABLE_NEWS_AGGREGATOR=false`. Migration `20260724220000` + backfill **58** `agg-*` published. Docs: `NAMIBIAN_SPORTS_NEWS_SOURCES.md`.

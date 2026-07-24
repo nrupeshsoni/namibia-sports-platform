@@ -39,6 +39,7 @@
 - [x] News auto-publish policy — trusted sports feeds publish when Namibia+sports pass; `source_url`/`source_name`; image enrich; 58 `agg-*` backfill published; kill-switch `ENABLE_NEWS_AGGREGATOR`
 - [x] News missing-image UX — text-first cards (Home/`/news`/federation); aggregator og/RSS backfill + timeouts; no fake Unsplash/initials placeholders
 - [x] Home Sports News ticker — scroll-reveal headline bar + shared article modal; mid-page grid → compact teaser; `/news` keeps cards
+- [x] News ticker polish — marquee motion fix, translucent glass bar, thumbs from `featuredImage`; Google News URL unwrap for image enrich
 - [x] Athletes + venues beta depth — dedupe/slugs/photos + 36 notables; venues 15→28 (`20260720000046`); see `docs/research/athletes_venues_enrichment_batch.md`
 - [x] Venues ≥40 + HP programs seed — venues 28→42 (**100%** photos); `sportsplatform_hp_programs` 0→10 (`20260720000062`); see `docs/research/venues_hp_enrichment_batch.md`
 - [x] Coaches + athletes depth — coaches 16→35 active (100% photos); +21 athletes for netball/hockey/cycling/swim/judo/para (`20260720000051`); see `docs/research/coaches_athletes_depth_batch.md`

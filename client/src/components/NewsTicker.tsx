@@ -2,7 +2,6 @@
  * Fixed top news ticker — hidden at page top, slides in after scroll threshold.
  * Marquee on motion-ok devices; static horizontal chips when reduced-motion.
  */
-import { AnimatePresence, motion } from "framer-motion";
 import { Newspaper } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
@@ -13,6 +12,7 @@ export type NewsTickerItem = {
   slug: string;
   sourceName?: string | null;
   category?: string | null;
+  featuredImage?: string | null;
 };
 
 type NewsTickerProps = {
@@ -56,6 +56,23 @@ function useScrollPast(threshold: number): boolean {
   return past;
 }
 
+function TickerThumb({ src }: { src: string }) {
+  const [ok, setOk] = useState(true);
+  if (!ok) return null;
+  return (
+    <img
+      src={src}
+      alt=""
+      width={32}
+      height={32}
+      className="w-8 h-8 sm:w-9 sm:h-9 rounded object-cover shrink-0"
+      loading="lazy"
+      decoding="async"
+      onError={() => setOk(false)}
+    />
+  );
+}
+
 function HeadlineButton({
   article,
   onSelect,
@@ -64,6 +81,7 @@ function HeadlineButton({
   onSelect: (a: NewsTickerItem) => void;
 }) {
   const source = article.sourceName?.trim();
+  const imageUrl = article.featuredImage?.trim() || null;
   return (
     <button
       type="button"
@@ -71,11 +89,15 @@ function HeadlineButton({
       className="news-ticker-item inline-flex items-center gap-2 shrink-0 min-h-[36px] px-1 text-left"
       style={{ color: "var(--chrome-fg)" }}
     >
-      <span
-        className="w-1.5 h-1.5 rounded-full shrink-0"
-        style={{ background: "#EF4444" }}
-        aria-hidden
-      />
+      {imageUrl ? (
+        <TickerThumb src={imageUrl} />
+      ) : (
+        <span
+          className="w-1.5 h-1.5 rounded-full shrink-0"
+          style={{ background: "#EF4444" }}
+          aria-hidden
+        />
+      )}
       {source && (
         <span
           className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide shrink-0"
@@ -88,6 +110,28 @@ function HeadlineButton({
         {article.title}
       </span>
     </button>
+  );
+}
+
+function HeadlineSegment({
+  articles,
+  onSelect,
+  keyPrefix,
+}: {
+  articles: NewsTickerItem[];
+  onSelect: (a: NewsTickerItem) => void;
+  keyPrefix: string;
+}) {
+  return (
+    <div className="news-ticker-segment">
+      {articles.map((article) => (
+        <HeadlineButton
+          key={`${keyPrefix}-${article.id}`}
+          article={article}
+          onSelect={onSelect}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -104,83 +148,64 @@ export function NewsTicker({
 
   if (articles.length === 0) return null;
 
-  const track = (
-    <>
-      {articles.map((article) => (
-        <HeadlineButton key={article.id} article={article} onSelect={onSelect} />
-      ))}
-    </>
-  );
-
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          key="news-ticker"
-          initial={{ y: -48, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -48, opacity: 0 }}
-          transition={{ duration: reducedMotion ? 0 : 0.28, ease: "easeOut" }}
-          className="fixed left-0 right-0 z-40 theme-chrome border-b"
+    <div
+      className={`news-ticker-bar fixed left-0 right-0 z-40 border-b ${
+        visible ? "news-ticker-bar--visible" : ""
+      }`}
+      style={{
+        top: "calc(env(safe-area-inset-top, 0px) + 4.25rem)",
+      }}
+      role="region"
+      aria-label="Latest sports news headlines"
+      aria-hidden={!visible}
+    >
+      <div className="flex items-stretch min-h-[40px]">
+        <div
+          className="flex items-center gap-1.5 px-3 sm:px-4 shrink-0 border-r"
           style={{
-            top: "calc(env(safe-area-inset-top, 0px) + 4.25rem)",
-            paddingTop: 0,
+            borderColor: "var(--chrome-border)",
+            background: "rgba(239,68,68,0.12)",
           }}
-          role="region"
-          aria-label="Latest sports news headlines"
         >
-          <div className="flex items-stretch min-h-[40px]">
-            <div
-              className="flex items-center gap-1.5 px-3 sm:px-4 shrink-0 border-r"
-              style={{
-                borderColor: "var(--chrome-border)",
-                background: "rgba(239,68,68,0.12)",
-              }}
-            >
-              <Newspaper className="w-3.5 h-3.5" style={{ color: "#EF4444" }} aria-hidden />
-              <span
-                className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em] whitespace-nowrap"
-                style={{ color: "#EF4444" }}
-              >
-                News
-              </span>
-            </div>
+          <Newspaper className="w-3.5 h-3.5" style={{ color: "#EF4444" }} aria-hidden />
+          <span
+            className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em] whitespace-nowrap"
+            style={{ color: "#EF4444" }}
+          >
+            News
+          </span>
+        </div>
 
-            <div className="flex-1 min-w-0 overflow-hidden relative">
-              {reducedMotion ? (
-                <div className="flex items-center gap-4 overflow-x-auto px-3 py-2 scrollbar-none">
-                  {track}
-                </div>
-              ) : (
-                <div className="news-ticker-marquee group flex items-center h-full py-2">
-                  <div className="news-ticker-track flex items-center gap-8 px-4">
-                    {track}
-                    {articles.map((article) => (
-                      <HeadlineButton
-                        key={`dup-${article.id}`}
-                        article={article}
-                        onSelect={onSelect}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+        <div className="flex-1 min-w-0 overflow-hidden relative">
+          {reducedMotion ? (
+            <div className="flex items-center gap-4 overflow-x-auto px-3 py-2 scrollbar-none">
+              {articles.map((article) => (
+                <HeadlineButton key={article.id} article={article} onSelect={onSelect} />
+              ))}
             </div>
+          ) : (
+            <div className="news-ticker-marquee">
+              <div className="news-ticker-track">
+                <HeadlineSegment articles={articles} onSelect={onSelect} keyPrefix="a" />
+                <HeadlineSegment articles={articles} onSelect={onSelect} keyPrefix="b" />
+              </div>
+            </div>
+          )}
+        </div>
 
-            <Link href="/news">
-              <span
-                className="flex items-center px-3 sm:px-4 text-[10px] sm:text-xs font-medium shrink-0 border-l min-h-[40px] cursor-pointer whitespace-nowrap"
-                style={{
-                  borderColor: "var(--chrome-border)",
-                  color: "var(--chrome-muted)",
-                }}
-              >
-                All →
-              </span>
-            </Link>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        <Link href="/news">
+          <span
+            className="flex items-center px-3 sm:px-4 text-[10px] sm:text-xs font-medium shrink-0 border-l min-h-[40px] cursor-pointer whitespace-nowrap"
+            style={{
+              borderColor: "var(--chrome-border)",
+              color: "var(--chrome-muted)",
+            }}
+          >
+            All →
+          </span>
+        </Link>
+      </div>
+    </div>
   );
 }

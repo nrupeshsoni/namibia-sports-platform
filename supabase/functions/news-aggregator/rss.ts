@@ -2,6 +2,8 @@
  * RSS parse, image extract, HTML sanitize for news-aggregator.
  */
 
+import { unwrapGoogleNewsUrl } from "./googleNews.ts";
+
 export interface RssItem {
   title: string;
   link: string;
@@ -59,10 +61,7 @@ const AD_IMG_RE =
   /banner|advert|adservice|doubleclick|cash.?convert|placeholder|1x1|pixel|spacer|tracking/i;
 
 function isLikelyArticleImage(url: string): boolean {
-  if (AD_IMG_RE.test(url)) return false;
-  // Prefer real photo assets over tiny icons/logos.
-  if (/\.(svg)(\?|$)/i.test(url)) return false;
-  return true;
+  return !AD_IMG_RE.test(url) && !/\.(svg)(\?|$)/i.test(url);
 }
 
 function extractImgFromHtml(html: string, baseUrl: string): string | null {
@@ -181,6 +180,36 @@ export async function fetchFeed(
   }
 }
 
+function jsonLdImageRaw(img: unknown): string | null {
+  if (typeof img === "string") return img;
+  if (Array.isArray(img) && typeof img[0] === "string") return img[0];
+  if (img && typeof img === "object" && typeof (img as { url?: unknown }).url === "string") {
+    return (img as { url: string }).url;
+  }
+  return null;
+}
+
+function pickJsonLdImage(html: string, pageUrl: string): string | null {
+  const blocks = html.matchAll(
+    /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
+  );
+  for (const m of blocks) {
+    try {
+      const data = JSON.parse(m[1]!) as unknown;
+      for (const node of Array.isArray(data) ? data : [data]) {
+        if (!node || typeof node !== "object") continue;
+        const raw = jsonLdImageRaw((node as { image?: unknown }).image);
+        if (!raw) continue;
+        const abs = absolutizeUrl(raw, pageUrl);
+        if (abs && isLikelyArticleImage(abs)) return abs;
+      }
+    } catch {
+      /* ignore malformed JSON-LD */
+    }
+  }
+  return null;
+}
+
 function pickMetaImage(html: string, pageUrl: string): string | null {
   const candidates = [
     html.match(/<meta[^>]+property=["']og:image(?::secure_url)?["'][^>]+content=["']([^"']+)["']/i)?.[1],
@@ -194,10 +223,10 @@ function pickMetaImage(html: string, pageUrl: string): string | null {
     const abs = absolutizeUrl(c, pageUrl);
     if (abs) return abs;
   }
-  return extractImgFromHtml(html, pageUrl);
+  return pickJsonLdImage(html, pageUrl) ?? extractImgFromHtml(html, pageUrl);
 }
 
-/** WordPress oEmbed thumbnail when pages omit og:image (e.g. Namibia Economist). */
+/** WordPress oEmbed thumbnail when pages omit og:image. */
 async function fetchWpOembedThumbnail(articleUrl: string): Promise<string | null> {
   let origin: string;
   try {
@@ -228,16 +257,19 @@ async function fetchWpOembedThumbnail(articleUrl: string): Promise<string | null
   }
 }
 
-/** Timeout-safe og/twitter/oEmbed image from article page when RSS has no media. */
+/** Timeout-safe og/twitter/JSON-LD/oEmbed image; unwraps Google News first. */
 export async function fetchOgImage(articleUrl: string): Promise<string | null> {
   if (!isHttpUrl(articleUrl)) return null;
-  // Google News article wrappers rarely expose outlet og:image.
-  if (/news\.google\.com\//i.test(articleUrl)) return null;
-
+  let lookupUrl = articleUrl;
+  if (/news\.google\.com\//i.test(articleUrl)) {
+    const unwrapped = await unwrapGoogleNewsUrl(articleUrl);
+    if (!unwrapped || /news\.google\.com\//i.test(unwrapped)) return null;
+    lookupUrl = unwrapped;
+  }
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), OG_MS);
   try {
-    const res = await fetch(articleUrl, {
+    const res = await fetch(lookupUrl, {
       headers: {
         "User-Agent": "NamibiaSportsPlatform/1.0 (+https://sports.com.na)",
         Accept: "text/html,application/xhtml+xml",
@@ -246,9 +278,8 @@ export async function fetchOgImage(articleUrl: string): Promise<string | null> {
       redirect: "follow",
     });
     if (res.ok) {
-      const finalUrl = res.url || articleUrl;
-      const html = (await res.text()).slice(0, 100_000);
-      const meta = pickMetaImage(html, finalUrl);
+      const finalUrl = res.url || lookupUrl;
+      const meta = pickMetaImage((await res.text()).slice(0, 100_000), finalUrl);
       if (meta && isLikelyArticleImage(meta)) return meta;
     }
   } catch {
@@ -256,13 +287,10 @@ export async function fetchOgImage(articleUrl: string): Promise<string | null> {
   } finally {
     clearTimeout(timer);
   }
-
-  return fetchWpOembedThumbnail(articleUrl);
+  return fetchWpOembedThumbnail(lookupUrl);
 }
 
 export async function resolveImage(item: RssItem): Promise<string | null> {
   if (item.imageUrl) return item.imageUrl;
-  const fromBody = extractImgFromHtml(item.bodyHtml, item.link);
-  if (fromBody) return fromBody;
-  return fetchOgImage(item.link);
+  return extractImgFromHtml(item.bodyHtml, item.link) ?? fetchOgImage(item.link);
 }
