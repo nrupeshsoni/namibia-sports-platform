@@ -62,7 +62,7 @@ export const federations: Federation[] = [
     name: 'Disability Sport Namibia',
     category: 'umbrella',
     shortName: 'DISABILITY SPORT',
-    image: '/sports/bCLTLTx2ggc5.jpeg',
+    image: '/sports/athletics.jpg',
   },
   {
     id: 6,

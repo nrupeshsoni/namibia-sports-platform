@@ -4,6 +4,7 @@ import { ChevronLeft, Radio, Eye, ExternalLink, X, Clock, Youtube, Tv } from "lu
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { fadeUp, staggerContainer } from "@/lib/animations";
+import { SiteLegalFooter } from "@/components/SiteLegalFooter";
 
 type StreamItem = {
   id: number;
@@ -334,6 +335,7 @@ export default function Live() {
   }
 
   const isLoading = liveQuery.isLoading || allQuery.isLoading;
+  const isError = liveQuery.isError || allQuery.isError;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
@@ -377,14 +379,16 @@ export default function Live() {
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-white px-4 pt-16">
           <div className="flex items-center gap-3 mb-2">
             <Radio className="w-10 h-10" />
-            <h1 className="text-4xl md:text-5xl font-serif tracking-wider">LIVE STREAMS</h1>
+            <h1 className="text-4xl md:text-5xl font-serif tracking-wider">
+              {liveStreams.length > 0 ? "LIVE STREAMS" : "RECENT COVERAGE"}
+            </h1>
           </div>
           <p className="text-white/70 text-sm md:text-base">
             {liveStreams.length > 0
               ? `${liveStreams.length} stream${liveStreams.length > 1 ? "s" : ""} live right now`
               : recent.length > 0
                 ? "Catch up on recent Namibian sports coverage"
-                : "Namibian sports, live and on demand"}
+                : "Video coverage when federations publish streams"}
           </p>
         </div>
       </section>
@@ -418,7 +422,13 @@ export default function Live() {
           </div>
         )}
 
-        {!isLoading && (
+        {isError && !isLoading && (
+          <div className="text-center py-16 text-gray-400 text-sm">
+            Could not load streams. Please try again shortly.
+          </div>
+        )}
+
+        {!isLoading && !isError && (
           <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-10">
             {/* LIVE NOW section */}
             {filteredLive.length > 0 && (
@@ -510,6 +520,8 @@ export default function Live() {
 
       {/* Embed modal */}
       {watchStream && <EmbedModal stream={watchStream} onClose={() => setWatchStream(null)} />}
+
+      <SiteLegalFooter />
     </div>
   );
 }

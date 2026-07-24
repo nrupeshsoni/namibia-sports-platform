@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "wouter";
 import { Radio, Eye, ExternalLink, X, Clock, Youtube, Tv } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { fadeUp, staggerContainer } from "@/lib/animations";
@@ -210,6 +211,11 @@ export default function FederationStreams() {
   const scheduled = streams.filter(
     (s) => !s.isLive && s.scheduledStart && new Date(s.scheduledStart).getTime() > now
   );
+  const recent = streams.filter(
+    (s) =>
+      !s.isLive &&
+      !(s.scheduledStart && new Date(s.scheduledStart).getTime() > now)
+  );
 
   const platforms = Array.from(new Set(streams.map((s) => s.platformType.toLowerCase()))).sort();
 
@@ -376,19 +382,92 @@ export default function FederationStreams() {
             </motion.section>
           )}
 
-          {/* Empty state */}
-          {filterByPlatform(liveStreams).length === 0 && filterByPlatform(scheduled).length === 0 && (
-            <motion.div variants={fadeUp} className="text-center py-16">
+          {/* Soft empty — nothing live/scheduled, but recent VODs exist */}
+          {filterByPlatform(liveStreams).length === 0 &&
+            filterByPlatform(scheduled).length === 0 &&
+            filterByPlatform(recent).length > 0 && (
+              <motion.div variants={fadeUp} className="text-center py-6">
+                <h3 className="text-lg font-serif text-gray-400 mb-1">Nothing live right now</h3>
+                <p className="text-gray-500 text-sm max-w-md mx-auto">
+                  Catch up on recent coverage below — live and scheduled streams will show here when
+                  events kick off.
+                </p>
+              </motion.div>
+            )}
+
+          {/* RECENT / on-demand VODs */}
+          {filterByPlatform(recent).length > 0 && (
+            <motion.section variants={fadeUp}>
+              <div className="flex items-center gap-2 mb-4">
+                <Youtube className="w-5 h-5 text-amber-400" />
+                <h2 className="text-lg font-serif text-white tracking-wide">RECENT COVERAGE</h2>
+                <span className="text-gray-500 text-sm">{filterByPlatform(recent).length}</span>
+              </div>
+              <div className="space-y-3">
+                {filterByPlatform(recent).map((stream) => (
+                  <motion.div
+                    key={stream.id}
+                    variants={fadeUp}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleWatch(stream)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") handleWatch(stream);
+                    }}
+                    className="rounded-xl p-4 flex gap-4 items-center cursor-pointer transition-all hover:scale-[1.01]"
+                    style={{
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      backdropFilter: "blur(20px)",
+                    }}
+                  >
+                    <div
+                      className="w-14 h-14 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden bg-cover bg-center"
+                      style={{
+                        backgroundImage: stream.thumbnailUrl
+                          ? `url(${stream.thumbnailUrl})`
+                          : undefined,
+                        background: stream.thumbnailUrl ? undefined : "rgba(251,191,36,0.1)",
+                        border: "1px solid rgba(251,191,36,0.25)",
+                      }}
+                    >
+                      {!stream.thumbnailUrl && <Youtube className="w-6 h-6 text-amber-500/50" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-white text-sm font-medium line-clamp-1">{stream.title}</h4>
+                      <span className="text-xs text-gray-500 capitalize flex items-center gap-1 mt-1">
+                        {PLATFORM_ICONS[stream.platformType.toLowerCase()] ?? (
+                          <Radio className="w-3 h-3" />
+                        )}
+                        {stream.platformType}
+                        <span className="text-amber-500/80 ml-2">Watch</span>
+                      </span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.section>
+          )}
+
+          {/* True empty — no streams at all */}
+          {streams.length === 0 && (
+            <motion.div variants={fadeUp} className="text-center py-16 px-4">
               <div
                 className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center"
                 style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}
               >
                 <Radio className="w-9 h-9 text-red-800" />
               </div>
-              <h3 className="text-xl font-serif text-gray-400 mb-2">No Live Streams Right Now</h3>
-              <p className="text-gray-500 text-sm max-w-xs mx-auto">
-                Check back when {federation.name} events go live. Scheduled streams will appear here automatically.
+              <h3 className="text-xl font-serif text-gray-400 mb-2">No streams yet</h3>
+              <p className="text-gray-500 text-sm max-w-sm mx-auto">
+                {federation.name} has not published live or on-demand streams. Check Events for
+                upcoming fixtures, or browse national coverage when available.
               </p>
+              <Link href="/events">
+                <span className="inline-block mt-5 text-sm text-red-400 hover:text-red-300 transition-colors">
+                  Browse upcoming events →
+                </span>
+              </Link>
             </motion.div>
           )}
         </>

@@ -1,5 +1,6 @@
 {
-  "generatedFrom": "sportsplatform_athletes where is_active=true",
+  "generatedFrom": "sportsplatform_athletes where is_active=true (live SQL 2026-07-24)",
+  "refreshedAt": "2026-07-24",
   "count": 178,
   "slugs": [
     "absalom-iimbondi",

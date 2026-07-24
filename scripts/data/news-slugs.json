@@ -1,5 +1,6 @@
 {
-  "generatedFrom": "sportsplatform_news_articles where is_published=true",
+  "generatedFrom": "sportsplatform_news_articles where is_published=true (live SQL 2026-07-24)",
+  "refreshedAt": "2026-07-24",
   "count": 79,
   "slugs": [
     "african-stars-fourth-npfl-title-2026",

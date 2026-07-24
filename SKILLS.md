@@ -6,121 +6,105 @@ Quick reference for tRPC procedures, schema, components, and patterns. Use this 
 
 ## tRPC Procedures (Current)
 
-All accessed via `trpc.<router>.<procedure>` on the client.
+All accessed via `trpc.<router>.<procedure>` on the client.  
+Routers live in `server/routers/` and are composed in `server/routers/index.ts`.
+
+Federation-scoped mutations must call `assertSameFederation(ctx.user, …)` inside the procedure (middleware checks role only).
+
+### `system` / `auth` / `users`
+```typescript
+system.health()                                // public
+auth.me()                                      // public (null if anonymous)
+auth.logout()                                  // public
+users.list()                                   // adminProcedure
+users.setRole({ userId, role, federationId? }) // adminProcedure
+```
 
 ### `federations`
 ```typescript
-federations.list({ search?: string, type?: "federation"|"umbrella"|"ministry"|"commission" })
-federations.getById({ id: number })
-federations.getBySlug({ slug: string })         // ADD: needed for federation pages
-federations.create(data)                        // adminProcedure
-federations.update({ id, ...data })             // adminProcedure | federationAdminProcedure
-federations.delete({ id })                      // adminProcedure
+federations.list({ search?, type?, limit? })
+federations.listAll()                          // adminProcedure
+federations.getById({ id })
+federations.getBySlug({ slug })
+federations.getByAbbreviation({ abbreviation })
+federations.create(data)                       // adminProcedure
+federations.update({ id, ...data })            // adminProcedure
+federations.delete({ id })                     // adminProcedure
 ```
 
-### `clubs`
+### `clubs` / `events` / `athletes` / `coaches`
 ```typescript
-clubs.list({ federationId?: number, search?: string, region?: string })
-clubs.getById({ id: number })
-clubs.create(data)                             // federationAdminProcedure
-clubs.update({ id, ...data })                  // federationAdminProcedure
-clubs.delete({ id })                           // federationAdminProcedure
+clubs.list({ federationId?, search?, region?, limit? })
+clubs.getById({ id })
+clubs.create / update / delete                 // federationAdminProcedure + assertSameFederation
+
+events.list({ federationId?, upcoming?, type?, limit?, includeUnpublished? })
+events.getById({ id })                         // drafts hidden unless admin / same-fed admin
+events.create / update / delete                // federationAdminProcedure + assertSameFederation
+
+athletes.list({ federationId?, clubId?, search?, limit?, includePii? })
+athletes.getById({ id }) / getBySlug({ slug }) // public omits email/phone/DOB
+athletes.create / update / delete              // federationAdminProcedure + assertSameFederation
+
+coaches.list / getById / create / update / delete  // same pattern as athletes
 ```
 
-### `events`
+### `venues` / `schools` / `media` / `hpPrograms`
 ```typescript
-events.list({ federationId?: number, upcoming?: boolean, type?: string })
-events.getById({ id: number })
-events.create(data)                            // federationAdminProcedure
-events.update({ id, ...data })                 // federationAdminProcedure
-events.delete({ id })                          // federationAdminProcedure
+venues.list({ region?, limit?, includeInactive? })  // public = active-only
+venues.getById / create / update / delete           // mutate = adminProcedure
+schools.list / getById / create / update / delete   // mutate = adminProcedure
+media.list / getById / create / delete              // mutate = federationAdminProcedure
+hpPrograms.list / getById / create / update / delete
 ```
 
-### `athletes`
+### `news` / `streams`
 ```typescript
-athletes.list({ federationId?: number, clubId?: number, search?: string })
-athletes.getById({ id: number })
-athletes.create(data)                          // federationAdminProcedure
-athletes.update({ id, ...data })               // federationAdminProcedure
+news.list({ federationId?, category?, limit?, includeUnpublished? })
+news.getBySlug({ slug })
+news.create / update / publish / delete        // federationAdminProcedure + assertSameFederation
+
+streams.list({ federationId?, isLive?, limit? })
+streams.create / update / setLive / delete     // federationAdminProcedure + assertSameFederation
 ```
 
-### `news` (TO BE ADDED)
+### `upload` / `search` / `ai` / `whatsapp`
 ```typescript
-news.list({ federationId?: number, category?: string, limit?: number })
-news.getBySlug({ slug: string })
-news.create(data)                              // federationAdminProcedure
-news.update({ id, ...data })                   // federationAdminProcedure
-news.publish({ id })                           // federationAdminProcedure
-```
+upload.image({ federationId, entity, entityId, base64, contentType? })
+  // federationAdminProcedure + assertSameFederation; rate-limited
 
-### `streams` (TO BE ADDED)
-```typescript
-streams.list({ federationId?: number, isLive?: boolean })
-streams.create(data)                           // federationAdminProcedure
-streams.setLive({ id, isLive: boolean })       // federationAdminProcedure
-```
+search.global({ query })                       // public; rate-limited
 
-### `ai` (TO BE ADDED)
-```typescript
-ai.generateSummary({ text: string })           // protectedProcedure
-ai.suggestTags({ content: string })            // protectedProcedure
-// protectedProcedure (UI gated by VITE_SHOW_AI_CHAT). Capped: <=10 history
-// turns, <=2000 chars/message, <=12000 chars/conversation, 10 messages/min.
-ai.chatAssistant({ message: string, history: Message[] })
-```
+ai.generateSummary / suggestTags / chatAssistant
+  // protectedProcedure; UI gated by VITE_SHOW_AI_CHAT; chat capped + rate-limited
 
-### `whatsapp`
-```typescript
-// Public only when Worker ENABLE_WHATSAPP_SUBSCRIBE=true (default off)
-whatsapp.subscribe({ phone: string, federationId?: number, types: string[] })
-// Auth required — own rows only
-whatsapp.unsubscribe({ phone?: string })
-whatsapp.getSubscriptions()
+whatsapp.subscribe / unsubscribe / getSubscriptions
+  // API hard-disabled (WHATSAPP_API_ENABLED=false) for go-live
 ```
 
 ---
 
 ## Database Schema Reference
 
-File: `drizzle/schema.ts`
+File: `drizzle/schema.ts` — **all app tables use prefix `sportsplatform_`**.
 
-### Key Tables
+### Core tables (prefix `sportsplatform_`)
 
-**`namibia_na_26_federations`**
-```typescript
-{ id, name, abbreviation, type, description, president, secretaryGeneral,
-  email, phone, website, facebook, instagram, twitter, youtube,
-  logo, backgroundImage, slug (ADD), primaryColor (ADD), createdAt, updatedAt }
-```
+| Table | Purpose |
+|-------|---------|
+| `sportsplatform_federations` | Ministry + Commission + umbrellas + federations |
+| `sportsplatform_clubs` | Clubs/teams |
+| `sportsplatform_events` | Competitions / workshops |
+| `sportsplatform_athletes` / `_coaches` | People profiles |
+| `sportsplatform_venues` / `_schools` | Facilities / schools |
+| `sportsplatform_news_articles` | Published news |
+| `sportsplatform_live_streams` | Live + VOD registry |
+| `sportsplatform_media` / `_hp_programs` | Media library / HP |
+| `sportsplatform_whatsapp_subscriptions` | Opt-in rows (API off) |
 
-**`namibia_na_26_clubs`**
-```typescript
-{ id, name, slug, description, logoUrl, federationId,
-  contactEmail, contactPhone, website, address, region, city,
-  presidentName, coachName, establishedYear, memberCount, isActive, createdAt, updatedAt }
-```
+**`users`** (no prefix) — platform users with RBAC (`role`, `federationId`, `clubId`).
 
-**`namibia_na_26_events`**
-```typescript
-{ id, name, slug, description, eventType, federationId, venueId,
-  startDate, endDate, location, registrationDeadline, registrationUrl,
-  isActive, createdAt, updatedAt }
-```
-
-**`users`** (no prefix)
-```typescript
-{ id, openId, name, email, loginMethod, role, federationId, clubId,
-  createdAt, updatedAt, lastSignedIn }
-```
-
-### Tables to Add (Phase 2)
-- `namibia_na_26_news_articles` — federation/platform news
-- `namibia_na_26_live_streams` — YouTube/FB/Twitch stream registry
-- `namibia_na_26_whatsapp_subscriptions` — notification subscribers
-- `namibia_na_26_results` — competition results
-- `namibia_na_26_sponsors` — sponsorship entities
-- `namibia_na_26_federation_pages` — CMS content blocks per federation
-
+Relations: `drizzle/relations.ts`. Migrations: `drizzle/` + `supabase/migrations/`.
 ---
 
 ## Component Library
@@ -196,23 +180,19 @@ export const staggerContainer = {
 ```
 /                           → Home.tsx (main portal)
 /federation/:slug           → FederationLayout > FederationHome
-/federation/:slug/events    → FederationLayout > FederationEvents
-/federation/:slug/clubs     → FederationLayout > FederationClubs
-/federation/:slug/athletes  → FederationLayout > FederationAthletes
-/federation/:slug/news      → FederationLayout > FederationNews
-/federation/:slug/streams   → FederationLayout > FederationStreams
-/federation/:slug/admin     → FederationLayout > FederationAdmin (protected)
-/events                     → Events.tsx (aggregated)
-/news                       → News.tsx (aggregated)
-/news/:slug                 → NewsArticle.tsx
-/live                       → Live.tsx (all active streams)
-/athletes                   → Athletes.tsx (aggregated)
-/venues                     → Venues.tsx
-/login                      → auth/Login.tsx
-/register                   → auth/Register.tsx
-/admin                      → Admin.tsx (super admin, protected)
-/404                        → NotFound.tsx
+/federation/:slug/events|clubs|athletes|news|streams
+/federation/:slug/admin/*   → FedAdmin* (role-gated)
+/events                     → Events.tsx
+/news                       → News.tsx (+ article modal / slug SEO)
+/live                       → Live.tsx (VOD / Recent Coverage when not live)
+/map                        → Map.tsx
+/athletes/:slug             → AthleteProfile
+/privacy /terms             → legal pages
+/login /register            → auth/*
+/admin                      → platform Admin (role === admin)
 ```
+
+SEO: global `<SeoHead />` in `App.tsx` sets title/OG/JSON-LD for hubs, federation tabs, news, athletes.
 
 ---
 
@@ -230,12 +210,12 @@ if (!isFederationAdmin(federationId)) redirect('/login')
 
 ### Server-side tRPC procedure guard
 ```typescript
-// Federation admin mutation
+// federationAdminProcedure checks ROLE only — always assert tenant inside:
 federationAdminProcedure
-  .input(z.object({ federationId: z.number(), ...data }))
+  .input(z.object({ federationId: z.number(), /* ... */ }))
   .mutation(async ({ ctx, input }) => {
-    // ctx.user.federationId is already verified to match input.federationId
-    // by the federationAdminProcedure middleware
+    assertSameFederation(ctx.user, input.federationId);
+    // ... write
   })
 ```
 
@@ -315,9 +295,9 @@ Ohangwena, Omaheke, Omusati, Oshana, Oshikoto, Otjozondjupa, Zambezi
 
 ## Known Issues / Technical Debt
 
-1. **No `slug` field on federations table** — Must add before building federation pages
-2. **`drizzle/relations.ts` is empty** — Relations not defined, limiting join queries
-3. **Admin page uses mock data** — Not connected to real tRPC endpoints
-4. **Auth is localStorage-based** — Not Supabase Auth; needs migration
-5. **Dual data path on Home.tsx** — Direct Supabase SDK + tRPC both used; should standardize to tRPC only
-6. **`server/routers.ts` is a single large file (500+ lines)** — Should be split into `server/routers/` directory
+1. **Credential rotation + Hyperdrive least-privilege** — `sportsplatform_app` role exists; human must set password, point Hyperdrive, rotate compromised `postgres` / `service_role` (`docs/research/SECURITY_CREDENTIAL_ROTATION.md`)
+2. **Crest / hollow long-tail** — logos ~64% active; hollow core-5 still above full-public gate
+3. **Live inventory thin** — nav gated; `/live` honest VOD empty states
+4. **WhatsApp / AI / Google flags off** by default for go-live honesty
+5. **Home.tsx** still has a static `federations.ts` fallback path if tRPC fails
+6. **Page-level error boundaries + submit loading locks** still open (P1 UX)

@@ -49,7 +49,7 @@
 - [x] News pass 3 — +12 zero-news feds (`20260720000052`); live **59** published / **37** feds / **46** still zero news
 - [x] News pass 4 — +14 zero-news feds (`20260720000058`); live **73** published / **51** feds / **32** still zero news
 - [x] Admin page: connect to real tRPC CRUD for news/streams/venues/coaches/schools/media/HP + Users role assignment; FedAdmin coaches/media/HP + ImageUpload on news/streams/clubs
-- [~] Empty states for all list views — federation Clubs/Athletes/News/Events done; remaining: admin lists, Home sections, Live
+- [x] Empty states for all list views — federation Clubs/Athletes/News/Events/Streams + Federation Home sections + Live VOD honesty; remaining: admin lists only
 - [ ] Loading states to prevent double-click submit
 - [ ] Error boundaries on page-level components
 

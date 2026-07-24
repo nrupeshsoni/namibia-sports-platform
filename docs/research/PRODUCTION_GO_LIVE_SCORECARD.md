@@ -99,7 +99,7 @@ Delta vs Agent 15 (**65 / NO-GO**, 2026-07-21): **+9** from Privacy/Terms, SEO h
 | Sitemap: hubs + 83 feds + news + athletes | ✅ Done |
 | Sitemap: `/privacy` + `/terms`; `/live` omitted while VOD-only | ✅ Done (orchestrator) |
 | Live nav inventory-gated; WA/AI/Google flags default off | ✅ Done |
-| News page footer legal links | ⬜ Minor polish |
+| News / Live / Map footer legal links | ✅ Done (SiteLegalFooter) |
 
 ### Data
 

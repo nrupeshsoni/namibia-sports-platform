@@ -54,9 +54,9 @@ const STATIC_ROUTES: StaticRoute[] = [
   {
     match: (p) => p === "/live",
     meta: {
-      title: "Live & Recent Coverage",
+      title: "Recent Coverage",
       description:
-        "Live streams and recent video coverage from Namibian sports on sports.com.na.",
+        "Recent video coverage from Namibian sports on sports.com.na.",
     },
   },
   {

@@ -4,6 +4,7 @@ import { Link, useLocation } from "wouter";
 import { ChevronLeft, Newspaper, X, Calendar, Tag } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { fadeUp, staggerContainer } from "@/lib/animations";
+import { SiteLegalFooter } from "@/components/SiteLegalFooter";
 
 function formatDate(val: string | null | undefined): string {
   if (!val) return "";
@@ -393,6 +394,8 @@ export default function News() {
       {selectedArticle && (
         <ArticleModal article={selectedArticle} onClose={handleCloseArticle} />
       )}
+
+      <SiteLegalFooter />
     </div>
   );
 }

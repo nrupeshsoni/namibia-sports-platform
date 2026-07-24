@@ -94,10 +94,33 @@ export default function FederationHome() {
 
       {/* Upcoming Events */}
       <motion.section variants={fadeUp}>
-        <h2 className="text-xl font-serif text-white mb-4">Upcoming Events</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-serif text-white">Upcoming Events</h2>
+          <Link href={`/federation/${slug}/events`}>
+            <span className="text-sm text-red-400 hover:text-red-300 transition-colors">View all →</span>
+          </Link>
+        </div>
         <div className="space-y-4">
           {events.length === 0 ? (
-            <p className="text-gray-500">No upcoming events</p>
+            <div
+              className="text-center py-10 px-4 rounded-2xl"
+              style={{
+                background: "rgba(255, 255, 255, 0.03)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+              }}
+            >
+              <Calendar className="w-8 h-8 text-gray-600 mx-auto mb-3" />
+              <h3 className="text-lg font-serif text-gray-300 mb-1">No upcoming events listed</h3>
+              <p className="text-gray-500 text-sm max-w-sm mx-auto">
+                {federation.name} has not published dated fixtures yet. Check the Events tab for past
+                results, or browse the national calendar.
+              </p>
+              <Link href="/events">
+                <span className="inline-block mt-4 text-sm text-red-400 hover:text-red-300 transition-colors">
+                  Browse all Namibia events →
+                </span>
+              </Link>
+            </div>
           ) : (
             events.map((event) => (
               <Link key={event.id} href={`/federation/${slug}/events`}>
@@ -126,10 +149,33 @@ export default function FederationHome() {
 
       {/* Recent News */}
       <motion.section variants={fadeUp}>
-        <h2 className="text-xl font-serif text-white mb-4">Recent News</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-serif text-white">Recent News</h2>
+          <Link href={`/federation/${slug}/news`}>
+            <span className="text-sm text-red-400 hover:text-red-300 transition-colors">View all →</span>
+          </Link>
+        </div>
         <div className="grid gap-4 md:grid-cols-3">
           {news.length === 0 ? (
-            <p className="text-gray-500 col-span-full">No news yet</p>
+            <div
+              className="col-span-full text-center py-10 px-4 rounded-2xl"
+              style={{
+                background: "rgba(255, 255, 255, 0.03)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+              }}
+            >
+              <Newspaper className="w-8 h-8 text-gray-600 mx-auto mb-3" />
+              <h3 className="text-lg font-serif text-gray-300 mb-1">No news published yet</h3>
+              <p className="text-gray-500 text-sm max-w-sm mx-auto">
+                Match reports and announcements from {federation.name} will appear here when the
+                federation posts them.
+              </p>
+              <Link href="/news">
+                <span className="inline-block mt-4 text-sm text-red-400 hover:text-red-300 transition-colors">
+                  Browse national news →
+                </span>
+              </Link>
+            </div>
           ) : (
             news.map((article) => (
               <div

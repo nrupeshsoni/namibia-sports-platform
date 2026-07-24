@@ -7,7 +7,7 @@ export const SITE_ORIGIN = "https://sports.com.na";
 export const SITE_NAME = "sports.com.na";
 export const DEFAULT_TITLE = "Namibia Sports Platform";
 export const DEFAULT_DESCRIPTION =
-  "Namibia's national sports platform — federations, events, news, clubs, and athletes across every sport.";
+  "Namibia's sports directory — federations, events, news, clubs, and athletes. Coverage grows federation by federation.";
 export const DEFAULT_IMAGE = `${SITE_ORIGIN}/sports/football-action.jpg`;
 
 const JSON_LD_ATTR = "data-seo-jsonld";

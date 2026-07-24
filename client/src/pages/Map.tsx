@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { fadeUp } from "@/lib/animations";
+import { SiteLegalFooter } from "@/components/SiteLegalFooter";
 
 import "leaflet/dist/leaflet.css";
 
@@ -332,6 +333,8 @@ export default function Map() {
           </div>
         </aside>
       </div>
+
+      <SiteLegalFooter />
     </div>
   );
 }
