@@ -62,6 +62,64 @@ Wire **verified sports or filterable** feeds into `supabase/functions/news-aggre
 
 ---
 
+## Ops status (2026-07-24)
+
+| Step | Status | Detail |
+|------|--------|--------|
+| Deploy Edge Function | **Done** | `news-aggregator` ACTIVE on `rbibqjgsnrueubrvyqps` (`verify_jwt=false`; kill-switch is `ENABLE_NEWS_AGGREGATOR`) |
+| `ENABLE_NEWS_AGGREGATOR=true` | **Done** | `npx supabase secrets set ENABLE_NEWS_AGGREGATOR=true --project-ref rbibqjgsnrueubrvyqps` |
+| `ANTHROPIC_API_KEY` | **Present** | Already set on the project (required when flag is on) |
+| Service role inserts | **OK** | Function uses `SUPABASE_SERVICE_ROLE_KEY`; PostgREST insert to `sportsplatform_news_articles` verified |
+| Cron every 6h | **Done** | `pg_cron` job `invoke-news-aggregator` → `0 */6 * * *` → `pg_net.http_post` (150s timeout) to `…/functions/v1/news-aggregator`. Vault secret name: `news_aggregator_invoke_key` (anon JWT for gateway `Authorization`/`apikey`) |
+| Smoke invoke | **OK (0 inserts)** | Manual POST returned `{"success":true,"inserted":0,"skippedNonSports":9}` (~37s). Draft delta **+0** `agg-*` rows. Feeds are reachable from this workstation; Edge run skipped non-sports / did not persist drafts — check Edge Function logs if volume stays at zero |
+
+### Admin: how to review drafts
+
+1. Sign in as platform **admin** → `/admin` → **News** tab (`FedAdminNews` with `includeUnpublished: true`).
+2. Unpublished rows show as drafts (not Published). Open/edit, verify attribution footer (`Source: …` + link), then **Publish** (`news.publish`) — never auto-published by the aggregator.
+3. Optional: **Content Sync** tab for on-demand AI leads (separate path; also draft-only).
+
+### Kill-switch / redeploy
+
+```bash
+# Disable inserts (cron may still invoke; function no-ops)
+npx supabase secrets set ENABLE_NEWS_AGGREGATOR=false --project-ref rbibqjgsnrueubrvyqps
+
+# Redeploy after code changes
+npx supabase functions deploy news-aggregator --project-ref rbibqjgsnrueubrvyqps --no-verify-jwt
+
+# Manual smoke
+curl -X POST "https://rbibqjgsnrueubrvyqps.supabase.co/functions/v1/news-aggregator" \
+  -H "Authorization: Bearer $VITE_SUPABASE_ANON_KEY" \
+  -H "apikey: $VITE_SUPABASE_ANON_KEY"
+```
+
+### Cron SQL (already applied; reference only)
+
+```sql
+-- Requires extensions: pg_cron, pg_net; vault secret news_aggregator_invoke_key
+SELECT cron.schedule(
+  'invoke-news-aggregator',
+  '0 */6 * * *',
+  $$
+  SELECT net.http_post(
+    url := 'https://rbibqjgsnrueubrvyqps.supabase.co/functions/v1/news-aggregator',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'news_aggregator_invoke_key' LIMIT 1),
+      'apikey', (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'news_aggregator_invoke_key' LIMIT 1)
+    ),
+    body := '{}'::jsonb,
+    timeout_milliseconds := 150000
+  ) AS request_id;
+  $$
+);
+```
+
+**Not automated from Worker CI** — Edge Function deploy + secrets remain a Supabase ops step when the function source changes.
+
+---
+
 ## Phase 2 — APIs / partnerships
 
 | Path | Status | Action |

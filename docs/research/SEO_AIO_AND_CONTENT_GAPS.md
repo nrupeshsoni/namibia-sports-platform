@@ -50,7 +50,7 @@
 4. **Sitemap lag risk** — slug JSONs are committed; must re-run `generate-sitemap` (or `prebuild` with Supabase env) after content inserts. Refreshed this audit: **83** feds / **89** news / **198** athletes (was 79 / 178).
 5. **Broken SearchAction** — homepage `?q=` not wired.
 6. **Thin entity pages hurt AIO** — empty federation tabs (hidden in UI) still leave shallow org pages for crawlers when description/contact/news are weak.
-7. **`news-aggregator` not deployed** — daily automated news cannot run today (see §3).
+7. **`news-aggregator` deployed** (2026-07-24) with 6h cron — still draft-only; first productive inserts pending (see `NAMIBIAN_SPORTS_NEWS_SOURCES.md` ops).
 
 ---
 
@@ -99,12 +99,12 @@ Snapshot: 2026-07-24 · `is_active` / not merged · published where applicable.
 | Piece | Path | Status |
 |-------|------|--------|
 | Edge Function source | `supabase/functions/news-aggregator/index.ts` | Written |
-| RSS sources in code | The Namibian, Namibian Sun | Partial vs design doc |
+| RSS sources in code | Verified Phase 1 list — see `NAMIBIAN_SPORTS_NEWS_SOURCES.md` | Wired |
 | Claude summarize/tag | Anthropic in function | Requires `ANTHROPIC_API_KEY` |
 | Insert target | `sportsplatform_news_articles` | `is_published: false` drafts |
 | Dedup | SHA-256 of source URL → `agg-{hash}` slug | OK |
-| Deployed on project | — | **NOT listed** in project Edge Functions |
-| Cron / `pg_cron` / schedule | — | **None found** in repo or function list |
+| Deployed on project | `rbibqjgsnrueubrvyqps` | **ACTIVE** + `ENABLE_NEWS_AGGREGATOR=true` |
+| Cron / `pg_cron` / schedule | Job `invoke-news-aggregator` | **Every 6h** via `pg_net` |
 | Design doc | `docs/architecture/SYSTEM_DESIGN.md` | Overstates NBC scrape + WhatsApp notify (not implemented) |
 
 ### How daily news CAN work (ordered)
@@ -113,13 +113,13 @@ Snapshot: 2026-07-24 · `is_active` / not merged · published where applicable.
 |--------|--------|-----|----------------|
 | **A. Manual CMS** (FedAdmin / Platform Admin news CRUD) | Low | High quality, federation-scoped, already live | **Primary path now** |
 | **B. Content Sync AI** (`/admin` → Intelligence) | Low | On-demand Workers AI leads → draft only (`isPublished=false`) | **Best AI assist today** — see `CONTENT_SYNC_AI.md` |
-| **C. Deploy Edge Function + schedule** | Medium | RSS → draft queue → human publish | **Secondary** once secrets + cron exist |
+| **C. Deploy Edge Function + schedule** | Medium | RSS → draft queue → human publish | **Live** (ops done; watch for first `agg-*` drafts) |
 | **D. Full scrape (NBC etc.)** | High | Fragile; copyright/ToS risk | Defer |
 
 **Recommended operating model (today → 30 days):**
 
 1. **Now:** Manual CMS for verified stories + Content Sync AI for draft leads on hollow federations (Big-8 + 22 zero-news). Never auto-publish AI/RSS drafts.
-2. **Next:** `supabase functions deploy news-aggregator` + set `ANTHROPIC_API_KEY` + schedule every 6h (Dashboard cron or external ping). Keep `is_published: false`; admin reviews in CMS.
+2. **Aggregator:** Deployed + 6h cron (2026-07-24). Keep `is_published: false`; admin reviews in CMS (`/admin` → News).
 3. Content Sync and the Edge Function are complementary: Sync = on-demand research; aggregator = passive RSS intake.
 4. Wire WhatsApp notify only after WhatsApp product flag is on (`WHATSAPP_API_ENABLED`).
 
@@ -138,7 +138,7 @@ Snapshot: 2026-07-24 · `is_active` / not merged · published where applicable.
 | P2 | Federation media (67 empty) | Visual AIO / social | 2–4 assets per fed with events |
 | P2 | Event detail routes + sitemap event URLs | Deep SEO | Product change, not just content |
 | P2 | Prerender/SSR or edge HTML meta | True AIO | Architecture follow-up |
-| P3 | Deploy news-aggregator + cron | Daily volume | Draft queue only |
+| P3 | ~~Deploy news-aggregator + cron~~ **done** | Daily volume | Draft queue; monitor inserts |
 | P3 | Fix SearchAction → real search URL | Schema honesty | `/` search or dedicated `/search?q=` |
 
 ---
@@ -153,7 +153,7 @@ Snapshot: 2026-07-24 · `is_active` / not merged · published where applicable.
 6. **28 federations missing website** (+ 10 with no email/phone at all).
 7. **129/191 clubs lack descriptions** — directory depth weak.
 8. **Sitemap was stale** (−10 news, −20 athletes vs DB) — process gap; refreshed in this pass.
-9. **News aggregator not deployed / no cron / 0 `agg-*` drafts** — daily pipeline is design-only.
+9. **News aggregator deployed + 6h cron; still 0 `agg-*` drafts after smoke** — monitor Edge logs / first productive run.
 10. **No event/club detail routes** — cannot rank or cite individual events/clubs as first-class URLs.
 
 ---
@@ -171,6 +171,6 @@ Snapshot: 2026-07-24 · `is_active` / not merged · published where applicable.
 |----------|--------|
 | SEO ready? | **Partial** |
 | Top content gaps | See §5 |
-| Daily news path | **Manual CMS + Content Sync AI drafts now**; deploy `news-aggregator` cron as passive RSS draft intake next; **never auto-publish** |
+| Daily news path | **Manual CMS + Content Sync AI** + deployed `news-aggregator` 6h cron (draft intake); **never auto-publish** |
 
 **Rules applied:** search-first / reuse-first · docs as deliverable · smallest safe SEO fixes · no secrets committed.
