@@ -10,7 +10,11 @@ import { ChevronDown, Search, Menu, Loader2, MapPin, Users, Calendar, Trophy, X,
 import { trpc } from '../lib/trpc';
 import { fadeUp, staggerContainer, scaleIn } from '../lib/animations';
 import { useShowLiveNav } from '../hooks/useShowLiveNav';
-import { NewsCard } from '../components/NewsCard';
+import { NewsTicker } from '../components/NewsTicker';
+import {
+  NewsArticleModal,
+  type NewsArticleModalItem,
+} from '../components/NewsArticleModal';
 
 const EVENT_TYPE_IMAGES: Record<string, string> = {
   competition: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800&q=80',
@@ -79,6 +83,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
+  const [selectedNews, setSelectedNews] = useState<NewsArticleModalItem | null>(null);
 
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -188,7 +193,7 @@ export default function Home() {
 
   // tRPC data for home sections
   const upcomingEventsQuery = trpc.events.list.useQuery({ upcoming: true, limit: 8 });
-  const newsQuery = trpc.news.list.useQuery({ limit: 6 });
+  const newsQuery = trpc.news.list.useQuery({ limit: 12 });
   const upcomingEvents = (upcomingEventsQuery.data ?? []) as Array<{
     id: number;
     name: string;
@@ -200,17 +205,8 @@ export default function Home() {
     location: string | null;
     region: string | null;
   }>;
-  const newsArticles = (newsQuery.data ?? []) as Array<{
-    id: number;
-    title: string;
-    slug: string;
-    summary: string | null;
-    category: string | null;
-    featuredImage: string | null;
-    sourceUrl?: string | null;
-    sourceName?: string | null;
-    publishedAt: string | null;
-  }>;
+  const newsArticles = (newsQuery.data ?? []) as NewsArticleModalItem[];
+  const latestHeadline = newsArticles[0] ?? null;
 
   const formatEventDate = (d: Date | string) =>
     new Date(d).toLocaleDateString('en-NA', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
@@ -302,6 +298,14 @@ export default function Home() {
           </div>
         )}
       </header>
+
+      <NewsTicker
+        articles={newsArticles}
+        onSelect={(item) => {
+          const full = newsArticles.find((a) => a.id === item.id) ?? null;
+          setSelectedNews(full);
+        }}
+      />
 
       {/* Hero Section */}
       <section className="relative h-screen w-full overflow-hidden">
@@ -474,65 +478,68 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Sports News Section */}
-      <section className="py-16 px-4 bg-black relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[350px] bg-green-500/5 rounded-full blur-[130px]" />
+      {/* Sports News teaser — full feed lives in the top ticker + /news */}
+      <section className="py-10 px-4 bg-black relative overflow-hidden">
         <div className="container mx-auto relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10"
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.5 }}
+            className="rounded-2xl px-5 py-6 md:px-8 md:py-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+            style={{
+              background: 'var(--glass-surface)',
+              border: '1px solid var(--glass-surface-border)',
+              backdropFilter: 'blur(20px)',
+            }}
           >
-            <div>
-              <p className="text-sm tracking-[0.3em] text-emerald-400 mb-2">LATEST</p>
-              <h2 className="text-3xl md:text-5xl font-serif text-white mb-2">
+            <div className="min-w-0">
+              <p className="text-xs tracking-[0.25em] text-emerald-400 mb-1.5 flex items-center gap-2">
+                <Newspaper className="w-3.5 h-3.5" />
                 SPORTS NEWS
-              </h2>
-              <p className="text-gray-400">Updates from across Namibian sport</p>
+              </p>
+              {newsQuery.isLoading ? (
+                <p className="text-sm" style={{ color: 'var(--chrome-muted)' }}>Loading headlines…</p>
+              ) : latestHeadline ? (
+                <button
+                  type="button"
+                  onClick={() => setSelectedNews(latestHeadline)}
+                  className="text-left group"
+                >
+                  <h2
+                    className="text-lg md:text-xl font-serif leading-snug line-clamp-2 group-hover:opacity-90"
+                    style={{ color: 'var(--chrome-fg)' }}
+                  >
+                    {latestHeadline.title}
+                  </h2>
+                  {latestHeadline.sourceName && (
+                    <p className="text-xs mt-1" style={{ color: 'var(--chrome-muted)' }}>
+                      via {latestHeadline.sourceName}
+                      {newsArticles.length > 1
+                        ? ` · +${newsArticles.length - 1} more in the ticker`
+                        : ''}
+                    </p>
+                  )}
+                </button>
+              ) : (
+                <p className="text-sm" style={{ color: 'var(--chrome-muted)' }}>
+                  Scroll for the live headline ticker, or browse all news.
+                </p>
+              )}
             </div>
             <Link href="/news">
               <span
-                className="inline-block px-6 py-3 rounded-xl text-white text-sm font-medium cursor-pointer transition-all hover:scale-105"
-                style={{ background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.4)' }}
+                className="inline-flex items-center justify-center min-h-[44px] px-5 rounded-xl text-sm font-medium cursor-pointer whitespace-nowrap"
+                style={{
+                  background: 'rgba(16,185,129,0.2)',
+                  border: '1px solid rgba(16,185,129,0.4)',
+                  color: '#6EE7B7',
+                }}
               >
                 All news
               </span>
             </Link>
           </motion.div>
-          {newsQuery.isLoading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="w-10 h-10 text-white animate-spin" />
-            </div>
-          ) : newsArticles.length > 0 ? (
-            <motion.div
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-30px' }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              {newsArticles.map((article) => (
-                <motion.div key={article.id} variants={fadeUp}>
-                  <Link href={`/news/${article.slug}`}>
-                    <NewsCard article={article} accent="emerald" />
-                  </Link>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <div
-              className="text-center py-16 rounded-2xl"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-            >
-              <Newspaper className="w-14 h-14 mx-auto text-gray-600 mb-4" />
-              <p className="text-gray-500 mb-2">No news yet</p>
-              <Link href="/news">
-                <span className="text-emerald-400 hover:text-emerald-300 cursor-pointer text-sm">Browse news</span>
-              </Link>
-            </div>
-          )}
         </div>
       </section>
 
@@ -1116,6 +1123,13 @@ export default function Home() {
         <FederationModal
           federation={selectedFederation}
           onClose={() => setSelectedFederation(null)}
+        />
+      )}
+
+      {selectedNews && (
+        <NewsArticleModal
+          article={selectedNews}
+          onClose={() => setSelectedNews(null)}
         />
       )}
     </div>

@@ -2,6 +2,7 @@
  * Lead/featured news story — image hero when available, text-first otherwise.
  */
 import { Calendar, ExternalLink } from "lucide-react";
+import { useState } from "react";
 import type { NewsCardArticle } from "./NewsCard";
 
 function formatDate(val: string | Date | null | undefined): string {
@@ -20,7 +21,9 @@ type FeaturedNewsCardProps = {
 
 /** Large lead story — image hero when available, otherwise text-first panel. */
 export function FeaturedNewsCard({ article, onClick }: FeaturedNewsCardProps) {
-  const hasImage = Boolean(article.featuredImage?.trim());
+  const imageUrl = article.featuredImage?.trim() || null;
+  const [imageOk, setImageOk] = useState(Boolean(imageUrl));
+  const hasImage = Boolean(imageUrl) && imageOk;
   const sourceLabel = article.sourceName?.trim() || null;
 
   if (!hasImage) {
@@ -134,9 +137,10 @@ export function FeaturedNewsCard({ article, onClick }: FeaturedNewsCardProps) {
     >
       <div className="w-full aspect-[21/9] min-h-[12rem] max-h-[24rem] relative overflow-hidden">
         <img
-          src={article.featuredImage!}
+          src={imageUrl!}
           alt=""
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={() => setImageOk(false)}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
       </div>

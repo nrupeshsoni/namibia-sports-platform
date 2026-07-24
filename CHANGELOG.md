@@ -4,7 +4,11 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Home Sports News → ticker:** mid-page card grid replaced with a compact teaser; latest headlines scroll in a fixed top ticker (below header) that appears after ~160px scroll and hides at the top. Click opens shared `NewsArticleModal`. `/news` keeps card/list layout. `prefers-reduced-motion` uses a static horizontal chip list; pause on hover.
+
 ### Fixed
+- **Broken news images:** `NewsCard` / `FeaturedNewsCard` / modal only render `<img>` when URL is non-empty; `onError` hides the image (no browser broken-icon placeholder).
 - **News without photos:** list cards (Home, `/news`, federation news) use **text-first** glass layout when `featured_image` is null — no Unsplash/grey placeholders or giant initials. Image cards keep `object-cover` at a sensible aspect. Detail modal already skips hero when no image.
 - **news-aggregator image enrich:** stronger RSS media/`<img>` extraction (skips ad banners), twitter/og meta, WordPress **oEmbed thumbnail** fallback (Economist), capped fetch timeouts (12s feed / 6s og); DB backfill pass for published rows missing `featured_image` via `source_url` (skips Google News wrappers).
 

@@ -3,6 +3,7 @@
  * No large empty placeholders or giant initials.
  */
 import { Calendar, ExternalLink } from "lucide-react";
+import { useState } from "react";
 
 export type NewsCardArticle = {
   title: string;
@@ -63,7 +64,9 @@ export function NewsCard({
   className = "",
 }: NewsCardProps) {
   const colors = ACCENT[accent];
-  const hasImage = Boolean(article.featuredImage?.trim());
+  const imageUrl = article.featuredImage?.trim() || null;
+  const [imageOk, setImageOk] = useState(Boolean(imageUrl));
+  const hasImage = Boolean(imageUrl) && imageOk;
   const sourceLabel = article.sourceName?.trim() || null;
   const sourceUrl = article.sourceUrl?.trim() || null;
 
@@ -92,13 +95,14 @@ export function NewsCard({
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
-      {hasImage && (
+      {hasImage && imageUrl && (
         <div className="aspect-[16/10] relative overflow-hidden bg-black/20">
           <img
-            src={article.featuredImage!}
+            src={imageUrl}
             alt=""
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
+            onError={() => setImageOk(false)}
           />
           {article.category && (
             <span
