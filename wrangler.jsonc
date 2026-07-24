@@ -73,17 +73,28 @@
   // only one Worker), so this add takes it over cleanly.
   "routes": [{ "pattern": "sports.com.na", "custom_domain": true }],
 
+  // Workers AI — used by contentSync (admin research assist). No secret required;
+  // usage bills to the Cloudflare account. Prefer this over Anthropic until
+  // ANTHROPIC_API_KEY is set (Phase 2 fallback in server/services/contentSyncAi.ts).
+  "ai": {
+    "binding": "AI"
+  },
+
   "vars": {
     "SUPABASE_URL": "https://rbibqjgsnrueubrvyqps.supabase.co"
+    // ENABLE_CONTENT_SYNC defaults ON when unset. Set "false" to disable
+    // admin contentSync.* procedures (UI still shows a disabled message).
+    // ENABLE_CONTENT_SYNC: "false"
   },
 
   // ── Secrets (wrangler secret put <NAME>) ──
   //   SUPABASE_ANON_KEY          verifies caller JWTs; RLS evaluates as the user
   //   SUPABASE_SERVICE_ROLE_KEY  storage uploads only — never for normal reads
-  //   ANTHROPIC_API_KEY          ai router
+  //   ANTHROPIC_API_KEY          ai router + contentSync Phase 2 fallback
   //
   // Optional vars (wrangler.toml vars / dashboard — not secrets):
   //   ENABLE_WHATSAPP_SUBSCRIBE  "true" to accept whatsapp.subscribe (default off)
+  //   ENABLE_CONTENT_SYNC        "false" to disable contentSync (default on)
   //
   // As with DOME X: SUPABASE_ANON_KEY must never hold a service-role key.
   // Doing so bypasses RLS silently, with no error surfaced anywhere.
@@ -126,6 +137,9 @@
           "localConnectionString": "<DATABASE_URL_FOR_LOCAL_DEV>"
         }
       ],
+      "ai": {
+        "binding": "AI"
+      },
       "vars": {
         "SUPABASE_URL": "https://rbibqjgsnrueubrvyqps.supabase.co"
       }

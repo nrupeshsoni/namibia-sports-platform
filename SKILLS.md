@@ -76,6 +76,7 @@ upload.image({ federationId, entity, entityId, base64, contentType? })
 search.global({ query })                       // public; rate-limited
 
 ai.generateSummary / suggestTags / chatAssistant
+contentSync.status / suggestNews / suggestEvents / createNewsDraft / createEventDraft (admin; drafts only)
   // protectedProcedure; UI gated by VITE_SHOW_AI_CHAT; chat capped + rate-limited
 
 whatsapp.subscribe / unsubscribe / getSubscriptions

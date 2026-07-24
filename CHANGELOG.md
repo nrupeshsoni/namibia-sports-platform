@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file.
 
 ### Added
 - `docs/research/SEO_AIO_AND_CONTENT_GAPS.md` — SEO/AIO scorecard (~72/100, **partial**), live DB population matrix, daily news options (manual CMS + Content Sync AI vs undeployed `news-aggregator`).
+- **Content Sync (Intelligence)** — Platform Admin tab + `contentSync.*` tRPC (admin-only, rate-limited). Workers AI binding (`ai: { binding: "AI" }` in `wrangler.jsonc`) generates structured news/event research leads; Anthropic is Phase 2 fallback when `ANTHROPIC_API_KEY` is set. **Create draft** always writes `isPublished=false`. Flag `ENABLE_CONTENT_SYNC` defaults ON. Docs: `docs/research/CONTENT_SYNC_AI.md`.
 - Platform Admin Users tab: **Add User** (`users.inviteOrPromote`) — Auth Admin create when `SUPABASE_SERVICE_ROLE_KEY` is set, else clear register-then-promote-by-email; assigns role + `federationId`. UI: Add User + Assign role.
 - `adminStats.counts` — uncapped event/club/athlete totals for Admin dashboard (not capped by list limit 50/200).
 - Migration `20260724210000_events_web_batch_C.sql` — **+14** verified niche/umbrella/para events (chess Open + Olympiad, AGA World Walvis Bay + Botswana, AUSC Region 5 / NYG Phase 1, World Bowls Indoor, CWG para-athletics, NAMEF Beach/Easter/RCO, IHF Trophy Zone VI, Redzone Handball) + fistball Cohen 2026 date correction. Evidence: `docs/research/events_web_batch_C_20260724.md`.

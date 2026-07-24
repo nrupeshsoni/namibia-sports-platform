@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Plus, Search, Calendar, Users, Trophy, Radio, Newspaper, LogOut,
-  GraduationCap, MapPin, School, Image, Target, UserCog,
+  GraduationCap, MapPin, School, Image, Target, UserCog, Brain,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,10 +27,12 @@ import { AdminFederationFilter } from "@/pages/admin/AdminFederationFilter";
 import { AdminStatsCards } from "@/pages/admin/AdminStatsCards";
 import { AdminVenuesPanel } from "@/pages/admin/AdminVenuesPanel";
 import { AdminSchoolsPanel } from "@/pages/admin/AdminSchoolsPanel";
+import { AdminContentSyncPanel } from "@/pages/admin/AdminContentSyncPanel";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 type Tab =
   | "federations" | "events" | "clubs" | "athletes" | "news" | "streams"
-  | "coaches" | "venues" | "schools" | "media" | "hp" | "users";
+  | "coaches" | "venues" | "schools" | "media" | "hp" | "users" | "contentSync";
 type CrudTab = "federations" | "events" | "clubs" | "athletes";
 
 const ADMIN_LIMIT = 200;
@@ -47,6 +49,7 @@ const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "schools", label: "Schools", icon: School },
   { id: "media", label: "Media", icon: Image },
   { id: "hp", label: "HP Programs", icon: Target },
+  { id: "contentSync", label: "Content Sync", icon: Brain },
   { id: "users", label: "Users", icon: UserCog },
 ];
 
@@ -241,6 +244,7 @@ export default function Admin() {
             {(id) => <FedAdminHpPrograms federationId={id} />}
           </AdminFedScope>
         )}
+        {activeTab === "contentSync" && <AdminContentSyncPanel />}
         {activeTab === "users" && <UsersAdminPanel />}
       </div>
 

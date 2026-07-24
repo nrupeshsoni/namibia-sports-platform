@@ -15,6 +15,7 @@ import { hpProgramsRouter } from "./hpPrograms";
 import { uploadRouter } from "./upload";
 import { whatsappRouter } from "./whatsapp";
 import { aiRouter } from "./ai";
+import { contentSyncRouter } from "./contentSync";
 import { searchRouter } from "./search";
 import { usersRouter } from "./users";
 import { adminStatsRouter } from "./adminStats";
@@ -38,6 +39,7 @@ export const appRouter = router({
   upload: uploadRouter,
   whatsapp: whatsappRouter,
   ai: aiRouter,
+  contentSync: contentSyncRouter,
   search: searchRouter,
 });
 

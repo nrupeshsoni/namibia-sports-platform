@@ -22,6 +22,14 @@ export interface AssetsBinding {
   fetch(request: Request): Promise<Response>;
 }
 
+/**
+ * Workers AI binding (`ai.binding` in wrangler.jsonc). Structural type only —
+ * avoids coupling the whole Env surface to `@cloudflare/workers-types`.
+ */
+export interface AiBinding {
+  run(model: string, inputs: Record<string, unknown>): Promise<unknown>;
+}
+
 /** Subset of the Workers ExecutionContext that this Worker uses. */
 export interface ExecutionContext {
   waitUntil(promise: Promise<unknown>): void;
@@ -33,19 +41,26 @@ export interface Env {
   HYPERDRIVE: HyperdriveBinding;
   /** Built client assets. */
   ASSETS: AssetsBinding;
+  /** Workers AI binding — contentSync Phase 1 provider. */
+  AI?: AiBinding;
   /** Supabase project URL. Used to verify the caller's bearer token. */
   SUPABASE_URL: string;
   /** Supabase anon key. The per-request client uses it so Postgres RLS applies to the caller. */
   SUPABASE_ANON_KEY: string;
   /** Service-role key. Storage uploads only — never used to build the request context. */
   SUPABASE_SERVICE_ROLE_KEY?: string;
-  /** Anthropic key for the AI router. */
+  /** Anthropic key for the AI router + contentSync Phase 2 fallback. */
   ANTHROPIC_API_KEY?: string;
   /**
    * When `"true"`, `whatsapp.subscribe` accepts traffic. Default off — the UI
    * flag (`VITE_SHOW_WHATSAPP_SUBSCRIBE`) alone must not leave the API open.
    */
   ENABLE_WHATSAPP_SUBSCRIBE?: string;
+  /**
+   * When `"false"`, `contentSync.*` admin procedures are disabled.
+   * Default ON (unset / any other value) — procedures remain admin-only.
+   */
+  ENABLE_CONTENT_SYNC?: string;
   BUILT_IN_FORGE_API_URL?: string;
   BUILT_IN_FORGE_API_KEY?: string;
 }
@@ -57,6 +72,7 @@ export const ENV = {
   supabaseServiceRoleKey: "",
   anthropicApiKey: "",
   enableWhatsAppSubscribe: "",
+  enableContentSync: "",
   forgeApiUrl: "",
   forgeApiKey: "",
 };
@@ -68,6 +84,12 @@ export function initEnv(env: Env): void {
   ENV.supabaseServiceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY ?? "";
   ENV.anthropicApiKey = env.ANTHROPIC_API_KEY ?? "";
   ENV.enableWhatsAppSubscribe = env.ENABLE_WHATSAPP_SUBSCRIBE ?? "";
+  ENV.enableContentSync = env.ENABLE_CONTENT_SYNC ?? "";
   ENV.forgeApiUrl = env.BUILT_IN_FORGE_API_URL ?? "";
   ENV.forgeApiKey = env.BUILT_IN_FORGE_API_KEY ?? "";
+}
+
+/** Content Sync is on unless explicitly set to `"false"`. */
+export function isContentSyncEnabled(): boolean {
+  return ENV.enableContentSync !== "false";
 }

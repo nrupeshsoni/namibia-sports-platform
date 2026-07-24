@@ -62,9 +62,15 @@ Per-isolate fixed windows (not global — see module comment):
 | Key prefix | Ceiling | Procedures |
 |------------|---------|------------|
 | `ai.*` | 10 / min | `generateSummary`, `suggestTags`, `chatAssistant` |
+| `contentSync.*` | 10 / min | `suggestNews`, `suggestEvents`, `createNewsDraft`, `createEventDraft` (admin-only; dual user+IP keys) |
 | `whatsapp.*` | 5 / min | `subscribe`, `unsubscribe`, `getSubscriptions` |
 | `upload.image` | 20 / min | federation-admin image upload |
 | `search.global` | 30 / min | public search fan-out |
+
+### Content Sync
+| Procedure | Auth | Notes |
+|-----------|------|-------|
+| `contentSync.*` | `adminProcedure` | Kill-switch `ENABLE_CONTENT_SYNC=false` (default ON). AI suggestions → drafts only; never auto-publish. See `docs/research/CONTENT_SYNC_AI.md`. |
 
 ### CORS
 Worker allowlist (`server/_core/cors.ts`): `https://sports.com.na`, `https://www.sports.com.na`, staging `https://namibia-sports-platform-staging.facilit8.workers.dev`, local Vite/wrangler. Unlisted origins get no CORS headers; API preflight → 403.
