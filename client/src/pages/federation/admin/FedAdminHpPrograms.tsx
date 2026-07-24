@@ -6,16 +6,23 @@ import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { EntityModal } from "@/components/admin/EntityModal";
 import { HpProgramForm, type HpProgramFormData } from "@/components/admin/HpProgramForm";
+import { CreateFedPicker } from "@/components/admin/CreateFedPicker";
 
-export default function FedAdminHpPrograms({ federationId }: { federationId: number }) {
+const ADMIN_LIMIT = 200;
+
+export default function FedAdminHpPrograms({ federationId }: { federationId?: number }) {
   const [search, setSearch] = useState("");
+  const [createFedId, setCreateFedId] = useState<number | undefined>(federationId);
   const [modal, setModal] = useState<
     { mode: "create" } | { mode: "edit"; data: HpProgramFormData } | null
   >(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const utils = trpc.useUtils();
-  const listQuery = trpc.hpPrograms.list.useQuery({ federationId });
+  const listQuery = trpc.hpPrograms.list.useQuery({
+    ...(federationId != null ? { federationId } : {}),
+    limit: ADMIN_LIMIT,
+  });
   const deleteMut = trpc.hpPrograms.delete.useMutation({
     onSuccess: () => {
       utils.hpPrograms.list.invalidate();
@@ -26,6 +33,9 @@ export default function FedAdminHpPrograms({ federationId }: { federationId: num
   const items = (listQuery.data ?? []).filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const formFedId =
+    modal?.mode === "edit" ? modal.data.federationId : (federationId ?? createFedId);
 
   return (
     <div className="space-y-6">
@@ -39,7 +49,13 @@ export default function FedAdminHpPrograms({ federationId }: { federationId: num
             className="pl-10 bg-white/5 border-white/10 text-white"
           />
         </div>
-        <Button className="gap-2 bg-red-600 hover:bg-red-700" onClick={() => setModal({ mode: "create" })}>
+        <Button
+          className="gap-2 bg-red-600 hover:bg-red-700"
+          onClick={() => {
+            setCreateFedId(federationId);
+            setModal({ mode: "create" });
+          }}
+        >
           <Plus className="h-4 w-4" /> Add Program
         </Button>
       </div>
@@ -133,12 +149,21 @@ export default function FedAdminHpPrograms({ federationId }: { federationId: num
         title={modal?.mode === "create" ? "Add HP Program" : "Edit HP Program"}
       >
         {modal && (
-          <HpProgramForm
-            mode={modal.mode}
-            federationId={federationId}
-            initialData={modal.mode === "edit" ? modal.data : undefined}
-            onSuccess={() => setModal(null)}
-          />
+          <div className="space-y-4">
+            {modal.mode === "create" && federationId == null && (
+              <CreateFedPicker value={createFedId} onChange={setCreateFedId} />
+            )}
+            {formFedId != null ? (
+              <HpProgramForm
+                mode={modal.mode}
+                federationId={formFedId}
+                initialData={modal.mode === "edit" ? modal.data : undefined}
+                onSuccess={() => setModal(null)}
+              />
+            ) : (
+              <p className="text-sm text-gray-500">Select a federation to continue.</p>
+            )}
+          </div>
         )}
       </EntityModal>
 

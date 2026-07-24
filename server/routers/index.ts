@@ -17,11 +17,13 @@ import { whatsappRouter } from "./whatsapp";
 import { aiRouter } from "./ai";
 import { searchRouter } from "./search";
 import { usersRouter } from "./users";
+import { adminStatsRouter } from "./adminStats";
 
 export const appRouter = router({
   system: systemRouter,
   auth: authRouter,
   users: usersRouter,
+  adminStats: adminStatsRouter,
   federations: federationsRouter,
   clubs: clubsRouter,
   events: eventsRouter,

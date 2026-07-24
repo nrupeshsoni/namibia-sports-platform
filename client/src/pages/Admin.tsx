@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  Plus, Search, BarChart3, Calendar, Users, Trophy, Radio, Newspaper, LogOut,
+  Plus, Search, Calendar, Users, Trophy, Radio, Newspaper, LogOut,
   GraduationCap, MapPin, School, Image, Target, UserCog,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,8 @@ import {
   FederationsTable, EventsTable, ClubsTable, AthletesTable,
 } from "@/pages/admin/AdminTables";
 import { AdminFedScope } from "@/pages/admin/AdminFedScope";
+import { AdminFederationFilter } from "@/pages/admin/AdminFederationFilter";
+import { AdminStatsCards } from "@/pages/admin/AdminStatsCards";
 import { AdminVenuesPanel } from "@/pages/admin/AdminVenuesPanel";
 import { AdminSchoolsPanel } from "@/pages/admin/AdminSchoolsPanel";
 
@@ -30,6 +32,8 @@ type Tab =
   | "federations" | "events" | "clubs" | "athletes" | "news" | "streams"
   | "coaches" | "venues" | "schools" | "media" | "hp" | "users";
 type CrudTab = "federations" | "events" | "clubs" | "athletes";
+
+const ADMIN_LIMIT = 200;
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "federations", label: "Federations", icon: Trophy },
@@ -47,6 +51,7 @@ const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
 ];
 
 const CRUD_TABS: Tab[] = ["federations", "events", "clubs", "athletes"];
+const FED_FILTER_TABS: Tab[] = ["events", "clubs", "athletes"];
 
 export default function Admin() {
   const [, setLocation] = useLocation();
@@ -62,6 +67,7 @@ export default function Admin() {
 
   const [activeTab, setActiveTab] = useState<Tab>("federations");
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterFedId, setFilterFedId] = useState<number | null>(null);
   const [scopeFedId, setScopeFedId] = useState<number | null>(null);
   const [fedModal, setFedModal] = useState<{ mode: "create" } | { mode: "edit"; data: FederationFormData } | null>(null);
   const [evtModal, setEvtModal] = useState<{ mode: "create" } | { mode: "edit"; data: EventFormData } | null>(null);
@@ -72,25 +78,33 @@ export default function Admin() {
   } | null>(null);
 
   const utils = trpc.useUtils();
+  const fedFilter = filterFedId ?? undefined;
+
   const federationsQuery = trpc.federations.listAll.useQuery(undefined, { enabled: isPlatformAdmin });
-  const eventsQuery = trpc.events.list.useQuery({ includeUnpublished: true }, { enabled: isPlatformAdmin });
-  const clubsQuery = trpc.clubs.list.useQuery({ includeInactive: true }, { enabled: isPlatformAdmin });
+  const eventsQuery = trpc.events.list.useQuery(
+    { includeUnpublished: true, limit: ADMIN_LIMIT, federationId: fedFilter },
+    { enabled: isPlatformAdmin }
+  );
+  const clubsQuery = trpc.clubs.list.useQuery(
+    { includeInactive: true, limit: ADMIN_LIMIT, federationId: fedFilter },
+    { enabled: isPlatformAdmin }
+  );
   const athletesQuery = trpc.athletes.list.useQuery(
-    { includeInactive: true, includePii: true },
+    { includeInactive: true, includePii: true, limit: ADMIN_LIMIT, federationId: fedFilter },
     { enabled: isPlatformAdmin }
   );
 
   const deleteFed = trpc.federations.delete.useMutation({
-    onSuccess: () => { utils.federations.listAll.invalidate(); utils.federations.list.invalidate(); setDeleteConfirm(null); },
+    onSuccess: () => { utils.federations.listAll.invalidate(); utils.federations.list.invalidate(); utils.adminStats.counts.invalidate(); setDeleteConfirm(null); },
   });
   const deleteEvt = trpc.events.delete.useMutation({
-    onSuccess: () => { utils.events.list.invalidate(); setDeleteConfirm(null); },
+    onSuccess: () => { utils.events.list.invalidate(); utils.adminStats.counts.invalidate(); setDeleteConfirm(null); },
   });
   const deleteClub = trpc.clubs.delete.useMutation({
-    onSuccess: () => { utils.clubs.list.invalidate(); setDeleteConfirm(null); },
+    onSuccess: () => { utils.clubs.list.invalidate(); utils.adminStats.counts.invalidate(); setDeleteConfirm(null); },
   });
   const deleteAth = trpc.athletes.delete.useMutation({
-    onSuccess: () => { utils.athletes.list.invalidate(); setDeleteConfirm(null); },
+    onSuccess: () => { utils.athletes.list.invalidate(); utils.adminStats.counts.invalidate(); setDeleteConfirm(null); },
   });
   const isDeletePending =
     deleteFed.isPending || deleteEvt.isPending || deleteClub.isPending || deleteAth.isPending;
@@ -111,36 +125,6 @@ export default function Admin() {
     else if (entity === "athletes" && federationId != null) deleteAth.mutate({ id, federationId });
   };
 
-  const fedRows = federationsQuery.data;
-  const fedSportCount = fedRows?.filter((f) => f.type === "federation" && f.isActive !== false).length;
-  const fedBodyCount = fedRows?.filter(
-    (f) => (f.type === "ministry" || f.type === "commission" || f.type === "umbrella") && f.isActive !== false
-  ).length;
-  const fedMergedCount = fedRows?.filter((f) => f.isActive === false || Boolean(f.mergedIntoSlug)).length;
-  const fedStatDetail =
-    fedRows == null
-      ? undefined
-      : [
-          `${fedSportCount ?? 0} sports`,
-          `${fedBodyCount ?? 0} bodies`,
-          (fedMergedCount ?? 0) > 0 ? `${fedMergedCount} merged` : null,
-        ]
-          .filter(Boolean)
-          .join(" · ");
-
-  const stats = [
-    {
-      label: "Directory",
-      value: fedRows?.length ?? "—",
-      detail: fedStatDetail,
-      color: "#EF4444",
-      icon: Trophy,
-    },
-    { label: "Events", value: eventsQuery.data?.length ?? "—", color: "#3B82F6", icon: Calendar },
-    { label: "Clubs", value: clubsQuery.data?.length ?? "—", color: "#10B981", icon: Users },
-    { label: "Athletes", value: athletesQuery.data?.length ?? "—", color: "#FBBF24", icon: BarChart3 },
-  ];
-
   if (meQuery.isLoading || !isPlatformAdmin) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -150,6 +134,7 @@ export default function Admin() {
   }
 
   const showSearchAdd = CRUD_TABS.includes(activeTab);
+  const createLock = filterFedId ?? undefined;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
@@ -169,21 +154,7 @@ export default function Admin() {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <div key={stat.label} className="p-6 rounded-2xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <Icon className="w-6 h-6 mb-3" style={{ color: stat.color }} />
-                <p className="text-3xl font-serif text-white">{stat.value}</p>
-                <p className="text-sm text-gray-400 mt-1">{stat.label}</p>
-                {"detail" in stat && stat.detail ? (
-                  <p className="text-xs text-gray-500 mt-1">{stat.detail}</p>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
+        <AdminStatsCards enabled={isPlatformAdmin} />
 
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           {TABS.map((tab) => {
@@ -207,6 +178,12 @@ export default function Admin() {
             );
           })}
         </div>
+
+        {FED_FILTER_TABS.includes(activeTab) && (
+          <div className="mb-4">
+            <AdminFederationFilter value={filterFedId} onChange={setFilterFedId} />
+          </div>
+        )}
 
         {showSearchAdd && (
           <div className="flex gap-3 mb-6">
@@ -271,13 +248,13 @@ export default function Admin() {
         {fedModal && <FederationForm mode={fedModal.mode} initialData={fedModal.mode === "edit" ? fedModal.data : undefined} onSuccess={() => setFedModal(null)} />}
       </EntityModal>
       <EntityModal open={evtModal !== null} onClose={() => setEvtModal(null)} title={evtModal?.mode === "create" ? "Add Event" : "Edit Event"}>
-        {evtModal && <EventForm mode={evtModal.mode} initialData={evtModal.mode === "edit" ? evtModal.data : undefined} onSuccess={() => setEvtModal(null)} />}
+        {evtModal && <EventForm mode={evtModal.mode} federationIdLock={createLock} initialData={evtModal.mode === "edit" ? evtModal.data : undefined} onSuccess={() => setEvtModal(null)} />}
       </EntityModal>
       <EntityModal open={clubModal !== null} onClose={() => setClubModal(null)} title={clubModal?.mode === "create" ? "Add Club" : "Edit Club"}>
-        {clubModal && <ClubForm mode={clubModal.mode} initialData={clubModal.mode === "edit" ? clubModal.data : undefined} onSuccess={() => setClubModal(null)} />}
+        {clubModal && <ClubForm mode={clubModal.mode} federationIdLock={createLock} initialData={clubModal.mode === "edit" ? clubModal.data : undefined} onSuccess={() => setClubModal(null)} />}
       </EntityModal>
       <EntityModal open={athModal !== null} onClose={() => setAthModal(null)} title={athModal?.mode === "create" ? "Register Athlete" : "Edit Athlete"}>
-        {athModal && <AthleteForm mode={athModal.mode} initialData={athModal.mode === "edit" ? athModal.data : undefined} onSuccess={() => setAthModal(null)} />}
+        {athModal && <AthleteForm mode={athModal.mode} federationIdLock={createLock} initialData={athModal.mode === "edit" ? athModal.data : undefined} onSuccess={() => setAthModal(null)} />}
       </EntityModal>
 
       {deleteConfirm && (

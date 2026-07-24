@@ -14,7 +14,7 @@ export function AdminVenuesPanel() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const utils = trpc.useUtils();
-  const listQuery = trpc.venues.list.useQuery({});
+  const listQuery = trpc.venues.list.useQuery({ includeInactive: true, limit: 200 });
   const fedsQuery = trpc.federations.listAll.useQuery();
   const uploadFedId = fedsQuery.data?.[0]?.id ?? 1;
   const deleteMut = trpc.venues.delete.useMutation({

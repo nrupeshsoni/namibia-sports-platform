@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { EntityModal } from "./EntityModal";
+import { AddUserForm } from "./AddUserForm";
 import { trpc } from "@/lib/trpc";
 
 /** Assignable only — club_manager deferred until club-scoped write procedures exist */
@@ -24,6 +25,7 @@ const L = "text-sm text-gray-400";
 
 export function UsersAdminPanel() {
   const [search, setSearch] = useState("");
+  const [addOpen, setAddOpen] = useState(false);
   const [editUser, setEditUser] = useState<{
     id: number;
     name: string | null;
@@ -88,14 +90,22 @@ export function UsersAdminPanel() {
 
   return (
     <div className="space-y-6">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-        <Input
-          placeholder="Search users by name, email, or role..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-10 bg-white/5 border-white/10 text-white"
-        />
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+          <Input
+            placeholder="Search users by name, email, or role..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10 bg-white/5 border-white/10 text-white"
+          />
+        </div>
+        <Button
+          className="gap-2 bg-red-600 hover:bg-red-700 text-white"
+          onClick={() => setAddOpen(true)}
+        >
+          <Plus className="h-4 w-4" /> Add User
+        </Button>
       </div>
 
       <div
@@ -149,7 +159,7 @@ export function UsersAdminPanel() {
                         className="text-gray-400 hover:text-white"
                         onClick={() => openEdit(u)}
                       >
-                        Set role
+                        Assign role
                       </Button>
                     </td>
                   </tr>
@@ -159,6 +169,15 @@ export function UsersAdminPanel() {
           </tbody>
         </table>
       </div>
+
+      <EntityModal open={addOpen} onClose={() => setAddOpen(false)} title="Add User">
+        <AddUserForm
+          onSuccess={() => {
+            utils.users.list.invalidate();
+            setAddOpen(false);
+          }}
+        />
+      </EntityModal>
 
       <EntityModal
         open={editUser !== null}

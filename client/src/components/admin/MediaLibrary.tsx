@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { EntityModal } from "./EntityModal";
 import { ImageUpload } from "./ImageUpload";
+import { CreateFedPicker } from "./CreateFedPicker";
 import { trpc } from "@/lib/trpc";
 
 const F = "bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-red-500/50";
@@ -87,6 +88,7 @@ function MediaCreateForm({
 export function MediaLibrary({ federationId }: Props) {
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [createFedId, setCreateFedId] = useState<number | undefined>(federationId);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const listQuery = trpc.media.list.useQuery(
@@ -108,7 +110,7 @@ export function MediaLibrary({ federationId }: Props) {
     return (m.title ?? "").toLowerCase().includes(q) || m.fileUrl.toLowerCase().includes(q);
   });
 
-  const canCreate = federationId != null;
+  const resolvedCreateFed = federationId ?? createFedId;
 
   return (
     <div className="space-y-6">
@@ -122,11 +124,15 @@ export function MediaLibrary({ federationId }: Props) {
             className="pl-10 bg-white/5 border-white/10 text-white"
           />
         </div>
-        {canCreate && (
-          <Button className="gap-2 bg-red-600 hover:bg-red-700" onClick={() => setModalOpen(true)}>
-            <Plus className="h-4 w-4" /> Add media
-          </Button>
-        )}
+        <Button
+          className="gap-2 bg-red-600 hover:bg-red-700"
+          onClick={() => {
+            setCreateFedId(federationId);
+            setModalOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4" /> Add media
+        </Button>
       </div>
 
       {listQuery.isLoading ? (
@@ -171,11 +177,21 @@ export function MediaLibrary({ federationId }: Props) {
         </div>
       )}
 
-      {canCreate && (
-        <EntityModal open={modalOpen} onClose={() => setModalOpen(false)} title="Add media">
-          <MediaCreateForm federationId={federationId!} onSuccess={() => setModalOpen(false)} />
-        </EntityModal>
-      )}
+      <EntityModal open={modalOpen} onClose={() => setModalOpen(false)} title="Add media">
+        <div className="space-y-4">
+          {federationId == null && (
+            <CreateFedPicker value={createFedId} onChange={setCreateFedId} />
+          )}
+          {resolvedCreateFed != null ? (
+            <MediaCreateForm
+              federationId={resolvedCreateFed}
+              onSuccess={() => setModalOpen(false)}
+            />
+          ) : (
+            <p className="text-sm text-gray-500">Select a federation to continue.</p>
+          )}
+        </div>
+      </EntityModal>
 
       {deleteId != null && (
         <div

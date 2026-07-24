@@ -6,7 +6,9 @@ import { trpc } from "@/lib/trpc";
 import { EntityModal } from "@/components/admin/EntityModal";
 import { CoachForm, type CoachFormData } from "@/components/admin/CoachForm";
 
-export default function FedAdminCoaches({ federationId }: { federationId: number }) {
+const ADMIN_LIMIT = 200;
+
+export default function FedAdminCoaches({ federationId }: { federationId?: number }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [modal, setModal] = useState<
     { mode: "create" } | { mode: "edit"; data: CoachFormData } | null
@@ -15,9 +17,10 @@ export default function FedAdminCoaches({ federationId }: { federationId: number
 
   const utils = trpc.useUtils();
   const coachesQuery = trpc.coaches.list.useQuery({
-    federationId,
+    ...(federationId != null ? { federationId } : {}),
     includeInactive: true,
     includePii: true,
+    limit: ADMIN_LIMIT,
   });
   const deleteMut = trpc.coaches.delete.useMutation({
     onSuccess: () => {

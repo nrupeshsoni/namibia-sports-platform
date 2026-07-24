@@ -6,29 +6,41 @@ import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { EntityModal } from "@/components/admin/EntityModal";
 import { StreamForm, type StreamFormData } from "@/components/admin/StreamForm";
+import { CreateFedPicker } from "@/components/admin/CreateFedPicker";
 
-export default function FedAdminStreams({ federationId }: { federationId: number }) {
+const ADMIN_LIMIT = 200;
+
+export default function FedAdminStreams({ federationId }: { federationId?: number }) {
   const [search, setSearch] = useState("");
+  const [createFedId, setCreateFedId] = useState<number | undefined>(federationId);
   const [modal, setModal] = useState<
     { mode: "create" } | { mode: "edit"; data: StreamFormData } | null
   >(null);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; federationId: number } | null>(
+    null
+  );
 
   const utils = trpc.useUtils();
-  const listQuery = trpc.streams.list.useQuery({ federationId });
+  const listQuery = trpc.streams.list.useQuery({
+    ...(federationId != null ? { federationId } : {}),
+    limit: ADMIN_LIMIT,
+  });
   const setLiveMut = trpc.streams.setLive.useMutation({
     onSuccess: () => listQuery.refetch(),
   });
   const deleteMut = trpc.streams.delete.useMutation({
     onSuccess: () => {
       utils.streams.list.invalidate();
-      setDeleteId(null);
+      setDeleteTarget(null);
     },
   });
 
   const items = (listQuery.data ?? []).filter((s) =>
     s.title.toLowerCase().includes(search.toLowerCase())
   );
+
+  const formFedId =
+    modal?.mode === "edit" ? modal.data.federationId : (federationId ?? createFedId);
 
   return (
     <div className="space-y-6">
@@ -42,7 +54,13 @@ export default function FedAdminStreams({ federationId }: { federationId: number
             className="pl-10 bg-white/5 border-white/10 text-white"
           />
         </div>
-        <Button className="gap-2 bg-red-600 hover:bg-red-700" onClick={() => setModal({ mode: "create" })}>
+        <Button
+          className="gap-2 bg-red-600 hover:bg-red-700"
+          onClick={() => {
+            setCreateFedId(federationId);
+            setModal({ mode: "create" });
+          }}
+        >
           <Plus className="h-4 w-4" /> Add Stream
         </Button>
       </div>
@@ -89,8 +107,15 @@ export default function FedAdminStreams({ federationId }: { federationId: number
                           size="sm"
                           variant="ghost"
                           className="text-xs text-gray-400"
-                          onClick={() => setLiveMut.mutate({ id: s.id, federationId, isLive: false })}
-                          disabled={setLiveMut.isPending}
+                          onClick={() => {
+                            if (s.federationId == null) return;
+                            setLiveMut.mutate({
+                              id: s.id,
+                              federationId: s.federationId,
+                              isLive: false,
+                            });
+                          }}
+                          disabled={setLiveMut.isPending || s.federationId == null}
                         >
                           End
                         </Button>
@@ -102,8 +127,15 @@ export default function FedAdminStreams({ federationId }: { federationId: number
                           size="sm"
                           variant="ghost"
                           className="text-xs text-green-400 hover:text-green-300"
-                          onClick={() => setLiveMut.mutate({ id: s.id, federationId, isLive: true })}
-                          disabled={setLiveMut.isPending}
+                          onClick={() => {
+                            if (s.federationId == null) return;
+                            setLiveMut.mutate({
+                              id: s.id,
+                              federationId: s.federationId,
+                              isLive: true,
+                            });
+                          }}
+                          disabled={setLiveMut.isPending || s.federationId == null}
                         >
                           Go Live
                         </Button>
@@ -119,7 +151,8 @@ export default function FedAdminStreams({ federationId }: { federationId: number
                         size="sm"
                         variant="ghost"
                         className="text-gray-400 hover:text-white"
-                        onClick={() =>
+                        onClick={() => {
+                          if (s.federationId == null) return;
                           setModal({
                             mode: "edit",
                             data: {
@@ -132,10 +165,10 @@ export default function FedAdminStreams({ federationId }: { federationId: number
                               scheduledStart: s.scheduledStart,
                               scheduledEnd: s.scheduledEnd,
                               isLive: s.isLive,
-                              federationId,
+                              federationId: s.federationId,
                             },
-                          })
-                        }
+                          });
+                        }}
                       >
                         <Edit className="h-3.5 w-3.5" />
                       </Button>
@@ -143,7 +176,10 @@ export default function FedAdminStreams({ federationId }: { federationId: number
                         size="sm"
                         variant="ghost"
                         className="text-gray-400 hover:text-red-400"
-                        onClick={() => setDeleteId(s.id)}
+                        onClick={() => {
+                          if (s.federationId == null) return;
+                          setDeleteTarget({ id: s.id, federationId: s.federationId });
+                        }}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
@@ -162,20 +198,29 @@ export default function FedAdminStreams({ federationId }: { federationId: number
         title={modal?.mode === "create" ? "Add Stream" : "Edit Stream"}
       >
         {modal && (
-          <StreamForm
-            mode={modal.mode}
-            federationId={federationId}
-            initialData={modal.mode === "edit" ? modal.data : undefined}
-            onSuccess={() => setModal(null)}
-          />
+          <div className="space-y-4">
+            {modal.mode === "create" && federationId == null && (
+              <CreateFedPicker value={createFedId} onChange={setCreateFedId} />
+            )}
+            {formFedId != null ? (
+              <StreamForm
+                mode={modal.mode}
+                federationId={formFedId}
+                initialData={modal.mode === "edit" ? modal.data : undefined}
+                onSuccess={() => setModal(null)}
+              />
+            ) : (
+              <p className="text-sm text-gray-500">Select a federation to continue.</p>
+            )}
+          </div>
         )}
       </EntityModal>
 
-      {deleteId != null && (
+      {deleteTarget != null && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
           style={{ background: "rgba(0,0,0,0.8)" }}
-          onClick={() => setDeleteId(null)}
+          onClick={() => setDeleteTarget(null)}
         >
           <div
             className="rounded-3xl p-8 max-w-sm w-full mx-4 text-center space-y-6"
@@ -184,13 +229,18 @@ export default function FedAdminStreams({ federationId }: { federationId: number
           >
             <p className="text-white font-medium">Delete this stream?</p>
             <div className="flex gap-3">
-              <Button variant="ghost" className="flex-1 border border-white/10" onClick={() => setDeleteId(null)}>
+              <Button variant="ghost" className="flex-1 border border-white/10" onClick={() => setDeleteTarget(null)}>
                 Cancel
               </Button>
               <Button
                 className="flex-1 bg-red-600 hover:bg-red-700"
                 disabled={deleteMut.isPending}
-                onClick={() => deleteMut.mutate({ id: deleteId, federationId })}
+                onClick={() =>
+                  deleteMut.mutate({
+                    id: deleteTarget.id,
+                    federationId: deleteTarget.federationId,
+                  })
+                }
               >
                 Delete
               </Button>
