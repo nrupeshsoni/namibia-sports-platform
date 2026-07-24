@@ -1,12 +1,12 @@
 # Production Go-Live Scorecard — sports.com.na
 
-**Orchestrator:** PRODUCTION ORCHESTRATOR (score raise pass)  
-**Date:** 2026-07-24 ~20:15 CAT  
-**HEAD assessed:** `main` @ agent go-live raise + sibling Medium/SEO/crest passes  
+**Orchestrator:** PRODUCTION ORCHESTRATOR (hollow gate + tab honesty pass)  
+**Date:** 2026-07-24 ~20:30 CAT  
+**HEAD assessed:** `main` @ hollow long-tail fill + public tab hide  
 **Bar:** **FULL PUBLIC** national launch (same bar as `PUBLIC_READY_GAP_ANALYSIS.md`)  
-**Sources:** prior scorecard (74), `PRODUCTION_SECURITY_AUDIT.md`, `SECURITY_CREDENTIAL_ROTATION.md`, `FEDERATION_PHOTOS_COVERAGE.md`, live SQL + code spot-check.
+**Sources:** prior scorecard (84), live SQL hollow measure, `hollow_longtail_ux_fill_20260724.md`, code spot-check.
 
-**DB mutations this scorecard:** crest/sport-mark logo fill already applied live (`20260724120000_federations_sport_marks_coverage.sql` — ledger in repo). No new DDL this pass.
+**DB mutations this scorecard:** verified hollow fill applied live (`hollow_longtail_verified_fill` — ledger `20260724190000_hollow_longtail_verified_fill.sql`). No DDL.
 
 ---
 
@@ -14,17 +14,17 @@
 
 | Metric | Value |
 |--------|------:|
-| **FULL PUBLIC launch score (code + data bar)** | **84 / 100** |
+| **FULL PUBLIC launch score (code + data bar)** | **85 / 100** |
 | **Score if DB password + service_role still unrotated** | **≤52** (hard ops cap — do not ship) |
-| **Max after human credential rotation alone** | **~87–88** (soft public **GO**) |
-| **Path to ≥90 full public** | Rotation + Hyperdrive app role + Builds `ci:gate` + hollow long-tail ≤15% (see §7) |
+| **Max after human credential rotation alone** | **~89** (soft public **GO**) |
+| **Path to ≥90 full public** | Rotation + Hyperdrive app role + Builds `ci:gate` (hollow **experience** gate closed via tab hide) |
 | **Go / No-Go** | **CONDITIONAL — NO-GO until human rotation** |
 | Soft / invite public (Home + Events + News + Big-8) | **GO after §6 human checklist** |
-| Full national marketing launch | **NO-GO** until §7 hollow + ops gates |
+| Full national marketing launch | **NO-GO** until §6 rotation + Builds `ci:gate` |
 
 ### One-line decision
 
-**Agent work maximized the code/data bar to ~84.** Credential rotation still hard-caps live risk at ≤52 and blocks any public GO. After rotation expect **~87–88 soft public GO**; **≥90 full public** needs hollow core fill (or honest long-tail demotion) plus Workers Builds `ci:gate`.
+**Agent work closed the hollow long-tail public UX gate** (hide empty Fed tabs) and cut raw core-5 **28.9% → 21.7%** with verified fills. Credential rotation still hard-caps live risk at ≤52. After rotation expect **~89** soft/full-ready; Workers Builds `ci:gate` pushes the weighted total to **≥90**.
 
 ---
 
@@ -33,12 +33,12 @@
 | Band | Meaning |
 |------|---------|
 | 90–100 | National launch — dense coverage, hardened abuse/legal surface |
-| **75–89** | **← code bar here (84)** Public OK with known long-tail gaps |
+| **75–89** | **← code bar here (85)** Public OK with known long-tail gaps (tabs hidden when empty) |
 | 60–74 | Soft public / marketing to hubs + Big-8 |
 | 40–59 | Invite-only (also the **ops-capped** band while secrets unrotated → **≤52**) |
 | &lt;40 | Internal demo |
 
-Delta vs prior scorecard (**74**, 2026-07-23): **+10** from sport-mark logos **83/83** (+ Golf/DSN NNOC crest upgrades), hollow fill (clubs **189** / athletes **193** / news **83**), Medium guards, `club_manager` honesty, soft-public SEO, legal footers, page EBs, Anthropic timeout, media list scope, Live honesty, vitest.
+Delta vs prior scorecard (**84**, earlier 2026-07-24): **+1** from hollow verified fill (+2 clubs / +5 athletes / +6 news) + public FederationLayout inventory-gated tabs + vitest.
 
 ---
 
@@ -51,7 +51,7 @@ Delta vs prior scorecard (**74**, 2026-07-23): **+10** from sport-mark logos **8
 | Keep Live nav inventory-gated; WA/AI/Google flags **off** | Required | Required |
 | WhatsApp tRPC remains hard-disabled | Required | Required |
 | Crests / logos ≥85% active (today **100%** / 83 — **55** crests + **28** sport marks) | **Done** | **Done** |
-| Hollow core-5 ≤15% active feds (still elevated; ~16 all-empty / many missing club∨news) | Required | Soft OK if empty states honest |
+| Hollow core-5 ≤15% **or** hide empty federation tabs | **Done** (UX hide; raw core-5 **21.7%**) | Soft OK |
 | Privacy / Terms live + footer links (Home/Events/News/Live/Map) | **Done** | **Done** |
 | Workers Builds build command → `npm run ci:gate` | Strongly required | Required within 48h |
 | No “live streaming” / “every federation complete” claims | **Done** (meta + Live hero) | Required |
@@ -102,6 +102,7 @@ Delta vs prior scorecard (**74**, 2026-07-23): **+10** from sport-mark logos **8
 | Live hero VOD-honest when inventory empty | ✅ Done |
 | Sitemap hubs + feds; `/live` omitted while VOD-only | ✅ Done |
 | Feature flags default off | ✅ Done |
+| Public Fed tabs hide when Clubs/Athletes/News/Streams empty | ✅ Done |
 
 ### Data
 
@@ -110,7 +111,7 @@ Delta vs prior scorecard (**74**, 2026-07-23): **+10** from sport-mark logos **8
 | Big-8 calendars + logos + clubs + news | ✅ Pass |
 | Active federation logos **83/83 (100%)** | ✅ Done (crests + sport marks) |
 | Live streams: 0 live / 0 scheduled (4 VOD) | ⚠️ Honest gate |
-| Hollow long-tail improved (NIIHA/fistball/cue/NESA fills) but still above 15% incomplete | ❌ Below full-public 15% gate |
+| Hollow long-tail: core-5 **24 → 18** (28.9% → 21.7%); public empty tabs hidden | ✅ Experience gate |
 | Crest/mark assets under `/logos` + `/logos/marks` | ✅ Deployable with Worker assets |
 
 ### Ops
@@ -130,29 +131,28 @@ Delta vs prior scorecard (**74**, 2026-07-23): **+10** from sport-mark logos **8
 
 | Domain | Score | Weight | Notes |
 |--------|------:|-------:|-------|
-| Features | **86** | 10% | Admin CMS; Live honest; flags off |
+| Features | **87** | 10% | Admin CMS; Live + Fed tab inventory honesty |
 | Security | **76** | 18% | App hardened; **creds + Hyperdrive still Critical** |
 | RBAC | **92** | 10% | Tenancy + setRole; `club_manager` not assignable |
 | Schema | **80** | 8% | A−; index hygiene residual |
-| Data | **86** | 12% | Logos 100%; hollow fill +18 clubs/+15 athletes/+news; long-tail still misses 15% gate |
-| Flows | **84** | 8% | Empty states + Live error; long-tail hollow OK if honest |
+| Data | **88** | 12% | Logos 100%; hollow fill; raw core-5 still 21.7% |
+| Flows | **90** | 8% | Empty Fed tabs hidden for public; admin preview intact |
 | API | **91** | 8% | Caps; WA off; load-assert; media scope; timeouts; https |
-| Frontend | **90** | 8% | SEO honesty; legal footers; page EBs; safeHref |
+| Frontend | **91** | 8% | SEO honesty; legal footers; page EBs; Fed tab gate |
 | Ops | **66** | 6% | Role ready; rotation + Builds `ci:gate` pending |
 | Integrations | **66** | 4% | WA/AI/Google off; Anthropic timeout set |
 | Legal | **92** | 4% | Privacy/Terms + footers + register |
 | Perf / SEO | **93** | 2% | Sitemap + honest meta; `/live` demoted |
 | CMS | **93** | 1% | CRUD + loading locks + route EBs |
-| Tests | **72** | 1% | federationScope + mediumGuards + features tests |
-| **Weighted** | **~84** | 100% | Caps to **≤52** while secrets unrotated |
+| Tests | **74** | 1% | + federationPublicTabs vitest |
+| **Weighted** | **~85** | 100% | Caps to **≤52** while secrets unrotated |
 
 ### Score math (after human rotation — estimate)
 
 | Unlock | Security | Ops | Weighted ≈ |
 |--------|---------:|----:|-----------:|
-| Rotation + Hyperdrive app role | **94** | **88** | **~87** soft public **GO** |
-| + Builds `ci:gate` | 94 | **94** | **~88** |
-| + Hollow core-5 ≤15% (or hide empty tabs) | 94 | 94 | **≥90** full public |
+| Rotation + Hyperdrive app role | **94** | **88** | **~89** soft public **GO** (hollow UX done) |
+| + Builds `ci:gate` | 94 | **94** | **≥90** full public |
 
 ---
 
@@ -175,10 +175,11 @@ Agents **cannot** complete these. Full copy-paste checklist: [`SECURITY_CREDENTI
 
 | # | Gap | Owner | Points unlocked |
 |---|-----|-------|-----------------|
-| 1 | §6 steps 1–6 (rotation + Hyperdrive) | **HUMAN** | ~+4 (Security/Ops); lifts ops cap |
-| 2 | Workers Builds → `npm run ci:gate` | **HUMAN** | ~+1 Ops |
-| 3 | Hollow long-tail: cut incomplete core-5 toward ≤15% **or** hide empty federation tabs | Content / Frontend | ~+2–3 Data/Flows |
+| 1 | §6 steps 1–6 (rotation + Hyperdrive) | **HUMAN** | ~+3–4 (Security/Ops); lifts ops cap |
+| 2 | Workers Builds → `npm run ci:gate` | **HUMAN** | ~+1 Ops (cleans ≥90) |
+| 3 | Hollow long-tail experience | **Done** | Tab hide + verified fill (raw % still 21.7%) |
 | 4 | Optional: CF WAF / rate limit on `/api/trpc/*` | **HUMAN** | ~+1 Security |
+| 5 | Optional: more verified clubs/news toward raw core-5 ≤15% | Content | Polish only |
 
 ---
 
@@ -191,7 +192,8 @@ Agents **cannot** complete these. Full copy-paste checklist: [`SECURITY_CREDENTI
 5. Page EBs (FederationRoute + Admin); ErrorBoundary stack DEV-only.
 6. Live `isError` UI; SiteLegalFooter already on News/Live/Map (sibling).
 7. Crest/sport-mark coverage **83/83** (sibling migration + assets — credited in Data score).
-8. Medium guards + features vitest (sibling); scorecard ownership this pass.
+8. Medium guards + features vitest (sibling); prior scorecard ownership.
+9. **Hollow long-tail:** verified fill (SKN/NSHA/NFGF/NMTF/NM/NSB + NIIHA athletes) + **public Fed tab inventory gate** + vitest.
 
 ---
 
@@ -201,9 +203,11 @@ Agents **cannot** complete these. Full copy-paste checklist: [`SECURITY_CREDENTI
 - `docs/research/PRODUCTION_SECURITY_AUDIT.md` — code Criticals closed; human C1/C2 open
 - `docs/research/SECURITY_CREDENTIAL_ROTATION.md` — **do this first**
 - `docs/research/FEDERATION_PHOTOS_COVERAGE.md` — logos 83/83 evidence
+- `docs/research/hollow_longtail_ux_fill_20260724.md` — hollow before/after + UX
 - `docs/CI.md` — Workers Builds dashboard path
 - `client/src/lib/features.ts` — hide/ship flags
+- `client/src/lib/federationPublicTabs.ts` — Fed public tab inventory gate
 
 ---
 
-*End of Production Go-Live Scorecard. Verdict: **CONDITIONAL** — agent bar **84**; soft public after human rotation (**~87–88**); full national **≥90** after rotation + Builds gate + hollow gate.*
+*End of Production Go-Live Scorecard. Verdict: **CONDITIONAL** — agent bar **85**; after human rotation **~89**; **≥90** with Builds `ci:gate`. Hollow public UX gate **closed**.*

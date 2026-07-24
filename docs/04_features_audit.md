@@ -49,5 +49,5 @@ Public federation subpages (Events / Clubs / Athletes / News / Streams) and Fede
 
 ## Go-live perception notes
 
-- Soft public OK for Home / Events / News / Big-8; full national marketing still gated by credential rotation + crest/hollow bars — see `docs/research/PRODUCTION_GO_LIVE_SCORECARD.md`.
+- Soft public OK for Home / Events / News / Big-8; full national marketing still gated by credential rotation (+ Builds `ci:gate`); hollow public Fed tabs now inventory-gated — see `docs/research/PRODUCTION_GO_LIVE_SCORECARD.md`.
 - Stale “routers pending / mock admin” claims in older docs are obsolete as of this refresh.

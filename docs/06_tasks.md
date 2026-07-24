@@ -8,7 +8,7 @@
 - [x] **RLS write policies unsafe for prod** — hardened `20260720000030` + residual `20260720000034` (applied live): open writes dropped; public SELECT = published/active/visible only; staff draft SELECT; write GRANTs revoked from anon/authenticated
 - [x] **Auth/API gap hotfix** — `getRawInput()` tenant middleware; close `news.list`/`events.list` draft leak; Admin UI role gate; require federationId on athlete/coach create; ownership checks on coaches/media/hp mutations
 - [x] **Public athlete/coach PII stripped** — list/get omit email/phone/DOB; getById/getBySlug enforce `is_active`; staff `includePii` for admin forms
-- [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated; media: **61**; news **83** (+ NIIHA/NESA/cue/DSN/TKD `20260724180200`); clubs **189** (+ NIIHA/fistball/cue/climbing `20260724180100`); athletes **193** (+ NESA/darts/cue/TKD); crests/marks **83/83** (**55** real incl. Golf/DSN NNOC); see `docs/research/crests_hollow_fill_batch_20260724.md`
+- [~] **Content hollow for public beta** — streams: **4** VODs + Live nav gated; media: **61**; news **89** / clubs **191** / athletes **198** after `20260724190000`; hollow core-5 **21.7%** (18/83) — public Fed tabs hide when empty (`federationPublicTabs`); crests/marks **83/83**; see `docs/research/hollow_longtail_ux_fill_20260724.md`
 
 ## ⚠️ HIGH PRIORITY
 - [x] RLS enabled on all `sportsplatform_*` tables — write + SELECT harden complete (`20260720000030`, `20260720000034`)

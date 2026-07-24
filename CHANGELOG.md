@@ -5,7 +5,8 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Changed
-- Production go-live scorecard raised **74 → 84 / 100** (code+data bar). Still **CONDITIONAL / NO-GO** until human credential rotation (ops cap ≤52). Soft public ~**87–88** after rotation; ≥90 needs hollow gate + Builds `ci:gate`. See `docs/research/PRODUCTION_GO_LIVE_SCORECARD.md`.
+- Production go-live scorecard **74 → 84 → 85 / 100** (hollow public UX gate closed). Still **CONDITIONAL / NO-GO** until human credential rotation (ops cap ≤52). Soft public ~**89** after rotation; **≥90** with Builds `ci:gate`. See `docs/research/PRODUCTION_GO_LIVE_SCORECARD.md`.
+- Public federation sticky nav hides **Clubs / Athletes / News / Streams** when that federation has zero published items; platform/`federation_admin` still see all tabs. Helper: `client/src/lib/federationPublicTabs.ts`.
 - `users.setRole` assignable roles: `user` | `admin` | `federation_admin` only (`club_manager` not grantable until club-scoped procedures exist).
 - Federation visual coverage: active heroes remain **83/83**; logos **53→83/83** (Golf + Dance Sport verified crests + **28** `/logos/marks/*.svg` silhouettes where no crest; TISAN hero → traditional wrestling). Migration `20260724120000`. Evidence: `docs/research/FEDERATION_PHOTOS_COVERAGE.md`.
 - Crest upgrade (2026-07-24): Golf + Dance Sport promoted from sport-mark SVGs to verified NNOC federation brand marks (`Namibia_Golf_Federation_logo.jpg`, `Dance_Sport_Namibia_logo.jpg`). Live: real crests **55** / marks **28** (Karate/Badminton/PWFN/umbrellas still unverified — left as marks). Soft-merged aquatics/weightlifting stay inactive. Evidence: `docs/research/crests_hollow_fill_batch_20260724.md`.
@@ -14,6 +15,7 @@ All notable changes to this project are documented in this file.
 - Sitemap hubs: include `/privacy` + `/terms`; omit `/live` while stream inventory is VOD-only (`scripts/generate-sitemap.mjs`).
 
 ### Added
+- Hollow long-tail fill + UX (2026-07-24 evening): +**2** clubs (Deluded Bros / Let's Go Hiking), +**5** NIIHA World Games athletes, +**6** news (SKN/NFGF/NMTF/NM/NSB/NIIHA). Hollow core-5 **28.9% → 21.7%** (24→18). Migration `20260724190000`. Evidence: `docs/research/hollow_longtail_ux_fill_20260724.md`. Vitest: `federationPublicTabs.test.ts`.
 - Hollow fill pass (2026-07-24): +**18** clubs (NIIHA×4, Fistball×4, Cue/NCSF×9, Mountain Club), +**15** athletes (NESA Dota 2×5, darts×4, cue×5, TKD Owen Samunzala), +**5** news. Live: athletes **193**, clubs **189**, news **83**. Migrations `20260724180000`–`20260724180200`. Evidence: `docs/research/crests_hollow_fill_batch_20260724.md`.
 - Production go-live scorecard (orchestrator): `docs/research/PRODUCTION_GO_LIVE_SCORECARD.md` — full public **83/100** code bar, **CONDITIONAL** (soft public after human credential rotation; full national still NO-GO until hollow). Caps ≤52 while DB/`service_role` unrotated.
 - Vitest: `server/mediumGuards.test.ts`, `client/src/lib/features.test.ts`.

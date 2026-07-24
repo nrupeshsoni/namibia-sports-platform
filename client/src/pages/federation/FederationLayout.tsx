@@ -1,9 +1,13 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense } from "react";
 import { useLocation, Link, Redirect } from "wouter";
 import { ChevronLeft, Loader2, Home, Calendar, Users, User, Newspaper, Radio, Shield } from "lucide-react";
 import type { FederationContextValue } from "@/contexts/FederationContext";
 import { trpc } from "@/lib/trpc";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  isInventoryGatedTab,
+  shouldShowFederationPublicTab,
+} from "@/lib/federationPublicTabs";
 import { FederationProvider } from "@/contexts/FederationContext";
 import FederationHome from "./FederationHome";
 import FederationEvents from "./FederationEvents";
@@ -134,6 +138,39 @@ function FederationLayoutInner({
     (user.role === "admin" ||
       (user.role === "federation_admin" && user.federationId === federation.id));
 
+  // Public nav: hide empty Clubs/Athletes/News/Streams. Admins (and auth loading) see all.
+  const showAllPublicTabs = Boolean(hasAdminAccess) || meQuery.isLoading;
+  const clubsQuery = trpc.clubs.list.useQuery(
+    { federationId: federation.id },
+    { enabled: !isAdminPathVal }
+  );
+  const athletesQuery = trpc.athletes.list.useQuery(
+    { federationId: federation.id },
+    { enabled: !isAdminPathVal }
+  );
+  const newsQuery = trpc.news.list.useQuery(
+    { federationId: federation.id, limit: 1 },
+    { enabled: !isAdminPathVal }
+  );
+  const streamsQuery = trpc.streams.list.useQuery(
+    { federationId: federation.id },
+    { enabled: !isAdminPathVal }
+  );
+  const tabInventory = {
+    clubs: clubsQuery.data?.length ?? 0,
+    athletes: athletesQuery.data?.length ?? 0,
+    news: newsQuery.data?.length ?? 0,
+    streams: streamsQuery.data?.length ?? 0,
+  };
+  const inventoryReady =
+    clubsQuery.isSuccess &&
+    athletesQuery.isSuccess &&
+    newsQuery.isSuccess &&
+    streamsQuery.isSuccess;
+  const visibleTabs = TABS.filter((tab) =>
+    shouldShowFederationPublicTab(tab.path, tabInventory, showAllPublicTabs)
+  );
+
   if (isAdminPathVal) {
     if (meQuery.isLoading) return <FedAdminLayoutSkeleton />;
     if (!user) return <Redirect to="/login" />;
@@ -172,6 +209,15 @@ function FederationLayoutInner({
         </Suspense>
       </FedAdminLayout>
     );
+  }
+
+  if (
+    !showAllPublicTabs &&
+    inventoryReady &&
+    isInventoryGatedTab(currentTab) &&
+    !shouldShowFederationPublicTab(currentTab, tabInventory, false)
+  ) {
+    return <Redirect to={`/federation/${slug}`} />;
   }
 
   return (
@@ -256,7 +302,7 @@ function FederationLayoutInner({
       >
         <div className="container mx-auto px-4">
           <div className="flex overflow-x-auto scrollbar-hide gap-1 py-2">
-            {TABS.map((tab) => {
+            {visibleTabs.map((tab) => {
               const href = tab.path ? `/federation/${slug}/${tab.path}` : `/federation/${slug}`;
               const isActive = currentTab === tab.path;
               const Icon = tab.icon;

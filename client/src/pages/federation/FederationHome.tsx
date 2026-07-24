@@ -151,9 +151,11 @@ export default function FederationHome() {
       <motion.section variants={fadeUp}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-serif text-white">Recent News</h2>
-          <Link href={`/federation/${slug}/news`}>
-            <span className="text-sm text-red-400 hover:text-red-300 transition-colors">View all →</span>
-          </Link>
+          {news.length > 0 && (
+            <Link href={`/federation/${slug}/news`}>
+              <span className="text-sm text-red-400 hover:text-red-300 transition-colors">View all →</span>
+            </Link>
+          )}
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {news.length === 0 ? (
