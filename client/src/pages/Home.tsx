@@ -396,7 +396,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-5xl font-serif text-white mb-2">
               SCHEDULES
             </h2>
-            <p className="text-gray-400">Matches and competitions across all sports</p>
+            <p className="text-gray-400">Matches and competitions across Namibian sport</p>
             <Link href="/events" className="inline-block mt-4">
               <span
                 className="px-6 py-3 rounded-xl text-white text-sm font-medium transition-all hover:scale-105"
@@ -957,7 +957,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-serif text-white mb-4">HIGH PERFORMANCE</h3>
               <p className="text-gray-400 mb-6 leading-relaxed">
-                Elite athlete development programs nurturing Namibia's next generation of champions across all sporting disciplines.
+                Elite athlete development programs nurturing Namibia's next generation of champions across Namibian sport.
               </p>
               <a 
                 href="#federations" 

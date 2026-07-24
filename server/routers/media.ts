@@ -64,9 +64,16 @@ export const mediaRouter = router({
         })
         .optional()
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) return [];
+
+      // Unscoped dump is platform-admin only; public + federation_admin must filter.
+      const scoped =
+        input?.entityType != null && input.entityId !== undefined;
+      if (!scoped && ctx.user?.role !== "admin") {
+        return [];
+      }
 
       const conditions = [];
       if (input?.entityType) {

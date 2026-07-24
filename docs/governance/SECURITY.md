@@ -15,7 +15,7 @@
 - **Session:** Cookie-based with JWT verification in tRPC context
 
 ### Authorization
-- **Model:** Role-based (user, admin, federation_admin, club_manager)
+- **Model:** Role-based (`user`, `admin`, `federation_admin`; `club_manager` enum reserved / not assignable yet)
 - **Enforcement:** tRPC procedures — `publicProcedure`, `protectedProcedure`, `federationAdminProcedure`, `adminProcedure`
 - **RLS:** enabled on `sportsplatform_*` tables, but it is **not** a control for
   application queries — all real reads/writes go through Drizzle over Hyperdrive as

@@ -1,4 +1,5 @@
 import { useLocation } from "wouter";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import FederationShell from "./FederationLayout";
 
 /** Wrapper that extracts slug from path and renders FederationShell */
@@ -11,5 +12,9 @@ export default function FederationRoute() {
     return null; // Will be caught by 404
   }
 
-  return <FederationShell slug={slug} />;
+  return (
+    <ErrorBoundary>
+      <FederationShell slug={slug} />
+    </ErrorBoundary>
+  );
 }

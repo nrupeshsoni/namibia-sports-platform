@@ -14,7 +14,8 @@ import {
 import { EntityModal } from "./EntityModal";
 import { trpc } from "@/lib/trpc";
 
-const ROLES = ["user", "admin", "federation_admin", "club_manager"] as const;
+/** Assignable only — club_manager deferred until club-scoped write procedures exist */
+const ROLES = ["user", "admin", "federation_admin"] as const;
 
 type Role = (typeof ROLES)[number];
 
@@ -57,14 +58,17 @@ export function UsersAdminPanel() {
   });
 
   const openEdit = (u: (typeof items)[number]) => {
+    const assignable: Role = ROLES.includes(u.role as Role)
+      ? (u.role as Role)
+      : "user";
     setEditUser({
       id: u.id,
       name: u.name,
       email: u.email,
-      role: u.role as Role,
+      role: assignable,
       federationId: u.federationId,
     });
-    setRole(u.role as Role);
+    setRole(assignable);
     setFederationId(u.federationId?.toString() ?? "");
     setError(null);
   };
@@ -74,12 +78,11 @@ export function UsersAdminPanel() {
     setRoleMut.mutate({
       id: editUser!.id,
       role,
-      federationId:
-        role === "federation_admin" || role === "club_manager"
-          ? federationId
-            ? parseInt(federationId, 10)
-            : null
-          : null,
+      federationId: role === "federation_admin"
+        ? federationId
+          ? parseInt(federationId, 10)
+          : null
+        : null,
     });
   };
 
@@ -182,7 +185,7 @@ export function UsersAdminPanel() {
                 </SelectContent>
               </Select>
             </div>
-            {(role === "federation_admin" || role === "club_manager") && (
+            {role === "federation_admin" && (
               <div>
                 <Label className={L}>Federation *</Label>
                 <Select value={federationId} onValueChange={setFederationId}>

@@ -16,7 +16,8 @@ function getClient(): Anthropic {
     throw new Error("ANTHROPIC_API_KEY is required for AI features");
   }
   if (!_client) {
-    _client = new Anthropic({ apiKey: key });
+    // Bound Worker wall time — Anthropic default has no hard timeout.
+    _client = new Anthropic({ apiKey: key, timeout: 30_000 });
   }
   return _client;
 }

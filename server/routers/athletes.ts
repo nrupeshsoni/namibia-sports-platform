@@ -225,18 +225,24 @@ export const athletesRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
+      const [existing] = await db
+        .select()
+        .from(athletes)
+        .where(eq(athletes.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Athlete not found" });
+      }
+      assertSameFederation(ctx.user, existing.federationId);
+      if (existing.federationId !== input.federationId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Athlete not found" });
+      }
+
       const { id, federationId, ...data } = input;
       if (data.firstName != null || data.lastName != null) {
-        const [current] = await db
-          .select()
-          .from(athletes)
-          .where(and(eq(athletes.id, id), eq(athletes.federationId, federationId)))
-          .limit(1);
-        if (current) {
-          const firstName = data.firstName ?? current.firstName;
-          const lastName = data.lastName ?? current.lastName;
-          (data as Record<string, unknown>).slug = athleteSlug(firstName, lastName, id);
-        }
+        const firstName = data.firstName ?? existing.firstName;
+        const lastName = data.lastName ?? existing.lastName;
+        (data as Record<string, unknown>).slug = athleteSlug(firstName, lastName, id);
       }
       await db
         .update(athletes)

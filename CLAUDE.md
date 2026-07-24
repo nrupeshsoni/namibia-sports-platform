@@ -160,7 +160,7 @@ Auth uses **Supabase Auth** with JWT verification in tRPC context.
 |------|--------|
 | `user` | Public browsing, subscribe to notifications |
 | `federation_admin` | Full CRUD for their own federation's data only |
-| `club_manager` | Manage their own club's info |
+| `club_manager` | **Deferred** — enum only; not assignable until club-scoped procedures exist |
 | `admin` | Full platform access |
 
 ### tRPC Middleware Procedures

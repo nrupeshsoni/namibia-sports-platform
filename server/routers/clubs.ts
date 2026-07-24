@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { clubs } from "../../drizzle/schema";
 import { eq, like, and } from "drizzle-orm";
@@ -9,6 +10,7 @@ import {
   canViewNonPublic,
 } from "../_core/federationScope";
 import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
+import { optionalHttpsUrlSchema } from "../_core/httpsUrl";
 
 /**
  * A34: directory reads run over Hyperdrive/postgres (RLS never applies), so the
@@ -109,7 +111,7 @@ export const clubsRouter = router({
         logoUrl: z.string().optional(),
         contactEmail: z.string().optional(),
         contactPhone: z.string().optional(),
-        website: z.string().optional(),
+        website: optionalHttpsUrlSchema,
         address: z.string().optional(),
         region: z.string().optional(),
         city: z.string().optional(),
@@ -124,7 +126,11 @@ export const clubsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const [result] = await db.insert(clubs).values(input).returning({ id: clubs.id });
+      const website = input.website === "" ? null : input.website;
+      const [result] = await db
+        .insert(clubs)
+        .values({ ...input, website })
+        .returning({ id: clubs.id });
       return { success: true, id: result.id };
     }),
 
@@ -138,7 +144,7 @@ export const clubsRouter = router({
         logoUrl: z.string().optional(),
         contactEmail: z.string().optional(),
         contactPhone: z.string().optional(),
-        website: z.string().optional(),
+        website: optionalHttpsUrlSchema,
         address: z.string().optional(),
         region: z.string().optional(),
         city: z.string().optional(),
@@ -154,7 +160,24 @@ export const clubsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const { id, federationId, ...data } = input;
+      const [existing] = await db
+        .select({ federationId: clubs.federationId })
+        .from(clubs)
+        .where(eq(clubs.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Club not found" });
+      }
+      assertSameFederation(ctx.user, existing.federationId);
+      if (existing.federationId !== input.federationId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Club not found" });
+      }
+
+      const { id, federationId, website, ...rest } = input;
+      const data = {
+        ...rest,
+        ...(website !== undefined ? { website: website === "" ? null : website } : {}),
+      };
       await db
         .update(clubs)
         .set(data)
@@ -169,6 +192,19 @@ export const clubsRouter = router({
 
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      const [existing] = await db
+        .select({ federationId: clubs.federationId })
+        .from(clubs)
+        .where(eq(clubs.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Club not found" });
+      }
+      assertSameFederation(ctx.user, existing.federationId);
+      if (existing.federationId !== input.federationId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Club not found" });
+      }
 
       await db
         .delete(clubs)

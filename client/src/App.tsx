@@ -50,7 +50,13 @@ function Router() {
         <Route path="/terms" component={Terms} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
-        <Route path="/admin" component={Admin} />
+        <Route path="/admin">
+          {() => (
+            <ErrorBoundary>
+              <Admin />
+            </ErrorBoundary>
+          )}
+        </Route>
         <Route path="/federation/:slug" component={FederationRoute} />
         <Route path="/federation/:slug/admin" component={FederationRoute} />
         <Route path="/federation/:slug/admin/:section" component={FederationRoute} />
