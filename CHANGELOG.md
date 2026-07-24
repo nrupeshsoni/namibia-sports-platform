@@ -5,6 +5,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- Migration `20260724210000_events_web_batch_C.sql` — **+14** verified niche/umbrella/para events (chess Open + Olympiad, AGA World Walvis Bay + Botswana, AUSC Region 5 / NYG Phase 1, World Bowls Indoor, CWG para-athletics, NAMEF Beach/Easter/RCO, IHF Trophy Zone VI, Redzone Handball) + fistball Cohen 2026 date correction. Evidence: `docs/research/events_web_batch_C_20260724.md`.
 - `docs/research/FEDERATION_COUNT_OFFICIAL_VS_PLATFORM.md` — reconciles Ministry **61** registered federations vs Admin **85** directory entities (live DB breakdown).
 
 ### Changed

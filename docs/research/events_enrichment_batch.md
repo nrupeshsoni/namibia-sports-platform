@@ -416,3 +416,25 @@ badminton-namibia, baseball-namibia, lacrosse-namibia, namibia-kendo, namibia-ko
 - RCFA Namib War IV / PSA BDO Open 2026 already in DB
 - Local badminton/softball/baseball/petanque/kendo/korfball nationals — still no dated public host announcements
 - NUFS / NAWISA dated umbrella calendars — still absent
+
+---
+
+## Web Batch C — 2026-07-24 (niche / umbrellas / para)
+
+Migration: `supabase/migrations/20260724210000_events_web_batch_C.sql`  
+Evidence: `docs/research/events_web_batch_C_20260724.md`  
+Applied live via Supabase MCP (`events_web_batch_C_20260724`).
+
+### Platform totals
+
+| Metric | After Pass 7 | After Batch C (+ concurrent A/B) |
+|--------|--------------|----------------------------------|
+| Total events | 230 | **270** (Batch C contributed +14) |
+| Published | 228 | **268** |
+| Active feds with events | 65 / 83 | zeros largely unchanged — research ceiling |
+
+### Inserts / fixes
+
++14 verified rows across chess, archery, NSC, bowls, paralympic, equestrian, handball; corrected `cohen-fistball-tournament-2026` to **9 May 2026**.
+
+Still skipped: softball/baseball, practical shooting nationals, darts month-only calendar, nawisa/nufs, remaining 18 zero feds without day-level public fixtures.
