@@ -3,7 +3,9 @@
  * (signature + batchexecute Fbv4je). Used only for og:image enrichment.
  */
 
-const UA = "NamibiaSportsPlatform/1.0 (+https://sports.com.na)";
+/** Browser-like UA — Google News omits data-n-a-sg for bot UAs. */
+const UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36";
 const BATCH = "https://news.google.com/_/DotsSplashUi/data/batchexecute";
 const UNWRAP_MS = 8_000;
 
