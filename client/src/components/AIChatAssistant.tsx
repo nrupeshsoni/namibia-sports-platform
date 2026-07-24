@@ -7,10 +7,12 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Message = { role: "user" | "assistant"; content: string };
 
 export default function AIChatAssistant() {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -18,6 +20,21 @@ export default function AIChatAssistant() {
   const chatMut = trpc.ai.chatAssistant.useMutation({
     onSuccess: (reply) => {
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+    },
+    // A52: the backend is `protectedProcedure` (auth-only, to prevent
+    // unauthenticated Anthropic spend). Without an error handler a failed call
+    // — including the UNAUTHORIZED an anon caller gets — left the user message
+    // hanging with no reply and no feedback. Surface every failure inline.
+    onError: (err) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            err.message ||
+            "Sorry, the assistant is unavailable right now. Please try again in a moment.",
+        },
+      ]);
     },
   });
 
@@ -35,6 +52,12 @@ export default function AIChatAssistant() {
     },
     [input, messages, chatMut]
   );
+
+  // A52: the backend requires auth, so only mount the widget for signed-in
+  // users — an anon visitor would otherwise see a chat button that can never
+  // reply. Placed after all hooks to satisfy the Rules of Hooks. Revisit if
+  // chatAssistant is ever made public + rate-limited.
+  if (!user) return null;
 
   return (
     <>

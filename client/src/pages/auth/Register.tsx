@@ -5,16 +5,8 @@ import { ChevronLeft, Loader2, MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
-import { trpc } from "@/lib/trpc";
 import { isGoogleAuthEnabled } from "@/lib/features";
 import { fadeUp } from "@/lib/animations";
 
@@ -22,14 +14,6 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // "none" rather than "" — Radix Select throws on an empty-string SelectItem
-  // value, which crashed this whole page into the error boundary.
-  //
-  // NOTE: this selection is intentionally NOT sent to signUp(). Letting a user
-  // assign their own federation at registration is a privilege decision, not a
-  // form field; it must go through an invite/admin grant. Kept as a visible
-  // no-op until that flow exists.
-  const [federationId, setFederationId] = useState<string>("none");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,8 +21,6 @@ export default function Register() {
   const [confirmationSentTo, setConfirmationSentTo] = useState<string | null>(null);
   const { signUp, signInWithGoogle } = useAuth();
   const [, setLocation] = useLocation();
-  const federationsQuery = trpc.federations.list.useQuery({ limit: 200 });
-  const federations = federationsQuery.data ?? [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,21 +160,27 @@ export default function Register() {
                     placeholder="••••••••"
                   />
                 </div>
-                <div>
-                  <Label className="text-gray-300">Federation (optional)</Label>
-                  <Select value={federationId} onValueChange={setFederationId}>
-                    <SelectTrigger className="mt-2 bg-white/5 border-white/10 text-white">
-                      <SelectValue placeholder="Select federation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      {federations.map((fed) => (
-                        <SelectItem key={fed.id} value={String(fed.id)}>
-                          {fed.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                {/*
+                  A13: this used to be a federation <Select> whose value was
+                  never sent to signUp() — a live dead field. Self-assigning a
+                  federation at registration is privilege escalation, so the
+                  grant path is admin-only (users.setRole → role
+                  "federation_admin" + federationId, surfaced in the admin Users
+                  tab). We replace the misleading dropdown with an honest
+                  request-access note. TODO(A13): add a lightweight
+                  "request federation access" capture so admins get a queue to
+                  action instead of an out-of-band email.
+                */}
+                <div
+                  className="rounded-xl p-3 text-xs text-gray-400"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.04)",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                  }}
+                >
+                  Managing a federation or club? Create your account first, then
+                  ask a platform administrator to grant you federation access —
+                  it can&apos;t be self-assigned here.
                 </div>
                 <div className="flex items-start gap-3 pt-1">
                   <Checkbox

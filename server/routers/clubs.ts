@@ -10,6 +10,19 @@ import {
 } from "../_core/federationScope";
 import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
+/**
+ * A34: directory reads run over Hyperdrive/postgres (RLS never applies), so the
+ * router is the only gate. Null contact columns for non-staff. Unlike
+ * schools/venues, clubs are federation-scoped, so the owning federation_admin
+ * (not just a platform admin) may see their own clubs' contacts — gated via
+ * {@link canViewNonPublic}.
+ */
+function stripClubContact<T extends { contactEmail: unknown; contactPhone: unknown }>(
+  row: T
+): Omit<T, "contactEmail" | "contactPhone"> & { contactEmail: null; contactPhone: null } {
+  return { ...row, contactEmail: null, contactPhone: null };
+}
+
 export const clubsRouter = router({
   /** Public directory — active clubs only. Staff may pass `includeInactive`. */
   list: publicProcedure
@@ -33,6 +46,9 @@ export const clubsRouter = router({
         const allowInactive =
           input?.includeInactive === true &&
           canIncludeInactive(ctx.user, input.federationId);
+        // Staff for the queried federation (admin, or the owning federation_admin)
+        // may receive contact PII; everyone else gets a contact-free directory.
+        const allowContact = canViewNonPublic(ctx.user, input?.federationId ?? null);
         const conditions = [];
         if (!allowInactive) {
           conditions.push(eq(clubs.isActive, true));
@@ -47,12 +63,15 @@ export const clubsRouter = router({
           conditions.push(like(clubs.name, `%${input.search}%`));
         }
 
-        return await db
+        const result = await db
           .select()
           .from(clubs)
           .where(and(...conditions))
           .orderBy(clubs.name)
           .limit(resolveListLimit(input?.limit));
+
+        if (allowContact) return result;
+        return result.map(stripClubContact);
       } catch (e) {
         console.error("[clubs.list]", e);
         return [];
@@ -76,7 +95,8 @@ export const clubsRouter = router({
       if (!row.isActive && !canViewNonPublic(ctx.user, row.federationId)) {
         return null;
       }
-      return row;
+      if (canViewNonPublic(ctx.user, row.federationId)) return row;
+      return stripClubContact(row);
     }),
 
   create: federationAdminProcedure

@@ -229,10 +229,12 @@ export default function Home() {
         }}
       >
         <div className="container mx-auto px-4 py-4 flex items-center justify-between min-h-[44px]">
-          <button 
+          <button
             onClick={() => setShowSearch(!showSearch)}
             className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-white hover:bg-white/10 transition-all duration-300 touch-target"
             style={{ backdropFilter: 'blur(10px)' }}
+            aria-label={showSearch ? 'Close search' : 'Open search'}
+            aria-expanded={showSearch}
           >
             {showSearch ? <X className="w-6 h-6" /> : <Search className="w-6 h-6" />}
           </button>
@@ -288,9 +290,10 @@ export default function Home() {
                 autoFocus
               />
               {searchQuery && (
-                <button 
+                <button
                   onClick={() => setSearchQuery('')}
                   className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+                  aria-label="Clear search"
                 >
                   <X className="w-5 h-5" />
                 </button>

@@ -11,6 +11,19 @@ function slugify(text: string): string {
     .replace(/^-|-$/g, "");
 }
 
+/**
+ * A34: the public directory reads run over Hyperdrive/postgres, so Supabase RLS
+ * never applies — the router itself is the only gate. Mirror the athletes/coaches
+ * `stripAthletePii` pattern and null contact columns for non-staff callers.
+ * Schools are managed by platform admins only (`adminProcedure`), so only an
+ * admin may see contact details.
+ */
+function stripSchoolContact<T extends { contactEmail: unknown; contactPhone: unknown }>(
+  row: T
+): Omit<T, "contactEmail" | "contactPhone"> & { contactEmail: null; contactPhone: null } {
+  return { ...row, contactEmail: null, contactPhone: null };
+}
+
 export const schoolsRouter = router({
   list: publicProcedure
     .input(
@@ -21,7 +34,7 @@ export const schoolsRouter = router({
         })
         .optional()
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) return [];
 
@@ -40,12 +53,13 @@ export const schoolsRouter = router({
         .orderBy(schools.name)
         .limit(100);
 
-      return result;
+      if (ctx.user?.role === "admin") return result;
+      return result.map(stripSchoolContact);
     }),
 
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) return null;
 
@@ -55,7 +69,10 @@ export const schoolsRouter = router({
         .where(eq(schools.id, input.id))
         .limit(1);
 
-      return result[0] || null;
+      const row = result[0];
+      if (!row) return null;
+      if (ctx.user?.role === "admin") return row;
+      return stripSchoolContact(row);
     }),
 
   create: adminProcedure

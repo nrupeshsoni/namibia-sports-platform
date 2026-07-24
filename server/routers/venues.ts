@@ -5,6 +5,17 @@ import { eq, like, and } from "drizzle-orm";
 import { publicProcedure, adminProcedure, router } from "../_core/trpc";
 import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
+/**
+ * A34: directory reads run over Hyperdrive/postgres (RLS never applies), so the
+ * router is the only gate. Null contact columns for non-staff — venues are
+ * managed by platform admins only, so only an admin sees contact details.
+ */
+function stripVenueContact<T extends { contactEmail: unknown; contactPhone: unknown }>(
+  row: T
+): Omit<T, "contactEmail" | "contactPhone"> & { contactEmail: null; contactPhone: null } {
+  return { ...row, contactEmail: null, contactPhone: null };
+}
+
 export const venuesRouter = router({
   list: publicProcedure
     .input(
@@ -36,12 +47,15 @@ export const venuesRouter = router({
         conditions.push(like(venues.name, `%${input.search}%`));
       }
 
-      return await db
+      const result = await db
         .select()
         .from(venues)
         .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(venues.name)
         .limit(resolveListLimit(input?.limit));
+
+      if (ctx.user?.role === "admin") return result;
+      return result.map(stripVenueContact);
     }),
 
   getById: publicProcedure
@@ -59,7 +73,8 @@ export const venuesRouter = router({
       const row = result[0];
       if (!row) return null;
       if (!row.isActive && ctx.user?.role !== "admin") return null;
-      return row;
+      if (ctx.user?.role === "admin") return row;
+      return stripVenueContact(row);
     }),
 
   create: adminProcedure
