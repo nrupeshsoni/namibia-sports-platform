@@ -250,6 +250,10 @@ export const newsArticles = pgTable("sportsplatform_news_articles", {
   category: varchar("category", { length: 100 }),
   tags: text("tags").array(),
   featuredImage: text("featured_image"),
+  /** Canonical original article URL (RSS / outlet); never invent. */
+  sourceUrl: text("source_url"),
+  /** Publisher/outlet display name for attribution. */
+  sourceName: text("source_name"),
   isPublished: boolean("is_published").default(false).notNull(),
   publishedAt: timestamp("published_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

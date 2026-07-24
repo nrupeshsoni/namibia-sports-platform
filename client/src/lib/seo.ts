@@ -179,6 +179,8 @@ export type NewsSeoInput = {
   featuredImage?: string | null;
   publishedAt?: string | Date | null;
   category?: string | null;
+  sourceUrl?: string | null;
+  sourceName?: string | null;
 };
 
 function toIso(value: string | Date | null | undefined): string | undefined {
@@ -189,6 +191,16 @@ function toIso(value: string | Date | null | undefined): string | undefined {
 
 /** NewsArticle JSON-LD for a news article route. */
 export function buildNewsArticleJsonLd(article: NewsSeoInput): Record<string, unknown> {
+  const sourceName = article.sourceName?.trim() || null;
+  const sourceUrl = article.sourceUrl?.trim() || null;
+  const author = sourceName
+    ? {
+        "@type": "Organization" as const,
+        name: sourceName,
+        ...(sourceUrl ? { url: sourceUrl } : {}),
+      }
+    : { "@type": "Organization" as const, name: DEFAULT_TITLE, url: SITE_ORIGIN };
+
   return {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -199,7 +211,10 @@ export function buildNewsArticleJsonLd(article: NewsSeoInput): Record<string, un
     articleSection: article.category || undefined,
     mainEntityOfPage: `${SITE_ORIGIN}/news/${article.slug}`,
     url: `${SITE_ORIGIN}/news/${article.slug}`,
-    author: { "@type": "Organization", name: DEFAULT_TITLE, url: SITE_ORIGIN },
+    author,
+    ...(sourceUrl
+      ? { isBasedOn: sourceUrl, citation: sourceUrl }
+      : {}),
     publisher: {
       "@type": "Organization",
       name: DEFAULT_TITLE,

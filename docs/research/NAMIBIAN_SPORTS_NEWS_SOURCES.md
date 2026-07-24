@@ -1,7 +1,7 @@
 # Namibian Sports News Sources — Ingestion Research
 
-**Date:** 2026-07-24  
-**Goal:** Feed sports.com.na with attributed Namibian sports news (drafts for human review).  
+**Date:** 2026-07-24 (auto-publish policy updated same day)  
+**Goal:** Feed sports.com.na with attributed Namibian sports news (auto-publish when Namibia+sports confirmed).  
 **Verified by:** HTTP fetch of candidate RSS/Atom URLs from this workspace (User-Agent `NamibiaSportsPlatform/1.0`).
 
 ## Verdict
@@ -10,7 +10,7 @@
 |----------|--------|
 | Public news APIs? | **None found** for major Namibian outlets (no documented REST/GraphQL with terms for third-party republication). |
 | Working RSS? | **Yes** — several WordPress/Google News feeds verified below. |
-| Recommended path | **Phase 1: RSS → draft news** (existing `supabase/functions/news-aggregator`) + **admin Content Sync** for gaps. Scrape = last resort. |
+| Recommended path | **Phase 1: RSS → auto-publish** trusted sports-category feeds (Namibia+sports heuristics) + **draft** Informanté / uncertain. Content Sync for gaps. |
 | Cloudflare AI role | **Classify / tag / match federation** from RSS titles+snippets (Workers AI in Content Sync; Claude in the Edge aggregator). **Never fabricate articles.** |
 
 ---
@@ -28,7 +28,7 @@
 | **Windhoek Observer** | No | ✅ `https://www.observer.com.na/feed/` · ✅ `…/?s=sport&feed=rss2` · thin `/category/sport/feed/` | Search RSS usable | RSS OK. | **Optional** Phase 1b |
 | **Namibia Economist** | No | ✅ `https://economist.com.na/feed/` · ✅ **`…/category/sport/feed/`** | ✅ `/category/sport/` | RSS OK. | **Y — Phase 1** (sport category) |
 | **Eagle FM** | No | ✅ `https://eaglefm.com.na/feed/` · ✅ **`…/category/sport/feed/`** | ✅ `/category/sport/` | RSS OK. | **Y — Phase 1** (sport category) |
-| **Google News** (“Namibia sports”) | No (search RSS only) | ✅ `https://news.google.com/rss/search?q=Namibia+sports&hl=en-NA&gl=NA&ceid=NA:en` · site-scoped variants work | Aggregates many publishers | Links are Google redirect URLs; attribute publisher name from title; ToS: personal/non-commercial aggregation norms — keep **drafts**, link out, don’t republish full text. | **Y — Phase 1** (best sports recall) |
+| **Google News** (“Namibia sports”) | No (search RSS only) | ✅ `https://news.google.com/rss/search?q=Namibia+sports&hl=en-NA&gl=NA&ceid=NA:en` · site-scoped variants work | Aggregates many publishers | Links are Google redirect URLs; attribute publisher; require Namibia signal; **auto-publish** teaser + link-out only. | **Y — Phase 1** (best sports recall) |
 | **KickOff / Goal.com NA** | No usable NA API | No stable Namibia-specific RSS verified | Social / site scrape | Not reliable for NA desk. | **N** (monitor) |
 | **Federation sites / Facebook** | Rarely | Almost never RSS; Facebook has no public RSS | Per-federation websites | Scraping FB violates ToS. Use **Content Sync** + manual CMS + official press pages. | **Content Sync / manual**, not aggregator |
 
@@ -49,16 +49,18 @@ Wire **verified sports or filterable** feeds into `supabase/functions/news-aggre
 | P2 | Confidente Sport | `https://confidentenamibia.com/category/sport/feed/` | Use category only |
 | P2 | Observer sport search | `https://www.observer.com.na/?s=sport&feed=rss2` | Thin but valid |
 
-**Invariants (already matched by aggregator + Content Sync):**
+**Invariants (aggregator + Content Sync):**
 
-1. Insert **`is_published = false`** drafts only — humans publish.
-2. Store **source name + canonical link** in article body (no `source_url` column yet; same pattern as Content Sync footer).
-3. Deduplicate by URL hash slug (`agg-<sha256>`).
-4. AI may **summarise / categorise / suggest federation** from the RSS title+description only — never invent stories or scrape full paywalled HTML.
+1. **Auto-publish** when `sportsOnly` feed + (local desk **or** Namibia keyword signal for Google News). Set `is_published = true` + `published_at` from RSS `pubDate`.
+2. **Informante** (mixed feed): insert **draft only** when both sports + Namibia keyword filters pass; otherwise skip.
+3. Store **`source_url` + `source_name`** columns plus attribution footer in `content`. Snippet/teaser only — link out; do not scrape paywalled full text.
+4. Extract **`featured_image`** from RSS (`media:content` / `enclosure`) or timeout-safe `og:image` fetch.
+5. Deduplicate by URL hash slug (`agg-<sha256>`).
+6. AI may **summarise / categorise / suggest federation** from the RSS title+description only — never invent stories.
 
-**Ops flag:** Supabase secret/env `ENABLE_NEWS_AGGREGATOR=true` required to insert (kill-switch: unset or `false`).
+**Ops flag / kill-switch:** Supabase secret `ENABLE_NEWS_AGGREGATOR=true` required to insert. Set to `false` (or unset) to disable the whole aggregator — cron may still invoke; function no-ops.
 
-**Deploy:** `supabase functions deploy news-aggregator` + schedule cron every 6h (documented in `SYSTEM_DESIGN.md`; not auto-deployed from Worker CI).
+**Deploy:** `supabase functions deploy news-aggregator --no-verify-jwt` + cron every 6h (not auto-deployed from Worker CI).
 
 ---
 
@@ -71,13 +73,14 @@ Wire **verified sports or filterable** feeds into `supabase/functions/news-aggre
 | `ANTHROPIC_API_KEY` | **Present** | Already set on the project (required when flag is on) |
 | Service role inserts | **OK** | Function uses `SUPABASE_SERVICE_ROLE_KEY`; PostgREST insert to `sportsplatform_news_articles` verified |
 | Cron every 6h | **Done** | `pg_cron` job `invoke-news-aggregator` → `0 */6 * * *` → `pg_net.http_post` (150s timeout) to `…/functions/v1/news-aggregator`. Vault secret name: `news_aggregator_invoke_key` (anon JWT for gateway `Authorization`/`apikey`) |
-| Smoke invoke | **Fixed → productive** | First smokes showed `inserted:0, skippedNonSports:9` — **not** an over-aggressive sports filter. Root cause: retired Anthropic model `claude-sonnet-4-20250514` (404) threw on every item; Informante keyword prefilter alone produced the `9`. Fix: model → `claude-sonnet-4-6`, trust `sportsOnly` feeds for `isSports`, Claude API fallback, 3 items/feed (cron 150s), per-source diagnostics. Post-fix: **50+** `agg-*` drafts landed; idle re-smoke `inserted:0, skippedExisting:18`. Informante often unreachable from Edge (`No route to host` / abort) — non-blocking. |
+| Smoke invoke | **Fixed → productive** | First smokes showed `inserted:0, skippedNonSports:9` — **not** an over-aggressive sports filter. Root cause: retired Anthropic model `claude-sonnet-4-20250514` (404). Fix: model → `claude-sonnet-4-6`, trust `sportsOnly` feeds. Later: **auto-publish** policy — 58 `agg-*` drafts audited (all Namibia+sports) → published; columns `source_url` / `source_name`; image enrich pass. Informante often unreachable from Edge — non-blocking. |
 
-### Admin: how to review drafts
+### Admin: drafts vs auto-publish
 
-1. Sign in as platform **admin** → `/admin` → **News** tab (`FedAdminNews` with `includeUnpublished: true`).
-2. Unpublished rows show as drafts (not Published). Open/edit, verify attribution footer (`Source: …` + link), then **Publish** (`news.publish`) — never auto-published by the aggregator.
-3. Optional: **Content Sync** tab for on-demand AI leads (separate path; also draft-only).
+1. **Trusted sports feeds** (New Era, Economist, Eagle, Confidente, Google News NA sports / Namibian site-scoped) auto-publish when filters pass — no admin approval.
+2. **Informante** (and any future mixed feeds) still land as drafts when sports+Namibia pass → review at `/admin` → **News**.
+3. Article page shows hero image (when available), source attribution, and prominent **Read original** (`rel="noopener noreferrer"`).
+4. Optional: **Content Sync** tab for on-demand AI leads (separate path; still draft-only).
 
 ### Kill-switch / redeploy
 
@@ -137,9 +140,9 @@ SELECT cron.schedule(
 | Surface | Provider | Role |
 |---------|----------|------|
 | Platform Admin **Content Sync** | Cloudflare Workers AI (`env.AI`), Anthropic fallback | Suggest news/event *leads*; classify federation hints — **not** auto-publish |
-| Edge **news-aggregator** | Anthropic Claude (Edge Function secret) | Filter sports relevance, short teaser summary, tags, federation hint from RSS snippet |
+| Edge **news-aggregator** | Anthropic Claude (Edge Function secret) | Filter sports relevance, short teaser summary, tags, federation hint from RSS snippet; **auto-publish** trusted sports desks |
 
-Both paths: **ingest or suggest from real sources only**; editors verify before publish.
+Aggregator path: **real RSS sources only**, always link out. Content Sync remains draft-only for human verify.
 
 ---
 

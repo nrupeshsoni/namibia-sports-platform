@@ -161,10 +161,12 @@ Live enrichment (2026-07-21 Pass 7): **230** rows (228 published, 176 posters, *
 | category | varchar(100) | |
 | tags | text[] | |
 | featured_image | text | |
+| source_url | text | Original article URL (RSS); aggregator |
+| source_name | text | Outlet display name |
 | is_published | boolean | DEFAULT false |
 | published_at | timestamp | |
 
-**News inventory (2026-07-21):** **73** published (**100%** featured images) / **51** federations via `000031` + `000047` + `000052` + pass 4 `20260720000058` (+14 zero-news feds).
+**News inventory (2026-07-24):** editorial + **58** auto-published `agg-*` rows (`source_url`/`source_name` backfilled). Aggregator may still leave `featured_image` null until RSS/`og:image` enrich.
 
 ### sportsplatform_live_streams
 | Column | Type | Constraints |

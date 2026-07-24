@@ -63,8 +63,8 @@ Snapshot: 2026-07-24 · `is_active` / not merged · published where applicable.
 | Entity | Count | Notes |
 |--------|------:|-------|
 | Active federations (directory) | 83 | logos 83/83; descriptions **0** missing |
-| Published news | 89 | 5 unscoped (`federation_id` null) |
-| Aggregator drafts (`slug LIKE 'agg-%'`) | **58** (2026-07-24) | pipeline fixed (retired Claude model → `claude-sonnet-4-6`) |
+| Published news | **147** (89 editorial + 58 `agg-*`) | aggregator auto-publish (2026-07-24) |
+| Aggregator rows (`slug LIKE 'agg-%'`) | **58** published | auto-publish policy; `source_url`/`source_name`; images enrich on cron |
 | Published events | 291 | **41** upcoming · **250** past |
 | Active athletes (all slugged) | 198 | photos + achievements present |
 | Active clubs | 191 | **129** missing description |
@@ -101,8 +101,9 @@ Snapshot: 2026-07-24 · `is_active` / not merged · published where applicable.
 | Edge Function source | `supabase/functions/news-aggregator/index.ts` | Written |
 | RSS sources in code | Verified Phase 1 list — see `NAMIBIAN_SPORTS_NEWS_SOURCES.md` | Wired |
 | Claude summarize/tag | Anthropic in function | Requires `ANTHROPIC_API_KEY` |
-| Insert target | `sportsplatform_news_articles` | `is_published: false` drafts |
+| Insert target | `sportsplatform_news_articles` | **Auto-publish** trusted sports feeds; Informante drafts |
 | Dedup | SHA-256 of source URL → `agg-{hash}` slug | OK |
+| Source attribution | `source_url` / `source_name` + footer | SEO JSON-LD author + `isBasedOn` |
 | Deployed on project | `rbibqjgsnrueubrvyqps` | **ACTIVE** + `ENABLE_NEWS_AGGREGATOR=true` |
 | Cron / `pg_cron` / schedule | Job `invoke-news-aggregator` | **Every 6h** via `pg_net` |
 | Design doc | `docs/architecture/SYSTEM_DESIGN.md` | Overstates NBC scrape + WhatsApp notify (not implemented) |
@@ -111,9 +112,9 @@ Snapshot: 2026-07-24 · `is_active` / not merged · published where applicable.
 
 | Option | Effort | Fit | Recommendation |
 |--------|--------|-----|----------------|
-| **A. Manual CMS** (FedAdmin / Platform Admin news CRUD) | Low | High quality, federation-scoped, already live | **Primary path now** |
-| **B. Content Sync AI** (`/admin` → Intelligence) | Low | On-demand Workers AI leads → draft only (`isPublished=false`) | **Best AI assist today** — see `CONTENT_SYNC_AI.md` |
-| **C. Deploy Edge Function + schedule** | Medium | RSS → draft queue → human publish | **Live** — `agg-*` drafts landing; Admin News publish queue |
+| **A. RSS auto-publish** (`news-aggregator`) | Low | Trusted sports desks → live with link-out | **Primary daily feed** — kill-switch `ENABLE_NEWS_AGGREGATOR` |
+| **B. Manual CMS** (FedAdmin / Platform Admin news CRUD) | Low | High quality, federation-scoped | Federation exclusives / corrections |
+| **C. Content Sync AI** (`/admin` → Intelligence) | Low | On-demand Workers AI leads → draft only | Gaps / hollow federations — see `CONTENT_SYNC_AI.md` |
 | **D. Full scrape (NBC etc.)** | High | Fragile; copyright/ToS risk | Defer |
 
 **Recommended operating model (today → 30 days):**

@@ -1,11 +1,24 @@
 import { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "wouter";
-import { ChevronLeft, Newspaper, X, Calendar, Tag } from "lucide-react";
+import { ChevronLeft, Newspaper, X, Calendar, Tag, ExternalLink } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 import { SiteLegalFooter } from "@/components/SiteLegalFooter";
 import { ThemeToggle } from "@/components/ThemeToggle";
+
+/** Fallback when older rows lack source_* columns. */
+function parseSourceFooter(content: string | null | undefined): {
+  name: string | null;
+  url: string | null;
+} {
+  if (!content) return { name: null, url: null };
+  const m = content.match(/Source:\s*([^\n]+)\n(https?:\/\/\S+)/i);
+  return {
+    name: m?.[1]?.trim() || null,
+    url: m?.[2]?.trim() || null,
+  };
+}
 
 function formatDate(val: string | null | undefined): string {
   if (!val) return "";
@@ -39,11 +52,20 @@ type NewsArticle = {
   category: string | null;
   tags: string[] | null;
   featuredImage: string | null;
+  sourceUrl?: string | null;
+  sourceName?: string | null;
   isPublished: boolean | null;
   publishedAt: string | null;
 };
 
 function ArticleModal({ article, onClose }: { article: NewsArticle; onClose: () => void }) {
+  const footer = parseSourceFooter(article.content);
+  const sourceName = article.sourceName || footer.name;
+  const sourceUrl = article.sourceUrl || footer.url;
+  const bodyText = article.content
+    ? article.content.replace(/\n*---\nSource:[\s\S]*$/i, "").trim()
+    : null;
+
   return (
     <AnimatePresence>
       <motion.div
@@ -70,6 +92,8 @@ function ArticleModal({ article, onClose }: { article: NewsArticle; onClose: () 
           {article.featuredImage && (
             <div
               className="w-full aspect-video bg-cover bg-center"
+              role="img"
+              aria-label=""
               style={{ backgroundImage: `url(${article.featuredImage})` }}
             />
           )}
@@ -91,6 +115,9 @@ function ArticleModal({ article, onClose }: { article: NewsArticle; onClose: () 
                     {formatDate(article.publishedAt)}
                   </span>
                 )}
+                {sourceName && (
+                  <span className="text-xs text-gray-500">via {sourceName}</span>
+                )}
               </div>
               <button
                 onClick={onClose}
@@ -104,20 +131,53 @@ function ArticleModal({ article, onClose }: { article: NewsArticle; onClose: () 
 
             <h2 className="text-2xl font-serif text-white mb-4 leading-snug">{article.title}</h2>
 
+            {sourceUrl && (
+              <a
+                href={sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 min-h-[44px] px-4 mb-4 rounded-xl text-sm font-medium transition-colors"
+                style={{
+                  background: "rgba(239,68,68,0.18)",
+                  color: "#FCA5A5",
+                  border: "1px solid rgba(239,68,68,0.35)",
+                }}
+              >
+                <ExternalLink className="w-4 h-4" />
+                Read original{sourceName ? ` on ${sourceName}` : ""}
+              </a>
+            )}
+
             {article.summary && (
               <p className="text-gray-300 text-sm leading-relaxed mb-4 pb-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                 {article.summary}
               </p>
             )}
 
-            {article.content && (
+            {bodyText && (
               <div className="text-gray-400 text-sm leading-relaxed whitespace-pre-wrap">
-                {article.content}
+                {bodyText}
               </div>
             )}
 
-            {!article.content && !article.summary && (
+            {!bodyText && !article.summary && (
               <p className="text-gray-500 text-sm">No content available for this article.</p>
+            )}
+
+            {sourceUrl && (
+              <p className="mt-6 pt-4 text-xs text-gray-500" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                Full story at the original publisher.{" "}
+                <a
+                  href={sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2"
+                  style={{ color: "#FCA5A5" }}
+                >
+                  Read original
+                </a>
+                {sourceName ? ` — ${sourceName}` : ""}.
+              </p>
             )}
           </div>
         </motion.div>

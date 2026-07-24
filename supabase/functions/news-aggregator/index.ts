@@ -1,54 +1,61 @@
 /**
  * News Aggregator Edge Function (cron: every 6h).
  * Fetches RSS from verified Namibian sports sources, classifies via Claude,
- * inserts draft rows into sportsplatform_news_articles (never auto-publishes).
+ * inserts into sportsplatform_news_articles.
  *
- * Ops: set ENABLE_NEWS_AGGREGATOR=true to insert. See
- * docs/research/NAMIBIAN_SPORTS_NEWS_SOURCES.md
+ * Auto-publish: trusted sportsOnly feeds that pass Namibia+sports heuristics.
+ * Informante: draft only when both sports + Namibia keyword filters pass.
+ *
+ * Kill-switch: ENABLE_NEWS_AGGREGATOR=true required.
+ * See docs/research/NAMIBIAN_SPORTS_NEWS_SOURCES.md
  */
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Anthropic from "npm:@anthropic-ai/sdk@0.32.1";
+import { fetchFeed, parseRssItems, resolveImage, type RssItem } from "./rss.ts";
 
 type RssSource = {
   url: string;
   name: string;
-  /** When true, feed is sports-scoped — skip keyword prefilter and trust isSports. */
   sportsOnly: boolean;
+  /** Google News / mixed — require Namibia signals before auto-publish. */
+  requireNamibia: boolean;
 };
 
-/** Verified working feeds only — see NAMIBIAN_SPORTS_NEWS_SOURCES.md */
 const RSS_SOURCES: RssSource[] = [
-  { url: "https://neweralive.na/category/sports/feed/", name: "New Era", sportsOnly: true },
+  { url: "https://neweralive.na/category/sports/feed/", name: "New Era", sportsOnly: true, requireNamibia: false },
   {
     url: "https://news.google.com/rss/search?q=Namibia+sports&hl=en-NA&gl=NA&ceid=NA:en",
     name: "Google News (Namibia sports)",
     sportsOnly: true,
+    requireNamibia: true,
   },
   {
     url: "https://news.google.com/rss/search?q=site:namibian.com.na+sport&hl=en&gl=NA&ceid=NA:en",
     name: "The Namibian (via Google News)",
     sportsOnly: true,
+    requireNamibia: true,
   },
-  { url: "https://economist.com.na/category/sport/feed/", name: "Namibia Economist", sportsOnly: true },
-  { url: "https://eaglefm.com.na/category/sport/feed/", name: "Eagle FM", sportsOnly: true },
-  { url: "https://informante.web.na/?feed=rss2", name: "Informante", sportsOnly: false },
-  { url: "https://confidentenamibia.com/category/sport/feed/", name: "Confidente", sportsOnly: true },
+  { url: "https://economist.com.na/category/sport/feed/", name: "Namibia Economist", sportsOnly: true, requireNamibia: false },
+  { url: "https://eaglefm.com.na/category/sport/feed/", name: "Eagle FM", sportsOnly: true, requireNamibia: false },
+  { url: "https://informante.web.na/?feed=rss2", name: "Informante", sportsOnly: false, requireNamibia: true },
+  { url: "https://confidentenamibia.com/category/sport/feed/", name: "Confidente", sportsOnly: true, requireNamibia: false },
 ];
 
-/** Sonnet 4 (`…20250514`) retired 2026-06-15 — use Sonnet 4.6. */
 const MODEL = "claude-sonnet-4-6";
-const FETCH_MS = 20_000;
 const SPORT_RE =
   /\b(sport|sports|football|soccer|rugby|cricket|athletics|netball|hockey|boxing|tennis|olympic|paralympic|nfa|nru|gladiators|brave warriors|commonwealth|cosafa|fifa|ioc|nsc|tournament|championship|league|cup|match|athlete|coach|stadium|afrobasket|cycling|swimming|golf)\b/i;
+const NAMIBIA_RE =
+  /\b(namibia|namibian|windhoek|swakopmund|walvis|oshakati|rundu|keetmanshoop|ondangwa|okahandja|otjiwarongo|gobabis|brave\s*warriors|gladiators|baby\s*gladiators|\bnfa\b|\bnru\b|welwitschia|debmarine)\b|\.na\//i;
 
-interface RssItem {
-  title: string;
-  link: string;
-  description: string;
-  pubDate?: string;
-}
+type ClaudeResult = {
+  isSports: boolean;
+  summary: string;
+  category: string;
+  tags: string[];
+  federationHint: string | null;
+};
 
 type SourceStats = {
   name: string;
@@ -56,56 +63,15 @@ type SourceStats = {
   status?: number;
   items: number;
   inserted: number;
+  published: number;
+  enriched: number;
   skippedNonSports: number;
+  skippedNonNamibia: number;
   skippedExisting: number;
   errors: number;
   note?: string;
   lastError?: string;
 };
-
-function decodeEntities(s: string): string {
-  return s
-    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
-    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&nbsp;/g, " ")
-    .trim();
-}
-
-function parseRssItems(xml: string): RssItem[] {
-  const items: RssItem[] = [];
-  const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
-  let m: RegExpExecArray | null;
-  while ((m = itemRegex.exec(xml)) !== null) {
-    const block = m[1];
-    const title = decodeEntities(block.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? "");
-    const link = (block.match(/<link[^>]*>([\s\S]*?)<\/link>/i)?.[1] ?? "").trim();
-    const desc = decodeEntities(
-      (block.match(/<description[^>]*>([\s\S]*?)<\/description>/i)?.[1] ?? "").replace(/<[^>]+>/g, "")
-    );
-    const pubDate = block.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i)?.[1]?.trim();
-    if (title && link) items.push({ title, link, description: desc, pubDate });
-  }
-  if (items.length > 0) return items;
-
-  const entryRegex = /<entry>([\s\S]*?)<\/entry>/gi;
-  while ((m = entryRegex.exec(xml)) !== null) {
-    const block = m[1];
-    const title = decodeEntities(block.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? "");
-    const link =
-      block.match(/<link[^>]*href="([^"]+)"/i)?.[1] ??
-      (block.match(/<link[^>]*>([\s\S]*?)<\/link>/i)?.[1] ?? "").trim();
-    const desc = decodeEntities(
-      (block.match(/<summary[^>]*>([\s\S]*?)<\/summary>/i)?.[1] ?? "").replace(/<[^>]+>/g, "")
-    );
-    const pubDate = block.match(/<published[^>]*>([\s\S]*?)<\/published>/i)?.[1]?.trim();
-    if (title && link) items.push({ title, link, description: desc, pubDate });
-  }
-  return items;
-}
 
 async function hashUrl(url: string): Promise<string> {
   const data = new TextEncoder().encode(url);
@@ -115,14 +81,6 @@ async function hashUrl(url: string): Promise<string> {
     .join("")
     .slice(0, 16);
 }
-
-type ClaudeResult = {
-  isSports: boolean;
-  summary: string;
-  category: string;
-  tags: string[];
-  federationHint: string | null;
-};
 
 function extractJsonObject(text: string): string {
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
@@ -194,31 +152,22 @@ function matchFederation(feds: FedRow[], hint: string | null): number | null {
   return partial?.id ?? null;
 }
 
-function buildAttributedContent(item: RssItem, sourceName: string): string {
-  const body = item.description || item.title;
-  return `${body}\n\n---\nSource: ${sourceName}\n${item.link}`;
+function hasNamibiaSignal(item: RssItem): boolean {
+  return NAMIBIA_RE.test(`${item.title} ${item.description} ${item.link}`);
 }
 
-async function fetchFeed(url: string): Promise<{ ok: boolean; status?: number; xml?: string; error?: string }> {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), FETCH_MS);
-  try {
-    const res = await fetch(url, {
-      headers: { "User-Agent": "NamibiaSportsPlatform/1.0 (+https://sports.com.na)" },
-      signal: ctrl.signal,
-    });
-    if (!res.ok) return { ok: false, status: res.status, error: `HTTP ${res.status}` };
-    const xml = await res.text();
-    if (!/<rss[\s>]|<feed[\s>]/i.test(xml)) {
-      return { ok: false, status: res.status, error: "Not RSS/Atom" };
-    }
-    return { ok: true, status: res.status, xml };
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    return { ok: false, error: msg };
-  } finally {
-    clearTimeout(timer);
+/** Snippet + attribution footer — not full paywalled republication. */
+function buildAttributedContent(item: RssItem, sourceName: string): string {
+  const body = item.description || item.title;
+  return `${body}\n\n---\nSource: ${sourceName}\n${item.link}\n\nRead the original article at the source link above.`;
+}
+
+function publishedAtFromItem(item: RssItem): string {
+  if (item.pubDate) {
+    const d = new Date(item.pubDate);
+    if (!Number.isNaN(d.getTime())) return d.toISOString();
   }
+  return new Date().toISOString();
 }
 
 Deno.serve(async () => {
@@ -232,6 +181,7 @@ Deno.serve(async () => {
       JSON.stringify({
         success: true,
         inserted: 0,
+        published: 0,
         skipped: true,
         reason: "ENABLE_NEWS_AGGREGATOR is not true",
       }),
@@ -259,7 +209,10 @@ Deno.serve(async () => {
   const feds = (fedRows ?? []) as FedRow[];
 
   let inserted = 0;
+  let published = 0;
+  let enriched = 0;
   let skippedNonSports = 0;
+  let skippedNonNamibia = 0;
   let skippedExisting = 0;
   const sources: SourceStats[] = [];
 
@@ -269,7 +222,10 @@ Deno.serve(async () => {
       fetchOk: false,
       items: 0,
       inserted: 0,
+      published: 0,
+      enriched: 0,
       skippedNonSports: 0,
+      skippedNonNamibia: 0,
       skippedExisting: 0,
       errors: 0,
     };
@@ -286,7 +242,6 @@ Deno.serve(async () => {
     const items = parseRssItems(feed.xml);
     stats.items = items.length;
 
-    // Cap per feed so 6h cron (150s) can finish with sequential Claude calls.
     for (const item of items.slice(0, 3)) {
       try {
         if (!source.sportsOnly && !SPORT_RE.test(`${item.title} ${item.description}`)) {
@@ -295,20 +250,46 @@ Deno.serve(async () => {
           continue;
         }
 
+        const namibiaOk = hasNamibiaSignal(item);
+        if (source.requireNamibia && !namibiaOk) {
+          skippedNonNamibia++;
+          stats.skippedNonNamibia++;
+          continue;
+        }
+
         const slug = `agg-${await hashUrl(item.link)}`;
         const { data: existing } = await supabase
           .from("sportsplatform_news_articles")
-          .select("id")
+          .select("id, featured_image, is_published, source_url")
           .eq("slug", slug)
           .maybeSingle();
+
         if (existing) {
           skippedExisting++;
           stats.skippedExisting++;
+          const patch: Record<string, unknown> = {};
+          if (!existing.featured_image) {
+            const img = await resolveImage(item);
+            if (img) {
+              patch.featured_image = img;
+              enriched++;
+              stats.enriched++;
+            }
+          }
+          if (!existing.source_url) {
+            patch.source_url = item.link;
+            patch.source_name = source.name;
+          }
+          if (Object.keys(patch).length > 0) {
+            await supabase
+              .from("sportsplatform_news_articles")
+              .update(patch)
+              .eq("id", existing.id);
+          }
           continue;
         }
 
         const classified = await processWithClaude(item, anthropic);
-        // Category sports feeds are already scoped — do not let Claude veto them.
         const isSports = source.sportsOnly ? true : classified.isSports;
         if (!isSports) {
           skippedNonSports++;
@@ -316,8 +297,12 @@ Deno.serve(async () => {
           continue;
         }
 
+        // Trusted sports desks auto-publish; Informante stays draft.
+        const autoPublish = source.sportsOnly && (!source.requireNamibia || namibiaOk);
         const federationId = matchFederation(feds, classified.federationHint);
         const tags = [...classified.tags, `source:${source.name}`].slice(0, 8);
+        const featuredImage = await resolveImage(item);
+        const publishedAt = autoPublish ? publishedAtFromItem(item) : null;
 
         const { error } = await supabase.from("sportsplatform_news_articles").insert({
           title: item.title.slice(0, 255),
@@ -328,14 +313,20 @@ Deno.serve(async () => {
           author_id: null,
           category: (classified.category || "sports").slice(0, 100),
           tags: tags.length > 0 ? tags : null,
-          featured_image: null,
-          is_published: false,
-          published_at: null,
+          featured_image: featuredImage,
+          source_url: item.link,
+          source_name: source.name,
+          is_published: autoPublish,
+          published_at: publishedAt,
         });
 
         if (!error) {
           inserted++;
           stats.inserted++;
+          if (autoPublish) {
+            published++;
+            stats.published++;
+          }
         } else {
           stats.errors++;
           stats.lastError = `insert: ${error.message}`;
@@ -350,14 +341,44 @@ Deno.serve(async () => {
     }
   }
 
+  // Second pass: enrich featured_image for recent feed items already in DB (no Claude).
+  for (const source of RSS_SOURCES.filter((s) => s.sportsOnly)) {
+    const feed = await fetchFeed(source.url);
+    if (!feed.ok || !feed.xml) continue;
+    for (const item of parseRssItems(feed.xml).slice(0, 12)) {
+      try {
+        const slug = `agg-${await hashUrl(item.link)}`;
+        const { data: row } = await supabase
+          .from("sportsplatform_news_articles")
+          .select("id, featured_image")
+          .eq("slug", slug)
+          .maybeSingle();
+        if (!row || row.featured_image) continue;
+        const img = await resolveImage(item);
+        if (!img) continue;
+        const { error } = await supabase
+          .from("sportsplatform_news_articles")
+          .update({ featured_image: img })
+          .eq("id", row.id);
+        if (!error) enriched++;
+      } catch {
+        /* timeout-safe: skip */
+      }
+    }
+  }
+
   console.log(
-    `[news-aggregator] Inserted ${inserted}; skippedNonSports=${skippedNonSports}; skippedExisting=${skippedExisting}`
+    `[news-aggregator] inserted=${inserted} published=${published} enriched=${enriched} ` +
+      `skippedNonSports=${skippedNonSports} skippedNonNamibia=${skippedNonNamibia} skippedExisting=${skippedExisting}`
   );
   return new Response(
     JSON.stringify({
       success: true,
       inserted,
+      published,
+      enriched,
       skippedNonSports,
+      skippedNonNamibia,
       skippedExisting,
       sources,
     }),
