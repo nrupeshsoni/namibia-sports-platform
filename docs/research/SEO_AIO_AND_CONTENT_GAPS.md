@@ -64,7 +64,7 @@ Snapshot: 2026-07-24 · `is_active` / not merged · published where applicable.
 |--------|------:|-------|
 | Active federations (directory) | 83 | logos 83/83; descriptions **0** missing |
 | Published news | 89 | 5 unscoped (`federation_id` null) |
-| Aggregator drafts (`slug LIKE 'agg-%'`) | 0 | pipeline never landed data |
+| Aggregator drafts (`slug LIKE 'agg-%'`) | **58** (2026-07-24) | pipeline fixed (retired Claude model → `claude-sonnet-4-6`) |
 | Published events | 291 | **41** upcoming · **250** past |
 | Active athletes (all slugged) | 198 | photos + achievements present |
 | Active clubs | 191 | **129** missing description |
@@ -113,7 +113,7 @@ Snapshot: 2026-07-24 · `is_active` / not merged · published where applicable.
 |--------|--------|-----|----------------|
 | **A. Manual CMS** (FedAdmin / Platform Admin news CRUD) | Low | High quality, federation-scoped, already live | **Primary path now** |
 | **B. Content Sync AI** (`/admin` → Intelligence) | Low | On-demand Workers AI leads → draft only (`isPublished=false`) | **Best AI assist today** — see `CONTENT_SYNC_AI.md` |
-| **C. Deploy Edge Function + schedule** | Medium | RSS → draft queue → human publish | **Live** (ops done; watch for first `agg-*` drafts) |
+| **C. Deploy Edge Function + schedule** | Medium | RSS → draft queue → human publish | **Live** — `agg-*` drafts landing; Admin News publish queue |
 | **D. Full scrape (NBC etc.)** | High | Fragile; copyright/ToS risk | Defer |
 
 **Recommended operating model (today → 30 days):**
@@ -153,7 +153,7 @@ Snapshot: 2026-07-24 · `is_active` / not merged · published where applicable.
 6. **28 federations missing website** (+ 10 with no email/phone at all).
 7. **129/191 clubs lack descriptions** — directory depth weak.
 8. **Sitemap was stale** (−10 news, −20 athletes vs DB) — process gap; refreshed in this pass.
-9. **News aggregator deployed + 6h cron; still 0 `agg-*` drafts after smoke** — monitor Edge logs / first productive run.
+9. ~~News aggregator 0 drafts~~ — fixed (retired Claude model); **58** `agg-*` drafts as of 2026-07-24; human publish from Admin News.
 10. **No event/club detail routes** — cannot rank or cite individual events/clubs as first-class URLs.
 
 ---

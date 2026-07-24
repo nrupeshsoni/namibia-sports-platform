@@ -71,7 +71,7 @@ Wire **verified sports or filterable** feeds into `supabase/functions/news-aggre
 | `ANTHROPIC_API_KEY` | **Present** | Already set on the project (required when flag is on) |
 | Service role inserts | **OK** | Function uses `SUPABASE_SERVICE_ROLE_KEY`; PostgREST insert to `sportsplatform_news_articles` verified |
 | Cron every 6h | **Done** | `pg_cron` job `invoke-news-aggregator` → `0 */6 * * *` → `pg_net.http_post` (150s timeout) to `…/functions/v1/news-aggregator`. Vault secret name: `news_aggregator_invoke_key` (anon JWT for gateway `Authorization`/`apikey`) |
-| Smoke invoke | **OK (0 inserts)** | Manual POST returned `{"success":true,"inserted":0,"skippedNonSports":9}` (~37s). Draft delta **+0** `agg-*` rows. Feeds are reachable from this workstation; Edge run skipped non-sports / did not persist drafts — check Edge Function logs if volume stays at zero |
+| Smoke invoke | **Fixed → productive** | First smokes showed `inserted:0, skippedNonSports:9` — **not** an over-aggressive sports filter. Root cause: retired Anthropic model `claude-sonnet-4-20250514` (404) threw on every item; Informante keyword prefilter alone produced the `9`. Fix: model → `claude-sonnet-4-6`, trust `sportsOnly` feeds for `isSports`, Claude API fallback, 3 items/feed (cron 150s), per-source diagnostics. Post-fix: **50+** `agg-*` drafts landed; idle re-smoke `inserted:0, skippedExisting:18`. Informante often unreachable from Edge (`No route to host` / abort) — non-blocking. |
 
 ### Admin: how to review drafts
 

@@ -22,6 +22,7 @@ All notable changes to this project are documented in this file.
 - Admin stats: first card is **Directory** (85) with breakdown `sports · bodies · merged` so it is not confused with NSC/Ministry federation counts; Events/Clubs/Athletes use `adminStats.counts`.
 
 ### Fixed
+- **news-aggregator** produced `inserted:0` / `skippedNonSports:9` on first smokes: retired Anthropic model `claude-sonnet-4-20250514` (API 404) aborted every item before insert; Informante keyword skips accounted for the `9`. Switched to `claude-sonnet-4-6`, trust `sportsOnly` category feeds for `isSports`, non-throwing Claude fallback, 3 items/feed for 150s cron, per-source diagnostics. Drafts now land as `agg-*` unpublished rows.
 - **Map mobile layout:** region panel no longer sits `w-full` beside the map in a row flex (crushed map on phones). Stacks vertically under `md`; panel capped at ~50vh on small screens. News article modal close control meets 44px tap target. Sonner toaster uses app `ThemeContext` (not unused `next-themes`).
 - SEO: unknown / unmatched routes (incl. SPA 404s) now emit `noindex,nofollow` instead of default homepage meta.
 - Sitemap slug JSONs refreshed from live DB — **83** feds / **89** news / **198** athletes (was 79 news / 178 athletes).

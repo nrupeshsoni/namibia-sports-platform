@@ -14,7 +14,7 @@ import Anthropic from "npm:@anthropic-ai/sdk@0.32.1";
 type RssSource = {
   url: string;
   name: string;
-  /** When true, skip keyword prefilter (feed is already sports-scoped). */
+  /** When true, feed is sports-scoped — skip keyword prefilter and trust isSports. */
   sportsOnly: boolean;
 };
 
@@ -33,13 +33,15 @@ const RSS_SOURCES: RssSource[] = [
   },
   { url: "https://economist.com.na/category/sport/feed/", name: "Namibia Economist", sportsOnly: true },
   { url: "https://eaglefm.com.na/category/sport/feed/", name: "Eagle FM", sportsOnly: true },
-  { url: "https://informante.web.na/?feed=rss2", name: "Informanté", sportsOnly: false },
+  { url: "https://informante.web.na/?feed=rss2", name: "Informante", sportsOnly: false },
   { url: "https://confidentenamibia.com/category/sport/feed/", name: "Confidente", sportsOnly: true },
 ];
 
-const MODEL = "claude-sonnet-4-20250514";
+/** Sonnet 4 (`…20250514`) retired 2026-06-15 — use Sonnet 4.6. */
+const MODEL = "claude-sonnet-4-6";
+const FETCH_MS = 20_000;
 const SPORT_RE =
-  /\b(sport|sports|football|soccer|rugby|cricket|athletics|netball|hockey|boxing|tennis|olympic|paralympic|nfa|nru|gladiators|brave warriors|commonwealth|cosafa|fifa|ioc|nsc|tournament|championship|league|cup|match|athlete|coach|stadium)\b/i;
+  /\b(sport|sports|football|soccer|rugby|cricket|athletics|netball|hockey|boxing|tennis|olympic|paralympic|nfa|nru|gladiators|brave warriors|commonwealth|cosafa|fifa|ioc|nsc|tournament|championship|league|cup|match|athlete|coach|stadium|afrobasket|cycling|swimming|golf)\b/i;
 
 interface RssItem {
   title: string;
@@ -47,6 +49,19 @@ interface RssItem {
   description: string;
   pubDate?: string;
 }
+
+type SourceStats = {
+  name: string;
+  fetchOk: boolean;
+  status?: number;
+  items: number;
+  inserted: number;
+  skippedNonSports: number;
+  skippedExisting: number;
+  errors: number;
+  note?: string;
+  lastError?: string;
+};
 
 function decodeEntities(s: string): string {
   return s
@@ -109,28 +124,47 @@ type ClaudeResult = {
   federationHint: string | null;
 };
 
+function extractJsonObject(text: string): string {
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const raw = (fenced?.[1] ?? text).trim();
+  const start = raw.indexOf("{");
+  const end = raw.lastIndexOf("}");
+  if (start >= 0 && end > start) return raw.slice(start, end + 1);
+  return raw;
+}
+
+function keywordFallback(item: RssItem): ClaudeResult {
+  return {
+    isSports: SPORT_RE.test(`${item.title} ${item.description}`),
+    summary: item.description.slice(0, 200),
+    category: "sports",
+    tags: [],
+    federationHint: null,
+  };
+}
+
 async function processWithClaude(item: RssItem, anthropic: Anthropic): Promise<ClaudeResult> {
   const content = `${item.title}\n\n${item.description}`.slice(0, 3000);
-  const response = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 320,
-    messages: [
-      {
-        role: "user",
-        content: `Given this Namibian news RSS snippet, respond with JSON only:
+  try {
+    const response = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 320,
+      messages: [
+        {
+          role: "user",
+          content: `Given this Namibian news RSS snippet, respond with JSON only:
 {"isSports":boolean,"summary":"2-3 sentence teaser from the snippet only — do not invent facts","category":"sport e.g. football, rugby, athletics, multi-sport, or other","tags":["tag1","tag2"],"federationHint":"Namibian federation or body name if clearly implied, else null"}
 Set isSports false for politics, crime, business, entertainment without a sports angle.
 Output only valid JSON.
 
 ${content}`,
-      },
-    ],
-  });
+        },
+      ],
+    });
 
-  const block = response.content.find((b) => b.type === "text");
-  const text = block && "text" in block ? (block as { text: string }).text : "";
-  try {
-    const parsed = JSON.parse(text.trim()) as Partial<ClaudeResult>;
+    const block = response.content.find((b) => b.type === "text");
+    const text = block && "text" in block ? (block as { text: string }).text : "";
+    const parsed = JSON.parse(extractJsonObject(text)) as Partial<ClaudeResult>;
     return {
       isSports: parsed.isSports === true,
       summary: typeof parsed.summary === "string" ? parsed.summary : "",
@@ -141,13 +175,7 @@ ${content}`,
       federationHint: typeof parsed.federationHint === "string" ? parsed.federationHint : null,
     };
   } catch {
-    return {
-      isSports: SPORT_RE.test(`${item.title} ${item.description}`),
-      summary: item.description.slice(0, 200),
-      category: "sports",
-      tags: [],
-      federationHint: null,
-    };
+    return keywordFallback(item);
   }
 }
 
@@ -169,6 +197,28 @@ function matchFederation(feds: FedRow[], hint: string | null): number | null {
 function buildAttributedContent(item: RssItem, sourceName: string): string {
   const body = item.description || item.title;
   return `${body}\n\n---\nSource: ${sourceName}\n${item.link}`;
+}
+
+async function fetchFeed(url: string): Promise<{ ok: boolean; status?: number; xml?: string; error?: string }> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), FETCH_MS);
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": "NamibiaSportsPlatform/1.0 (+https://sports.com.na)" },
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return { ok: false, status: res.status, error: `HTTP ${res.status}` };
+    const xml = await res.text();
+    if (!/<rss[\s>]|<feed[\s>]/i.test(xml)) {
+      return { ok: false, status: res.status, error: "Not RSS/Atom" };
+    }
+    return { ok: true, status: res.status, xml };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { ok: false, error: msg };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 Deno.serve(async () => {
@@ -210,75 +260,107 @@ Deno.serve(async () => {
 
   let inserted = 0;
   let skippedNonSports = 0;
+  let skippedExisting = 0;
+  const sources: SourceStats[] = [];
 
   for (const source of RSS_SOURCES) {
-    try {
-      const res = await fetch(source.url, {
-        headers: { "User-Agent": "NamibiaSportsPlatform/1.0 (+https://sports.com.na)" },
-      });
-      if (!res.ok) {
-        console.warn(`[news-aggregator] Failed to fetch ${source.url}: ${res.status}`);
-        continue;
-      }
-      const xml = await res.text();
-      if (!/<rss[\s>]|<feed[\s>]/i.test(xml)) {
-        console.warn(`[news-aggregator] Not RSS/Atom: ${source.url}`);
-        continue;
-      }
-      const items = parseRssItems(xml);
+    const stats: SourceStats = {
+      name: source.name,
+      fetchOk: false,
+      items: 0,
+      inserted: 0,
+      skippedNonSports: 0,
+      skippedExisting: 0,
+      errors: 0,
+    };
+    sources.push(stats);
 
-      for (const item of items.slice(0, 10)) {
-        try {
-          if (!source.sportsOnly && !SPORT_RE.test(`${item.title} ${item.description}`)) {
-            skippedNonSports++;
-            continue;
-          }
+    const feed = await fetchFeed(source.url);
+    stats.status = feed.status;
+    if (!feed.ok || !feed.xml) {
+      stats.note = feed.error ?? "fetch failed";
+      console.warn(`[news-aggregator] Failed ${source.url}: ${stats.note}`);
+      continue;
+    }
+    stats.fetchOk = true;
+    const items = parseRssItems(feed.xml);
+    stats.items = items.length;
 
-          const slug = `agg-${await hashUrl(item.link)}`;
-          const { data: existing } = await supabase
-            .from("sportsplatform_news_articles")
-            .select("id")
-            .eq("slug", slug)
-            .maybeSingle();
-          if (existing) continue;
-
-          const classified = await processWithClaude(item, anthropic);
-          if (!classified.isSports) {
-            skippedNonSports++;
-            continue;
-          }
-
-          const federationId = matchFederation(feds, classified.federationHint);
-          const tags = [...classified.tags, `source:${source.name}`].slice(0, 8);
-
-          const { error } = await supabase.from("sportsplatform_news_articles").insert({
-            title: item.title.slice(0, 255),
-            slug,
-            content: buildAttributedContent(item, source.name),
-            summary: classified.summary.slice(0, 500) || null,
-            federation_id: federationId,
-            author_id: null,
-            category: classified.category.slice(0, 100) || null,
-            tags: tags.length > 0 ? tags : null,
-            featured_image: null,
-            is_published: false,
-            published_at: null,
-          });
-
-          if (!error) inserted++;
-          else console.warn(`[news-aggregator] Insert error for ${item.link}:`, error.message);
-        } catch (e) {
-          console.warn(`[news-aggregator] Error processing ${item.link}:`, e);
+    // Cap per feed so 6h cron (150s) can finish with sequential Claude calls.
+    for (const item of items.slice(0, 3)) {
+      try {
+        if (!source.sportsOnly && !SPORT_RE.test(`${item.title} ${item.description}`)) {
+          skippedNonSports++;
+          stats.skippedNonSports++;
+          continue;
         }
+
+        const slug = `agg-${await hashUrl(item.link)}`;
+        const { data: existing } = await supabase
+          .from("sportsplatform_news_articles")
+          .select("id")
+          .eq("slug", slug)
+          .maybeSingle();
+        if (existing) {
+          skippedExisting++;
+          stats.skippedExisting++;
+          continue;
+        }
+
+        const classified = await processWithClaude(item, anthropic);
+        // Category sports feeds are already scoped — do not let Claude veto them.
+        const isSports = source.sportsOnly ? true : classified.isSports;
+        if (!isSports) {
+          skippedNonSports++;
+          stats.skippedNonSports++;
+          continue;
+        }
+
+        const federationId = matchFederation(feds, classified.federationHint);
+        const tags = [...classified.tags, `source:${source.name}`].slice(0, 8);
+
+        const { error } = await supabase.from("sportsplatform_news_articles").insert({
+          title: item.title.slice(0, 255),
+          slug,
+          content: buildAttributedContent(item, source.name),
+          summary: classified.summary.slice(0, 500) || null,
+          federation_id: federationId,
+          author_id: null,
+          category: (classified.category || "sports").slice(0, 100),
+          tags: tags.length > 0 ? tags : null,
+          featured_image: null,
+          is_published: false,
+          published_at: null,
+        });
+
+        if (!error) {
+          inserted++;
+          stats.inserted++;
+        } else {
+          stats.errors++;
+          stats.lastError = `insert: ${error.message}`;
+          console.warn(`[news-aggregator] Insert error for ${item.link}:`, error.message);
+        }
+      } catch (e) {
+        stats.errors++;
+        const msg = e instanceof Error ? e.message : String(e);
+        stats.lastError = msg.slice(0, 300);
+        console.warn(`[news-aggregator] Error processing ${item.link}:`, e);
       }
-    } catch (e) {
-      console.error(`[news-aggregator] Error fetching ${source.url}:`, e);
     }
   }
 
-  console.log(`[news-aggregator] Inserted ${inserted} drafts; skippedNonSports=${skippedNonSports}`);
-  return new Response(JSON.stringify({ success: true, inserted, skippedNonSports }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+  console.log(
+    `[news-aggregator] Inserted ${inserted}; skippedNonSports=${skippedNonSports}; skippedExisting=${skippedExisting}`
+  );
+  return new Response(
+    JSON.stringify({
+      success: true,
+      inserted,
+      skippedNonSports,
+      skippedExisting,
+      sources,
+    }),
+    { status: 200, headers: { "Content-Type": "application/json" } }
+  );
 });
