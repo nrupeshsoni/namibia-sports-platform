@@ -5,6 +5,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Light theme** with accessible sun/moon toggle (Home, Events, News, Map, Admin, Federation, NavDrawer). Uses existing `ThemeContext` with `switchable`; preference in `localStorage.theme`. Cool-slate light chrome + theme-aware glass (`--chrome-*`, `--glass-*`). Audit: `docs/research/MOBILE_AND_THEME.md`.
 - `docs/research/SEO_AIO_AND_CONTENT_GAPS.md` — SEO/AIO scorecard (~72/100, **partial**), live DB population matrix, daily news options (manual CMS + Content Sync AI vs undeployed `news-aggregator`).
 - **Content Sync (Intelligence)** — Platform Admin tab + `contentSync.*` tRPC (admin-only, rate-limited). Workers AI binding (`ai: { binding: "AI" }` in `wrangler.jsonc`) generates structured news/event research leads; Anthropic is Phase 2 fallback when `ANTHROPIC_API_KEY` is set. **Create draft** always writes `isPublished=false`. Flag `ENABLE_CONTENT_SYNC` defaults ON. Docs: `docs/research/CONTENT_SYNC_AI.md`.
 - Platform Admin Users tab: **Add User** (`users.inviteOrPromote`) — Auth Admin create when `SUPABASE_SERVICE_ROLE_KEY` is set, else clear register-then-promote-by-email; assigns role + `federationId`. UI: Add User + Assign role.
@@ -19,6 +20,7 @@ All notable changes to this project are documented in this file.
 - Admin stats: first card is **Directory** (85) with breakdown `sports · bodies · merged` so it is not confused with NSC/Ministry federation counts; Events/Clubs/Athletes use `adminStats.counts`.
 
 ### Fixed
+- **Map mobile layout:** region panel no longer sits `w-full` beside the map in a row flex (crushed map on phones). Stacks vertically under `md`; panel capped at ~50vh on small screens. News article modal close control meets 44px tap target. Sonner toaster uses app `ThemeContext` (not unused `next-themes`).
 - SEO: unknown / unmatched routes (incl. SPA 404s) now emit `noindex,nofollow` instead of default homepage meta.
 - Sitemap slug JSONs refreshed from live DB — **83** feds / **89** news / **198** athletes (was 79 news / 178 athletes).
 - `/map` ErrorBoundary crash hardening: defer Leaflet `MapContainer` until after mount (avoids Suspense remount “already initialized”), guard invalid/`ǁKaras` region query + empty venues/events lists, page-level ErrorBoundary, safe `flyTo`. Helpers/tests in `client/src/lib/mapRegions.ts`.

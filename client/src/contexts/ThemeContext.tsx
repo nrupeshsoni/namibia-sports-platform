@@ -36,6 +36,7 @@ export function ThemeProvider({
     } else {
       root.classList.remove("dark");
     }
+    root.style.colorScheme = theme;
 
     if (switchable) {
       localStorage.setItem("theme", theme);

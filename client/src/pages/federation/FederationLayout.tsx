@@ -16,6 +16,7 @@ import FederationAthletes from "./FederationAthletes";
 import FederationNews from "./FederationNews";
 import FederationStreams from "./FederationStreams";
 import { FedAdminLayout, FedAdminLayoutSkeleton } from "./admin/FedAdminLayout";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const FedAdminDashboard = lazy(() => import("./admin/FedAdminDashboard"));
 const FedAdminEvents = lazy(() => import("./admin/FedAdminEvents"));
@@ -221,8 +222,8 @@ function FederationLayoutInner({
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] overflow-x-hidden">
-      {/* Hero Banner - Glassmorphism */}
+    <div className="min-h-screen theme-page overflow-x-hidden">
+      {/* Hero Banner - Glassmorphism (hero stays dark for image contrast) */}
       <header
         className="relative overflow-hidden"
         style={{
@@ -244,16 +245,17 @@ function FederationLayoutInner({
           className="relative z-10 container mx-auto px-4 py-8 md:py-12"
           style={{ paddingTop: "calc(2rem + env(safe-area-inset-top, 0px))" }}
         >
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center justify-between gap-4 mb-6">
             <Link href="/">
               <button
-                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors p-2 rounded-xl hover:bg-white/10"
+                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors min-h-[44px] px-2 rounded-xl hover:bg-white/10"
                 style={{ backdropFilter: "blur(10px)" }}
               >
                 <ChevronLeft className="w-5 h-5" />
                 <span className="text-sm font-medium">Back</span>
               </button>
             </Link>
+            <ThemeToggle onMedia />
           </div>
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             <div
@@ -291,17 +293,9 @@ function FederationLayoutInner({
       </header>
 
       {/* Tab Navigation - Glass */}
-      <nav
-        className="sticky top-0 z-40 border-b"
-        style={{
-          background: "rgba(0, 0, 0, 0.5)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderColor: "rgba(255, 255, 255, 0.1)",
-        }}
-      >
+      <nav className="sticky top-0 z-40 border-b theme-chrome">
         <div className="container mx-auto px-4">
-          <div className="flex overflow-x-auto scrollbar-hide gap-1 py-2">
+          <div className="flex overflow-x-auto scrollbar-hide gap-1 py-2 -mx-1 px-1">
             {visibleTabs.map((tab) => {
               const href = tab.path ? `/federation/${slug}/${tab.path}` : `/federation/${slug}`;
               const isActive = currentTab === tab.path;
@@ -309,14 +303,15 @@ function FederationLayoutInner({
               return (
                 <Link key={tab.path || "home"} href={href}>
                   <button
-                    className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                      isActive ? "text-white" : "text-gray-400 hover:text-white"
-                    }`}
+                    className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium whitespace-nowrap transition-all min-h-[44px]"
                     style={{
+                      color: isActive ? "#fff" : "var(--chrome-muted)",
                       background: isActive
                         ? "linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(220, 38, 38, 0.4))"
-                        : "rgba(255, 255, 255, 0.05)",
-                      border: isActive ? "1px solid rgba(239, 68, 68, 0.5)" : "1px solid transparent",
+                        : "var(--chrome-btn-bg)",
+                      border: isActive
+                        ? "1px solid rgba(239, 68, 68, 0.5)"
+                        : "1px solid transparent",
                     }}
                   >
                     <Icon className="w-4 h-4" />
@@ -328,10 +323,10 @@ function FederationLayoutInner({
             {hasAdminAccess && (
               <Link href={`/federation/${slug}/admin`}>
                 <button
-                  className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-amber-400/90 hover:text-amber-400"
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-amber-500 min-h-[44px]"
                   style={{
-                    background: "rgba(251, 191, 36, 0.1)",
-                    border: "1px solid rgba(251, 191, 36, 0.3)",
+                    background: "rgba(251, 191, 36, 0.12)",
+                    border: "1px solid rgba(251, 191, 36, 0.35)",
                   }}
                 >
                   <Shield className="w-4 h-4" />

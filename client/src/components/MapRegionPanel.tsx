@@ -53,30 +53,37 @@ export function MapRegionPanel({
 }: MapRegionPanelProps) {
   return (
     <aside
-      className="w-full md:w-[380px] flex-shrink-0 overflow-y-auto border-l border-white/10"
+      className="w-full md:w-[380px] flex-shrink-0 overflow-y-auto max-h-[50vh] md:max-h-none border-t md:border-t-0 md:border-l"
       style={{
-        background: "rgba(0, 0, 0, 0.6)",
+        background: "var(--chrome-bg)",
         backdropFilter: "blur(20px)",
+        borderColor: "var(--chrome-border)",
+        color: "var(--chrome-fg)",
       }}
     >
-      <div className="p-6">
-        <h2 className="text-xl font-serif text-white mb-4">Region Filter</h2>
+      <div className="p-4 sm:p-6">
+        <h2 className="text-xl font-serif mb-4" style={{ color: "var(--chrome-fg)" }}>
+          Region Filter
+        </h2>
 
         <div className="relative mb-6">
           <button
             type="button"
             onClick={onToggleFilter}
-            className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-left"
+            className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-left min-h-[44px]"
             style={{
-              background: "rgba(255, 255, 255, 0.08)",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
+              background: "var(--chrome-btn-bg)",
+              border: "1px solid var(--chrome-border)",
             }}
           >
-            <span className="text-white">{selectedRegion ?? "All regions"}</span>
+            <span style={{ color: "var(--chrome-fg)" }}>
+              {selectedRegion ?? "All regions"}
+            </span>
             <ChevronDown
-              className={`w-5 h-5 text-gray-400 transition-transform ${
+              className={`w-5 h-5 transition-transform ${
                 showRegionFilter ? "rotate-180" : ""
               }`}
+              style={{ color: "var(--chrome-muted)" }}
             />
           </button>
           {showRegionFilter && (
@@ -85,15 +92,16 @@ export function MapRegionPanel({
               animate={{ opacity: 1, y: 0 }}
               className="absolute top-full left-0 right-0 mt-2 rounded-xl overflow-hidden max-h-64 overflow-y-auto z-50"
               style={{
-                background: "rgba(0, 0, 0, 0.9)",
+                background: "var(--drawer-bg)",
                 backdropFilter: "blur(20px)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
+                border: "1px solid var(--chrome-border)",
               }}
             >
               <button
                 type="button"
                 onClick={() => onSelectRegion(null)}
-                className="w-full px-4 py-2.5 text-left text-white hover:bg-white/10 transition-colors"
+                className="w-full px-4 py-3 text-left min-h-[44px] transition-colors"
+                style={{ color: "var(--chrome-fg)" }}
               >
                 All regions
               </button>
@@ -102,7 +110,8 @@ export function MapRegionPanel({
                   type="button"
                   key={r}
                   onClick={() => onSelectRegion(r)}
-                  className="w-full px-4 py-2.5 text-left text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                  className="w-full px-4 py-3 text-left min-h-[44px] transition-colors"
+                  style={{ color: "var(--chrome-muted)" }}
                 >
                   {r}
                 </button>
@@ -128,11 +137,13 @@ export function MapRegionPanel({
                 variants={fadeUp}
                 className="rounded-xl p-3"
                 style={{
-                  background: "rgba(255, 255, 255, 0.05)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  background: "var(--glass-surface)",
+                  border: "1px solid var(--glass-surface-border)",
                 }}
               >
-                <p className="text-white font-medium">{v.name}</p>
+                <p className="font-medium" style={{ color: "var(--chrome-fg)" }}>
+                  {v.name}
+                </p>
                 {(v.city || v.region) && (
                   <p className="text-gray-500 text-xs mt-0.5 flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
@@ -161,11 +172,13 @@ export function MapRegionPanel({
                   variants={fadeUp}
                   className="rounded-xl p-3 cursor-pointer transition-all hover:scale-[1.02]"
                   style={{
-                    background: "rgba(255, 255, 255, 0.05)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    background: "var(--glass-surface)",
+                    border: "1px solid var(--glass-surface-border)",
                   }}
                 >
-                  <p className="text-white font-medium line-clamp-2">{evt.name}</p>
+                  <p className="font-medium line-clamp-2" style={{ color: "var(--chrome-fg)" }}>
+                    {evt.name}
+                  </p>
                   <p className="text-gray-500 text-xs mt-1">
                     {formatDate(evt.startDate)}
                     {(evt.location || evt.region) && (

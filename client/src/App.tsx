@@ -29,7 +29,7 @@ const AIChatAssistant = lazy(() => import("@/components/AIChatAssistant"));
 
 function RouteFallback() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-gray-400 text-sm">
+    <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground text-sm">
       Loading…
     </div>
   );
@@ -80,7 +80,7 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark">
+      <ThemeProvider defaultTheme="dark" switchable>
         <AuthProvider>
           <TooltipProvider>
             <SeoHead />

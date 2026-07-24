@@ -33,10 +33,10 @@ export default function MobileBottomNav() {
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
       style={{
-        background: "rgba(0, 0, 0, 0.85)",
+        background: "var(--bottom-nav-bg)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
-        borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+        borderTop: "1px solid var(--chrome-border)",
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
     >
@@ -52,10 +52,11 @@ export default function MobileBottomNav() {
           return (
             <Link key={item.href} href={item.href}>
               <span
-                className={`flex min-h-[56px] min-w-[56px] flex-col items-center justify-center gap-0.5 px-2 py-2 transition-colors ${
-                  isActive ? "text-red-400" : "text-gray-400"
-                }`}
-                style={{ minHeight: "calc(56px + env(safe-area-inset-bottom, 0px) / 2)" }}
+                className="flex min-h-[56px] min-w-[56px] flex-col items-center justify-center gap-0.5 px-2 py-2 transition-colors"
+                style={{
+                  minHeight: "calc(56px + env(safe-area-inset-bottom, 0px) / 2)",
+                  color: isActive ? "#EF4444" : "var(--chrome-muted)",
+                }}
               >
                 <Icon className="h-5 w-5 flex-shrink-0" strokeWidth={isActive ? 2.5 : 2} />
                 <span className="text-[10px] font-medium">{item.label}</span>

@@ -15,6 +15,7 @@ import {
 import { Link } from 'wouter';
 import { trpc } from '@/lib/trpc';
 import { fadeUp, staggerContainer } from '@/lib/animations';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 // ─────────────────────────────────────────────
 // Constants
@@ -376,33 +377,35 @@ export default function Events() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen theme-page">
       {/* ── Fixed Glass Header ── */}
-      <header
-        className="fixed top-0 left-0 right-0 z-50"
-        style={{
-          background: 'rgba(10,10,10,0.6)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
-        }}
-      >
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-50 theme-chrome border-b">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-2 min-h-[44px]">
           <Link href="/">
-            <button className="flex items-center gap-1.5 text-gray-300 hover:text-white transition-colors px-3 py-2 rounded-xl hover:bg-white/10">
+            <button
+              className="flex items-center gap-1.5 min-h-[44px] px-3 rounded-xl transition-colors"
+              style={{ color: 'var(--chrome-muted)', background: 'var(--chrome-btn-bg)' }}
+            >
               <ChevronLeft className="w-5 h-5" />
               <span className="text-sm font-medium hidden sm:inline">Back</span>
             </button>
           </Link>
 
-          <h1 className="font-serif tracking-[0.35em] text-xl text-white">EVENTS</h1>
+          <h1 className="font-serif tracking-[0.25em] sm:tracking-[0.35em] text-lg sm:text-xl" style={{ color: 'var(--chrome-fg)' }}>
+            EVENTS
+          </h1>
 
-          <button
-            onClick={() => setSearchOpen((v) => !v)}
-            className="p-2 rounded-xl hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
-          >
-            {searchOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
-          </button>
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <button
+              onClick={() => setSearchOpen((v) => !v)}
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl transition-colors"
+              style={{ color: 'var(--chrome-muted)', background: 'var(--chrome-btn-bg)' }}
+              aria-label={searchOpen ? 'Close search' : 'Open search'}
+            >
+              {searchOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
 
         {/* Expandable search */}
@@ -430,12 +433,7 @@ export default function Events() {
       <div className="pt-20">
         {/* ── Sticky Filter Bar ── */}
         <div
-          className="sticky top-[68px] z-40"
-          style={{
-            background: 'rgba(10,10,10,0.75)',
-            backdropFilter: 'blur(20px)',
-            borderBottom: '1px solid rgba(255,255,255,0.07)',
-          }}
+          className="sticky top-[68px] z-40 theme-chrome border-b"
         >
           <div className="container mx-auto px-4 py-3">
             <div className="flex flex-wrap items-center gap-2">

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { federations as staticFederations } from '../data/federations';
 import FederationModal from '../components/FederationModal';
 import NavDrawer from '../components/NavDrawer';
+import { ThemeToggle } from '../components/ThemeToggle';
 import type { Federation as StaticFederation } from '../data/federations';
 import { ChevronDown, Search, Menu, Loader2, MapPin, Users, Calendar, Trophy, X, Filter, Clock, Newspaper } from 'lucide-react';
 import { trpc } from '../lib/trpc';
@@ -216,40 +217,37 @@ export default function Home() {
     d ? new Date(d).toLocaleDateString('en-NA', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 
   return (
-    <div className="min-h-screen bg-black overflow-x-hidden">
+    <div className="min-h-screen theme-page overflow-x-hidden">
       {/* Header - Glass */}
       <header 
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-        style={{
-          background: 'rgba(0, 0, 0, 0.5)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-          paddingTop: 'env(safe-area-inset-top, 0px)',
-        }}
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 theme-chrome border-b"
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between min-h-[44px]">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between min-h-[44px] gap-2">
           <button
             onClick={() => setShowSearch(!showSearch)}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-white hover:bg-white/10 transition-all duration-300 touch-target"
-            style={{ backdropFilter: 'blur(10px)' }}
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl transition-all duration-300 touch-target"
+            style={{ color: 'var(--chrome-fg)', background: 'var(--chrome-btn-bg)' }}
             aria-label={showSearch ? 'Close search' : 'Open search'}
             aria-expanded={showSearch}
           >
             {showSearch ? <X className="w-6 h-6" /> : <Search className="w-6 h-6" />}
           </button>
 
-          <div className="flex items-center gap-6">
-            <h1 className="text-white text-2xl font-serif tracking-[0.3em]">NAMIBIA</h1>
+          <div className="flex items-center gap-4 md:gap-6 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-serif tracking-[0.2em] sm:tracking-[0.3em] truncate" style={{ color: 'var(--chrome-fg)' }}>
+              NAMIBIA
+            </h1>
             {/* Desktop nav pills */}
             <nav className="hidden md:flex items-center gap-1">
               {desktopNavLinks.map((link) => (
                 <Link key={link.href} href={link.href}>
                   <span
-                    className="px-4 py-1.5 rounded-full text-sm text-gray-300 hover:text-white cursor-pointer transition-all duration-200"
+                    className="px-4 py-1.5 rounded-full text-sm cursor-pointer transition-all duration-200"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.06)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: 'var(--chrome-muted)',
+                      background: 'var(--chrome-btn-bg)',
+                      border: '1px solid var(--chrome-border)',
                     }}
                   >
                     {link.label}
@@ -259,14 +257,17 @@ export default function Home() {
             </nav>
           </div>
 
-          <button
-            onClick={() => setNavDrawerOpen(true)}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-white hover:bg-white/10 transition-all duration-300 touch-target"
-            style={{ backdropFilter: 'blur(10px)' }}
-            aria-label="Open menu"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <button
+              onClick={() => setNavDrawerOpen(true)}
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl transition-all duration-300 touch-target"
+              style={{ color: 'var(--chrome-fg)', background: 'var(--chrome-btn-bg)' }}
+              aria-label="Open menu"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+          </div>
         </div>
         
         {/* Search Bar - Glass Expandable */}

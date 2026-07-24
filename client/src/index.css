@@ -53,29 +53,43 @@
   --chart-4: var(--color-green-700);
   --chart-5: var(--color-red-800);
   --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.235 0.015 65);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.235 0.015 65);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.235 0.015 65);
-  --secondary: oklch(0.98 0.001 286.375);
-  --secondary-foreground: oklch(0.4 0.015 65);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.141 0.005 285.823);
+  /* Cool slate light — sports brand, not cream/purple defaults */
+  --background: oklch(0.97 0.008 250);
+  --foreground: oklch(0.22 0.02 250);
+  --card: oklch(0.995 0.004 250);
+  --card-foreground: oklch(0.22 0.02 250);
+  --popover: oklch(0.995 0.004 250);
+  --popover-foreground: oklch(0.22 0.02 250);
+  --secondary: oklch(0.94 0.01 250);
+  --secondary-foreground: oklch(0.32 0.02 250);
+  --muted: oklch(0.94 0.008 250);
+  --muted-foreground: oklch(0.48 0.02 250);
+  --accent: oklch(0.94 0.012 250);
+  --accent-foreground: oklch(0.22 0.02 250);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.623 0.214 259.815);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.235 0.015 65);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.623 0.214 259.815);
+  --border: oklch(0.88 0.012 250);
+  --input: oklch(0.9 0.01 250);
+  --ring: oklch(0.55 0.2 25);
+  --sidebar: oklch(0.985 0.004 250);
+  --sidebar-foreground: oklch(0.22 0.02 250);
+  --sidebar-accent: oklch(0.94 0.01 250);
+  --sidebar-accent-foreground: oklch(0.22 0.02 250);
+  --sidebar-border: oklch(0.88 0.012 250);
+  --sidebar-ring: oklch(0.55 0.2 25);
+  /* Chrome / glass surfaces for headers, drawers, bottom nav */
+  --page-bg: var(--background);
+  --chrome-bg: rgba(255, 255, 255, 0.78);
+  --chrome-border: rgba(15, 23, 42, 0.1);
+  --chrome-fg: oklch(0.22 0.02 250);
+  --chrome-muted: oklch(0.45 0.02 250);
+  --chrome-btn-bg: rgba(15, 23, 42, 0.06);
+  --chrome-btn-hover: rgba(15, 23, 42, 0.1);
+  --glass-surface: rgba(255, 255, 255, 0.7);
+  --glass-surface-border: rgba(15, 23, 42, 0.1);
+  --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+  --drawer-bg: rgba(248, 250, 252, 0.96);
+  --bottom-nav-bg: rgba(255, 255, 255, 0.9);
 }
 
 .dark {
@@ -111,6 +125,18 @@
   --sidebar-accent-foreground:  oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.488 0.243 264.376);
+  --page-bg: oklch(0.141 0.005 285.823);
+  --chrome-bg: rgba(0, 0, 0, 0.5);
+  --chrome-border: rgba(255, 255, 255, 0.1);
+  --chrome-fg: #ffffff;
+  --chrome-muted: #9ca3af;
+  --chrome-btn-bg: rgba(255, 255, 255, 0.08);
+  --chrome-btn-hover: rgba(255, 255, 255, 0.12);
+  --glass-surface: rgba(255, 255, 255, 0.05);
+  --glass-surface-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  --drawer-bg: rgba(10, 10, 10, 0.95);
+  --bottom-nav-bg: rgba(0, 0, 0, 0.85);
 }
 
 @layer base {
@@ -197,51 +223,66 @@ html {
   @apply bg-primary/70;
 }
 
-/* iOS-style Glassmorphism */
+/* iOS-style Glassmorphism — theme-aware via CSS variables */
 .glass {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--glass-surface);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--glass-surface-border);
+  box-shadow: var(--glass-shadow);
 }
 
 .glass-dark {
-  background: rgba(17, 17, 17, 0.7);
+  background: var(--chrome-bg);
   backdrop-filter: blur(40px) saturate(150%);
   -webkit-backdrop-filter: blur(40px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
-              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--chrome-border);
+  box-shadow: var(--glass-shadow);
+  color: var(--chrome-fg);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-surface);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--glass-surface-border);
   border-radius: 1.5rem;
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--foreground);
 }
 
 .glass-card:hover {
   transform: translateY(-4px) scale(1.02);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
 }
 
 .glass-button {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--chrome-btn-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--chrome-border);
   border-radius: 9999px;
   transition: all 0.3s ease;
+  color: var(--chrome-fg);
 }
 
 .glass-button:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--chrome-btn-hover);
   transform: scale(1.05);
+}
+
+/* Shared chrome for fixed/sticky headers across pages */
+.theme-chrome {
+  background: var(--chrome-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-color: var(--chrome-border);
+  color: var(--chrome-fg);
+}
+
+.theme-page {
+  background: var(--page-bg);
+  color: var(--foreground);
 }
 
 /* Glow effects */
@@ -349,5 +390,14 @@ html {
   .touch-target {
     min-height: 44px;
     min-width: 44px;
+  }
+
+  /* Hide scrollbars on horizontal chip/tab rows (mobile) */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

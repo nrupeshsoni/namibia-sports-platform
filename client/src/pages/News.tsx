@@ -5,6 +5,7 @@ import { ChevronLeft, Newspaper, X, Calendar, Tag } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 import { SiteLegalFooter } from "@/components/SiteLegalFooter";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 function formatDate(val: string | null | undefined): string {
   if (!val) return "";
@@ -93,8 +94,9 @@ function ArticleModal({ article, onClose }: { article: NewsArticle; onClose: () 
               </div>
               <button
                 onClick={onClose}
-                className="flex-shrink-0 p-1.5 rounded-lg transition-colors hover:bg-white/10"
+                className="flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors hover:bg-white/10"
                 style={{ color: "#9CA3AF" }}
+                aria-label="Close article"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -168,26 +170,23 @@ export default function News() {
   const rest = filtered.slice(1);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen theme-page">
       {/* Fixed header */}
-      <header
-        className="fixed top-0 left-0 right-0 z-40"
-        style={{
-          background: "rgba(0,0,0,0.55)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255,255,255,0.1)",
-        }}
-      >
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-40 theme-chrome border-b">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-2 min-h-[44px]">
           <Link href="/">
-            <button className="flex items-center gap-2 text-white hover:bg-white/10 transition-colors p-2 rounded-xl">
+            <button
+              className="flex items-center gap-2 min-h-[44px] px-2 rounded-xl transition-colors"
+              style={{ color: "var(--chrome-fg)", background: "var(--chrome-btn-bg)" }}
+            >
               <ChevronLeft className="w-5 h-5" />
-              <span className="text-sm font-medium">Back</span>
+              <span className="text-sm font-medium hidden sm:inline">Back</span>
             </button>
           </Link>
-          <h1 className="text-white text-2xl font-serif tracking-[0.3em]">NEWS</h1>
-          <div className="w-24" />
+          <h1 className="text-xl sm:text-2xl font-serif tracking-[0.2em] sm:tracking-[0.3em]" style={{ color: "var(--chrome-fg)" }}>
+            NEWS
+          </h1>
+          <ThemeToggle />
         </div>
       </header>
 

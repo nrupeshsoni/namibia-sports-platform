@@ -130,7 +130,7 @@ export default function Admin() {
 
   if (meQuery.isLoading || !isPlatformAdmin) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen theme-page flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500" />
       </div>
     );
@@ -140,39 +140,60 @@ export default function Admin() {
   const createLock = filterFedId ?? undefined;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
-      <header
-        className="sticky top-0 z-50 border-b"
-        style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(20px)", borderColor: "rgba(255,255,255,0.08)" }}
-      >
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/"><button className="text-gray-400 hover:text-white transition-colors text-sm">← Back to Site</button></Link>
-            <h1 className="text-xl font-serif tracking-[0.2em]">ADMIN DASHBOARD</h1>
+    <div className="min-h-screen theme-page">
+      <header className="sticky top-0 z-50 border-b theme-chrome">
+        <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between gap-2 min-h-[44px]">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            <Link href="/">
+              <button
+                className="min-h-[44px] px-2 text-sm whitespace-nowrap"
+                style={{ color: "var(--chrome-muted)" }}
+              >
+                ← Back
+              </button>
+            </Link>
+            <h1
+              className="text-sm sm:text-xl font-serif tracking-[0.12em] sm:tracking-[0.2em] truncate"
+              style={{ color: "var(--chrome-fg)" }}
+            >
+              ADMIN
+            </h1>
           </div>
-          <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white gap-2" onClick={() => signOut()}>
-            <LogOut className="h-4 w-4" /> Logout
-          </Button>
+          <div className="flex items-center gap-1 shrink-0">
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2 min-h-[44px]"
+              style={{ color: "var(--chrome-muted)" }}
+              onClick={() => signOut()}
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </Button>
+          </div>
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-8">
         <AdminStatsCards enabled={isPlatformAdmin} />
 
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => { setActiveTab(tab.id); setSearchQuery(""); }}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all"
+                className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium whitespace-nowrap transition-all min-h-[44px]"
                 style={{
                   background: activeTab === tab.id
                     ? "linear-gradient(135deg, rgba(239,68,68,0.4), rgba(220,38,38,0.4))"
-                    : "rgba(255,255,255,0.05)",
-                  border: activeTab === tab.id ? "1px solid rgba(239,68,68,0.5)" : "1px solid rgba(255,255,255,0.08)",
-                  color: activeTab === tab.id ? "white" : "#9CA3AF",
+                    : "var(--chrome-btn-bg)",
+                  border: activeTab === tab.id
+                    ? "1px solid rgba(239,68,68,0.5)"
+                    : "1px solid var(--chrome-border)",
+                  color: activeTab === tab.id ? "white" : "var(--chrome-muted)",
                 }}
               >
                 <Icon className="h-4 w-4" />

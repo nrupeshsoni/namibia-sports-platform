@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'wouter';
 import { X, Facebook, Twitter, Instagram, LogOut, LogIn } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useShowLiveNav } from '@/hooks/useShowLiveNav';
 import { trpc } from '@/lib/trpc';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface NavDrawerProps {
   isOpen: boolean;
@@ -27,9 +29,11 @@ const SOCIAL_LINKS = [
 
 export default function NavDrawer({ isOpen, onClose }: NavDrawerProps) {
   const { user, signOut } = useAuth();
+  const { theme } = useTheme();
   const meQuery = trpc.auth.me.useQuery(undefined, { retry: false });
   const [location] = useLocation();
   const showLive = useShowLiveNav();
+  const isLight = theme === "light";
   const NAV_LINKS = useMemo(() => {
     const links = showLive
       ? BASE_NAV_LINKS
@@ -84,29 +88,37 @@ export default function NavDrawer({ isOpen, onClose }: NavDrawerProps) {
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className="fixed top-0 right-0 bottom-0 z-[70] w-full sm:w-[380px] flex flex-col"
             style={{
-              background: 'rgba(10, 10, 10, 0.95)',
+              background: 'var(--drawer-bg)',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
-              borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
+              borderLeft: '1px solid var(--chrome-border)',
+              color: 'var(--chrome-fg)',
             }}
           >
             {/* Header */}
             <div
-              className="flex items-center justify-between px-8 py-6"
-              style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}
+              className="flex items-center justify-between gap-3 px-6 sm:px-8 py-6"
+              style={{ borderBottom: '1px solid var(--chrome-border)' }}
             >
               <Link href="/" onClick={onClose}>
-                <span className="text-white text-xl font-serif tracking-[0.25em] cursor-pointer hover:text-gray-300 transition-colors">
+                <span
+                  className="text-lg sm:text-xl font-serif tracking-[0.2em] cursor-pointer transition-colors"
+                  style={{ color: 'var(--chrome-fg)' }}
+                >
                   NAMIBIA SPORTS
                 </span>
               </Link>
-              <button
-                onClick={onClose}
-                className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
-                aria-label="Close menu"
-              >
-                <X className="w-6 h-6" />
-              </button>
+              <div className="flex items-center gap-1">
+                <ThemeToggle />
+                <button
+                  onClick={onClose}
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl transition-all duration-200"
+                  style={{ color: 'var(--chrome-muted)', background: 'var(--chrome-btn-bg)' }}
+                  aria-label="Close menu"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
             </div>
 
             {/* Navigation Links */}
@@ -126,8 +138,8 @@ export default function NavDrawer({ isOpen, onClose }: NavDrawerProps) {
                           onClick={onClose}
                           className="block py-4 text-3xl font-serif tracking-wide cursor-pointer transition-all duration-200 hover:pl-3"
                           style={{
-                            color: isActive ? '#EF4444' : 'rgba(255, 255, 255, 0.85)',
-                            borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                            color: isActive ? '#EF4444' : 'var(--chrome-fg)',
+                            borderBottom: `1px solid ${isLight ? 'rgba(15,23,42,0.06)' : 'rgba(255,255,255,0.04)'}`,
                           }}
                         >
                           {link.label}

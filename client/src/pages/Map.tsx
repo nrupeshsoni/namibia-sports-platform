@@ -7,6 +7,8 @@ import { trpc } from "@/lib/trpc";
 import { SiteLegalFooter } from "@/components/SiteLegalFooter";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { MapRegionPanel } from "@/components/MapRegionPanel";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   ALL_REGIONS,
   NAMIBIA_CENTER,
@@ -54,6 +56,7 @@ function MapCenterController({ center }: { center: [number, number] }) {
 }
 
 function MapScreen() {
+  const { theme } = useTheme();
   const [selectedRegion, setSelectedRegion] = useState<string | null>(() =>
     typeof window !== "undefined" ? regionFromSearch(window.location.search) : null,
   );
@@ -106,31 +109,30 @@ function MapScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
-      <header
-        className="fixed top-0 left-0 right-0 z-[1000]"
-        style={{
-          background: "rgba(0, 0, 0, 0.5)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-        }}
-      >
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+    <div className="min-h-screen theme-page">
+      <header className="fixed top-0 left-0 right-0 z-[1000] theme-chrome border-b">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-2 min-h-[44px]">
           <Link href="/">
-            <span className="text-white font-serif tracking-wider cursor-pointer hover:text-red-400 transition-colors">
+            <span
+              className="font-serif tracking-wider cursor-pointer hover:text-red-500 transition-colors text-sm sm:text-base"
+              style={{ color: "var(--chrome-fg)" }}
+            >
               ← NAMIBIA SPORTS
             </span>
           </Link>
-          <p className="text-sm tracking-[0.2em] text-gray-400">INTERACTIVE MAP</p>
+          <p className="text-xs sm:text-sm tracking-[0.15em] sm:tracking-[0.2em]" style={{ color: "var(--chrome-muted)" }}>
+            INTERACTIVE MAP
+          </p>
+          <ThemeToggle />
         </div>
       </header>
 
-      <div className="pt-[72px] h-[calc(100vh-72px)] flex">
-        <div className="flex-1 relative">
+      {/* Stack on mobile so the region panel does not crush the map */}
+      <div className="pt-[72px] h-[calc(100vh-72px)] flex flex-col md:flex-row">
+        <div className="flex-1 relative min-h-[45vh] md:min-h-0">
           {!leafletReady ? (
-            <div className="h-full w-full flex items-center justify-center bg-black">
-              <Loader2 className="w-8 h-8 text-white animate-spin" />
+            <div className="h-full w-full flex items-center justify-center bg-background">
+              <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
             </div>
           ) : (
             <MapContainer
@@ -141,8 +143,13 @@ function MapScreen() {
               zoomControl={false}
             >
               <TileLayer
+                key={theme}
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                url={
+                  theme === "light"
+                    ? "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                    : "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                }
               />
               <ZoomControl position="bottomright" />
               {ALL_REGIONS.map((region) => {
