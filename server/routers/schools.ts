@@ -32,6 +32,8 @@ export const schoolsRouter = router({
         .object({
           region: z.string().optional(),
           search: z.string().optional(),
+          /** Platform admin only — public always sees active schools. */
+          includeInactive: z.boolean().optional(),
         })
         .optional()
     )
@@ -39,7 +41,13 @@ export const schoolsRouter = router({
       const db = await getDb();
       if (!db) return [];
 
+      const allowInactive =
+        input?.includeInactive === true && ctx.user?.role === "admin";
+
       const conditions = [];
+      if (!allowInactive) {
+        conditions.push(eq(schools.isActive, true));
+      }
       if (input?.region) {
         const rm = regionMatches(schools.region, input.region);
         if (rm) conditions.push(rm);
@@ -73,6 +81,7 @@ export const schoolsRouter = router({
 
       const row = result[0];
       if (!row) return null;
+      if (!row.isActive && ctx.user?.role !== "admin") return null;
       if (ctx.user?.role === "admin") return row;
       return stripSchoolContact(row);
     }),
