@@ -4,11 +4,21 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Security
+- **A1 — `upload.image` IDOR:** After `assertSameFederation` on input `federationId`, resolve entity ownership (`resolveEntityFederationId`) and require the row’s federation to match the claim (venues remain platform-admin only). Cross-tenant case in `federationScope.test.ts`.
+- **A2 — News `sourceUrl` hrefs:** Client `safeHttpsHref` on Read original links (`NewsCard`, `FeaturedNewsCard`, `NewsArticleModal`, Admin Content Sync). `news.create`/`update` `featuredImage` uses `httpsUrlSchema`; aggregator stores https-only `source_url` / `featured_image`.
+- **A3 — news-aggregator og:image SSRF:** Block private/link-local/metadata hosts; https-preferring outbound fetch with capped manual redirects + timeouts; oEmbed gated the same way.
+- **A4 — Docs:** `CLAUDE.md` documents real `service_role` uses (Storage + Auth Admin + aggregator PostgREST), not “storage only”.
+
+### Fixed
+- **Athletics Namibia logo:** `/logos/athletics-logo.png` was an HTML stub (World Athletics CIS page mis-saved as PNG). Removed stub; federation + media now use sport mark `/logos/marks/athletics.svg` (no verified crest in repo). Migration `20260725200000`.
+
 ### Changed
 - **Home Sports News → ticker:** mid-page card grid replaced with a compact teaser; latest headlines scroll in a fixed top ticker (below header) that appears after ~160px scroll and hides at the top. Click opens shared `NewsArticleModal`. `/news` keeps card/list layout. `prefers-reduced-motion` uses a static horizontal chip list; pause on hover.
 - **News ticker chrome:** translucent glass (`bg-white/40` / `bg-black/40` + blur) instead of opaque `theme-chrome`; small 32–36px thumbs when `featuredImage` exists (`onError` hides thumb).
 
 ### Fixed
+- **PWA navigateFallback `/api`:** VitePWA Workbox had `navigateFallback: "/index.html"` with no denylist; live `sw.js` registered bare `NavigationRoute` so document navigations to `/api/*` could get HTML. Added `navigateFallbackDenylist: [/^\/api(?:\/|$)/]`. (tRPC `fetch` was never matched — only `mode:navigate`.)
 - **SEO P0 — athlete document 404:** Worker `isStaticAssetPath` treated all `/athletes/*` (and `/sports|/logos|/venues`) as asset-only, so full-document fetches for `/athletes/:slug` returned plain-text **404** (SPA client nav still worked; sitemap listed 198 URLs). Now mirrors `/news/*`: only paths with a static file extension under those prefixes skip SPA fallback; slug routes get `index.html`.
 - **News ticker marquee:** CSS `translate3d` infinite scroll with two equal segments; pause on hover only; no Framer Motion parent transform fighting the track animation. Reduced-motion stays static scrollable chips.
 - **Broken news images:** `NewsCard` / `FeaturedNewsCard` / modal only render `<img>` when URL is non-empty; `onError` hides the image (no browser broken-icon placeholder).

@@ -43,6 +43,10 @@ const plugins = [
         "icons/*.png",
       ],
       navigateFallback: "/index.html",
+      // NavigationRoute only matches mode:navigate — tRPC fetch is unaffected —
+      // but without a denylist, address-bar / offline navigations to /api/* get
+      // precached index.html (HTML-for-JSON). Live sw.js had no denylist (2026-07-25).
+      navigateFallbackDenylist: [/^\/api(?:\/|$)/],
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
