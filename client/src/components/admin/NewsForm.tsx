@@ -13,7 +13,9 @@ export interface NewsFormData {
   summary?: string | null;
   category?: string | null;
   featuredImage?: string | null;
-  federationId: number;
+  sourceUrl?: string | null;
+  sourceName?: string | null;
+  federationId: number | null;
 }
 
 const toSlug = (s: string) =>
@@ -21,6 +23,15 @@ const toSlug = (s: string) =>
 
 const F = "bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-red-500/50";
 const L = "text-sm text-gray-400";
+
+function isValidHttpsUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 
 interface Props {
   mode: "create" | "edit";
@@ -39,6 +50,8 @@ export function NewsForm({ mode, federationId, initialData, onSuccess }: Props) 
     summary: initialData?.summary ?? "",
     category: initialData?.category ?? "",
     featuredImage: initialData?.featuredImage ?? "",
+    sourceUrl: initialData?.sourceUrl ?? "",
+    sourceName: initialData?.sourceName ?? "",
   });
 
   const createMut = trpc.news.create.useMutation({
@@ -63,6 +76,11 @@ export function NewsForm({ mode, federationId, initialData, onSuccess }: Props) 
       setError("Title is required");
       return;
     }
+    const sourceUrlTrimmed = form.sourceUrl.trim();
+    if (sourceUrlTrimmed && !isValidHttpsUrl(sourceUrlTrimmed)) {
+      setError("Source URL must be a valid https URL");
+      return;
+    }
     const slug = form.slug || toSlug(form.title);
     const payload = {
       title: form.title,
@@ -71,6 +89,8 @@ export function NewsForm({ mode, federationId, initialData, onSuccess }: Props) 
       summary: form.summary || undefined,
       category: form.category || undefined,
       featuredImage: form.featuredImage || undefined,
+      sourceUrl: sourceUrlTrimmed || undefined,
+      sourceName: form.sourceName.trim() || undefined,
     };
     if (mode === "create") {
       createMut.mutate({ federationId, ...payload });
@@ -123,6 +143,25 @@ export function NewsForm({ mode, federationId, initialData, onSuccess }: Props) 
           value={form.category}
           onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
           placeholder="e.g. Results"
+        />
+      </div>
+      <div>
+        <Label className={L}>Source URL</Label>
+        <Input
+          className={F}
+          type="url"
+          value={form.sourceUrl}
+          onChange={(e) => setForm((p) => ({ ...p, sourceUrl: e.target.value }))}
+          placeholder="https://..."
+        />
+      </div>
+      <div>
+        <Label className={L}>Source name</Label>
+        <Input
+          className={F}
+          value={form.sourceName}
+          onChange={(e) => setForm((p) => ({ ...p, sourceName: e.target.value }))}
+          placeholder="e.g. New Era"
         />
       </div>
       <ImageUpload

@@ -1,6 +1,6 @@
 /**
  * Unwrap post-2024 Google News `articles/CBMi…` redirects to publisher URLs
- * (signature + batchexecute Fbv4je). Used only for og:image enrichment.
+ * (signature + batchexecute Fbv4je). Used for og:image enrichment and source_url.
  */
 
 /** Browser-like UA — Google News omits data-n-a-sg for bot UAs. */
@@ -19,19 +19,37 @@ function articleIdFromUrl(url: string): string | null {
   }
 }
 
+/** Normalize RSS wrapper paths to the HTML article route before fetch. */
+function normalizeGoogleNewsArticleUrl(url: string): string {
+  return url.replace(/\/rss\/articles\//i, "/articles/");
+}
+
+/**
+ * Parse `"Headline - Publisher"` titles from Google News RSS items.
+ * Returns null when no trailing outlet segment is present.
+ */
+export function publisherFromGoogleTitle(title: string): string | null {
+  const trimmed = title.trim();
+  const idx = trimmed.lastIndexOf(" - ");
+  if (idx <= 0 || idx >= trimmed.length - 3) return null;
+  const publisher = trimmed.slice(idx + 3).trim();
+  return publisher.length > 0 ? publisher.slice(0, 200) : null;
+}
+
 /**
  * Resolve a Google News article wrapper to the outlet article URL.
  * Returns null when the page has no signature or batchexecute fails.
  */
 export async function unwrapGoogleNewsUrl(articleUrl: string): Promise<string | null> {
-  if (!/news\.google\.com\/.*\/articles\//i.test(articleUrl)) return null;
-  const articleId = articleIdFromUrl(articleUrl);
+  const normalized = normalizeGoogleNewsArticleUrl(articleUrl);
+  if (!/news\.google\.com\/.*\/articles\//i.test(normalized)) return null;
+  const articleId = articleIdFromUrl(normalized);
   if (!articleId) return null;
 
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), UNWRAP_MS);
   try {
-    const pageRes = await fetch(articleUrl, {
+    const pageRes = await fetch(normalized, {
       headers: { "User-Agent": UA, Accept: "text/html" },
       signal: ctrl.signal,
       redirect: "follow",
