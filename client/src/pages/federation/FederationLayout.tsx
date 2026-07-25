@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import { useLocation, Link, Redirect } from "wouter";
-import { ChevronLeft, Loader2, Home, Calendar, Users, User, Newspaper, Radio, Shield } from "lucide-react";
+import { ChevronLeft, Loader2, Home, Calendar, Users, User, Newspaper, Radio, Image as ImageIcon, Shield } from "lucide-react";
 import type { FederationContextValue } from "@/contexts/FederationContext";
 import { trpc } from "@/lib/trpc";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,6 +15,7 @@ import FederationClubs from "./FederationClubs";
 import FederationAthletes from "./FederationAthletes";
 import FederationNews from "./FederationNews";
 import FederationStreams from "./FederationStreams";
+import FederationMedia from "./FederationMedia";
 import { FedAdminLayout, FedAdminLayoutSkeleton } from "./admin/FedAdminLayout";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -34,6 +35,7 @@ const TABS = [
   { path: "clubs", label: "Clubs", icon: Users },
   { path: "athletes", label: "Athletes", icon: User },
   { path: "news", label: "News", icon: Newspaper },
+  { path: "media", label: "Media", icon: ImageIcon },
   { path: "streams", label: "Streams", icon: Radio },
 ] as const;
 
@@ -351,7 +353,6 @@ function FederationLayoutInner({
         {currentTab === "clubs" && <FederationClubs />}
         {currentTab === "athletes" && <FederationAthletes />}
         {currentTab === "news" && <FederationNews />}
-        {currentTab === "media" && <FederationMedia />}
         {currentTab === "streams" && <FederationStreams />}
       </main>
     </div>
