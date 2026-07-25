@@ -44,8 +44,9 @@ export const eventsRouter = router({
           conditions.push(eq(events.federationId, input.federationId));
         }
         if (input?.region) {
-          conditions.push(eq(events.region, input.region));
-        }
+        const rm = regionMatches(events.region, input.region);
+        if (rm) conditions.push(rm);
+      }
         if (input?.search) {
           conditions.push(like(events.name, `%${input.search}%`));
         }
@@ -87,6 +88,23 @@ export const eventsRouter = router({
       return row;
     }),
 
+
+  getBySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) return null;
+      const rows = await db
+        .select({ event: events, federationName: federations.name, federationSlug: federations.slug })
+        .from(events)
+        .leftJoin(federations, eq(events.federationId, federations.id))
+        .where(eq(events.slug, input.slug))
+        .limit(1);
+      const row = rows[0];
+      if (!row) return null;
+      if (!row.event.isPublished && !canViewNonPublic(ctx.user, row.event.federationId)) return null;
+      return { ...row.event, federationName: row.federationName ?? null, federationSlug: row.federationSlug ?? null };
+    }),
   create: federationAdminProcedure
     .input(
       z.object({

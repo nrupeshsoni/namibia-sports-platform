@@ -1,10 +1,11 @@
-﻿# Changelog
+# Changelog
 
 All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
 ### Added
+- Public **/events/:slug** and **/clubs/:slug** detail pages: getBySlug tRPC, SPA routes, card links, JSON-LD, sitemap entries.
 - **Tenancy tests (T4):** `server/federationScopeDbFirst.test.ts` — mocked-`getDb` coverage for `media.create/update/delete`, `coaches`/`hpPrograms` update/delete, and `upload.image` entity ownership (A1). Client `safeHttpsHref` news sourceUrl cases in `features.test.ts`.
 - **`media.update`:** Title / fileUrl / thumbnailUrl / type patch with `mediaAssetUrlSchema` + entity federation ownership.
 - **Backlog clearance tracker:** `docs/research/BACKLOG_CLEARANCE_20260725.md`.
@@ -16,6 +17,8 @@ All notable changes to this project are documented in this file.
 - **SEC-M6 — AI error leak:** `ai.*` and Content Sync use `toClientSafeTrpcError` — production clients get generic messages; details logged server-side only.
 
 ### Fixed
+- **Soft-404 SEO:** SeoHead sets 
+oindex while loading or when federation/news/athlete/event/club slug records are missing.
 - **SearchAction:** homepage `/?q=` opens `SearchCommandPalette` (Cmd/Ctrl+K + `search.global`).
 - **FederationModal a11y:** Radix `Dialog` (`role=dialog`, `aria-modal`, Escape, focus trap, labelled close).
 
@@ -29,6 +32,8 @@ All notable changes to this project are documented in this file.
 - **A4 — Docs:** `CLAUDE.md` documents real `service_role` uses (Storage + Auth Admin + aggregator PostgREST), not “storage only”.
 
 ### Fixed
+- **Soft-404 SEO:** SeoHead sets 
+oindex while loading or when federation/news/athlete/event/club slug records are missing.
 - **Athletics Namibia logo:** `/logos/athletics-logo.png` was an HTML stub (World Athletics CIS page mis-saved as PNG). Removed stub; federation + media now use sport mark `/logos/marks/athletics.svg` (no verified crest in repo). Migration `20260725200000`.
 
 ### Changed
@@ -37,6 +42,8 @@ All notable changes to this project are documented in this file.
 - **News ticker chrome:** translucent glass (`bg-white/40` / `bg-black/40` + blur) instead of opaque `theme-chrome`; small 32–36px thumbs when `featuredImage` exists (`onError` hides thumb).
 
 ### Fixed
+- **Soft-404 SEO:** SeoHead sets 
+oindex while loading or when federation/news/athlete/event/club slug records are missing.
 - **PWA navigateFallback `/api`:** VitePWA Workbox had `navigateFallback: "/index.html"` with no denylist; live `sw.js` registered bare `NavigationRoute` so document navigations to `/api/*` could get HTML. Added `navigateFallbackDenylist: [/^\/api(?:\/|$)/]`. (tRPC `fetch` was never matched — only `mode:navigate`.)
 - **SEO P0 — athlete document 404:** Worker `isStaticAssetPath` treated all `/athletes/*` (and `/sports|/logos|/venues`) as asset-only, so full-document fetches for `/athletes/:slug` returned plain-text **404** (SPA client nav still worked; sitemap listed 198 URLs). Now mirrors `/news/*`: only paths with a static file extension under those prefixes skip SPA fallback; slug routes get `index.html`.
 - **News ticker marquee:** CSS `translate3d` infinite scroll with two equal segments; pause on hover only; no Framer Motion parent transform fighting the track animation. Reduced-motion stays static scrollable chips.
@@ -45,6 +52,7 @@ All notable changes to this project are documented in this file.
 - **news-aggregator image enrich:** stronger RSS media/`<img>` extraction (skips ad banners), twitter/og/JSON-LD meta, WordPress **oEmbed thumbnail** fallback (Economist), capped fetch timeouts (12s feed / 6s og); DB backfill via `source_url`; **Google News unwrap** (browser UA + batchexecute `garturlres`) so outlet `og:image` can be fetched.
 
 ### Added
+- Public **/events/:slug** and **/clubs/:slug** detail pages: getBySlug tRPC, SPA routes, card links, JSON-LD, sitemap entries.
 - **Full gap analysis (2026-07-25):** master synthesis `docs/research/FULL_GAP_ANALYSIS_20260725.md` + remaining wave slices `05`–`09`, `11`–`18` under `docs/research/gap_wave_20260725/`. Soft public **84/100** (CONDITIONAL → GO after credential rotation); full national **76/100** (**NO-GO**). Ops hard-cap **≤52** while DB/`service_role` unrotated. Workers Builds `ci:gate` verified **closed**.
 - Gap analysis: `docs/research/gap_wave_20260725/02_data_completeness.md` — live DB completeness (83 actives: logo/hero/desc 100%; contact 88%; website 66%; content zeros; events 291/40 upcoming; news 147; population priorities).
 - Gap analysis: `docs/research/gap_wave_20260725/01_security.md` — SECURITY/AUTH/RBAC slice (Hyperdrive still `postgres`, credential rotation Critical, tenancy/PII/WhatsApp/AI/storage audit; live MCP 2026-07-25).
@@ -69,6 +77,8 @@ All notable changes to this project are documented in this file.
 - Admin stats: first card is **Directory** (85) with breakdown `sports · bodies · merged` so it is not confused with NSC/Ministry federation counts; Events/Clubs/Athletes use `adminStats.counts`.
 
 ### Fixed
+- **Soft-404 SEO:** SeoHead sets 
+oindex while loading or when federation/news/athlete/event/club slug records are missing.
 - Worker Anthropic paths (`server/services/anthropic.ts` Map/AI chat + Content Sync Phase 2 fallback) still called retired model `claude-sonnet-4-20250514` (API 404). Aligned to `claude-sonnet-4-6` with news-aggregator. Workers AI Content Sync (`@cf/meta/llama-3.1-8b-instruct`) unchanged.
 - **news-aggregator** produced `inserted:0` / `skippedNonSports:9` on first smokes: retired Anthropic model `claude-sonnet-4-20250514` (API 404) aborted every item before insert; Informante keyword skips accounted for the `9`. Switched to `claude-sonnet-4-6`, trust `sportsOnly` category feeds for `isSports`, non-throwing Claude fallback, 3 items/feed for 150s cron, per-source diagnostics. Drafts now land as `agg-*` unpublished rows.
 - **Map mobile layout:** region panel no longer sits `w-full` beside the map in a row flex (crushed map on phones). Stacks vertically under `md`; panel capped at ~50vh on small screens. News article modal close control meets 44px tap target. Sonner toaster uses app `ThemeContext` (not unused `next-themes`).
@@ -91,6 +101,7 @@ All notable changes to this project are documented in this file.
 - Sitemap hubs: include `/privacy` + `/terms`; omit `/live` while stream inventory is VOD-only (`scripts/generate-sitemap.mjs`).
 
 ### Added
+- Public **/events/:slug** and **/clubs/:slug** detail pages: getBySlug tRPC, SPA routes, card links, JSON-LD, sitemap entries.
 - Hollow long-tail fill + UX (2026-07-24 evening): +**2** clubs (Deluded Bros / Let's Go Hiking), +**5** NIIHA World Games athletes, +**6** news (SKN/NFGF/NMTF/NM/NSB/NIIHA). Hollow core-5 **28.9% → 21.7%** (24→18). Migration `20260724190000`. Evidence: `docs/research/hollow_longtail_ux_fill_20260724.md`. Vitest: `federationPublicTabs.test.ts`.
 - Hollow fill pass (2026-07-24): +**18** clubs (NIIHA×4, Fistball×4, Cue/NCSF×9, Mountain Club), +**15** athletes (NESA Dota 2×5, darts×4, cue×5, TKD Owen Samunzala), +**5** news. Live: athletes **193**, clubs **189**, news **83**. Migrations `20260724180000`–`20260724180200`. Evidence: `docs/research/crests_hollow_fill_batch_20260724.md`.
 - Production go-live scorecard (orchestrator): `docs/research/PRODUCTION_GO_LIVE_SCORECARD.md` — full public **83/100** code bar, **CONDITIONAL** (soft public after human credential rotation; full national still NO-GO until hollow). Caps ≤52 while DB/`service_role` unrotated.
@@ -116,6 +127,7 @@ All notable changes to this project are documented in this file.
 - Public list procedures now enforce default **50** / max **200** row caps (`server/_core/listLimits.ts`): `events`, `clubs`, `athletes`, `coaches`, `streams`, `venues`, `federations`, `hpPrograms`. Callers that need fuller directories pass an explicit `limit` (capped at 200).
 
 ### Added
+- Public **/events/:slug** and **/clubs/:slug** detail pages: getBySlug tRPC, SPA routes, card links, JSON-LD, sitemap entries.
 - Production polish (2026-07-23): regenerated sitemap slug JSONs from live DB (**83** feds / **79** news / **178** athletes) and rebuilt `client/public/sitemap.xml`. Migration `20260723100000_athletes_clubs_hollow_polish.sql` (+**16** athletes, +**2** clubs — karate OGKN/UFAK, dance nationals, triathlon World Triathlon elites, TKD Mabuza). Crest re-hunt Golf/Karate/Badminton/PWFN — **0** new crests (prior rejections stand). Footer: NSC Facebook only (dropped dead `#` socials); Events footer Privacy/Terms. Google OAuth remains gated by `VITE_ENABLE_GOOGLE_AUTH`.
 - Production SEO + AIO: route-aware `document.title` / meta description / OG+Twitter / canonical via `SeoHead` + `client/src/lib/seo.ts` (Home, Events, News, news slug, Live, Map, federation pages, athlete profiles). JSON-LD: `WebSite`+`SearchAction` (home), `SportsOrganization`/`Organization` (federations), `NewsArticle` (news), `SportsEvent` ItemList (events), `Person` (athletes). Per-federation OG image/title when on `/federation/:slug`.
 - Build-time sitemap: `scripts/generate-sitemap.mjs` (hooked in `prebuild`) expands `client/public/sitemap.xml` from committed `scripts/data/*-slugs.json` (83 active federation slugs + published news + active athletes); optional Supabase REST refresh via `SITEMAP_SUPABASE_*` / `VITE_SUPABASE_*`. `robots.txt` sitemap URL unchanged (`https://sports.com.na/sitemap.xml`).
@@ -194,6 +206,8 @@ All notable changes to this project are documented in this file.
 - **Gap A21** — five runtime dependencies with zero references anywhere in `client/`, `server/`, `shared/`, `scripts/` or `drizzle/`: `@aws-sdk/client-s3` and `@aws-sdk/s3-request-presigner` (leftovers from the storage approach Supabase Storage replaced), `axios`, `dotenv`, `nanoid`. The `overrides.tailwindcss.nanoid` pin stays. 118 packages removed; `check`, `build` and `test` verified after.
 
 ### Fixed
+- **Soft-404 SEO:** SeoHead sets 
+oindex while loading or when federation/news/athlete/event/club slug records are missing.
 - **Public-ready P0 (Home/Events):** hero auto-rotate uses `useEffect` with cleanup (was broken `useState` initializer); replaced broken Unsplash hero URL with `/sports/athletics.jpg`; Home news cards link to `/news/:slug`; High Performance CTA → `#federations`, Athlete Register CTA → `/register`; Events removes dead "Register" buttons and honors `?slug=` with scroll + highlight.
 - **Security:** public `athletes.list`, `coaches.list`, `clubs.list` default to `is_active = true`; `search.global` clubs/athletes are active-only. Staff may pass `includeInactive` (admin / federation_admin only); anonymous callers cannot bypass.
 - **Security:** `federationAdminMiddleware` uses tRPC v11 `await opts.getRawInput()` (obsolete `rawInput` removed); platform admins bypass tenant check.

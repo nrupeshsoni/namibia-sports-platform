@@ -118,9 +118,11 @@ function EventCard({ event, viewMode, highlighted = false }: EventCardProps) {
   const highlightShadow = highlighted
     ? '0 0 0 2px rgba(239,68,68,0.35), 0 25px 50px -12px rgba(0,0,0,0.3)'
     : undefined;
+  const detailHref = /events/;
 
   if (viewMode === 'list') {
     return (
+      <Link href={detailHref}>
       <motion.div
         id={`event-${event.slug}`}
         variants={fadeUp}
@@ -193,11 +195,13 @@ function EventCard({ event, viewMode, highlighted = false }: EventCardProps) {
           </div>
         </div>
       </motion.div>
+      </Link>
     );
   }
 
   // Grid card
   return (
+    <Link href={detailHref}>
     <motion.div
       id={`event-${event.slug}`}
       variants={fadeUp}
@@ -282,6 +286,7 @@ function EventCard({ event, viewMode, highlighted = false }: EventCardProps) {
         </div>
       </div>
     </motion.div>
+    </Link>
   );
 }
 

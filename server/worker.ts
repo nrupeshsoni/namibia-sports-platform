@@ -19,7 +19,7 @@ const TRPC_ENDPOINT = "/api/trpc";
 /**
  * Static asset trees under `client/public/`. Paths with a file extension are
  * served as assets (missing → real 404). Paths without an extension are SPA
- * routes (e.g. `/athletes/:slug`, `/news/:slug`) and must get index.html.
+ * routes (e.g. `/athletes/:slug`, `/news/:slug`, `/events/:slug`, `/clubs/:slug`) and must get index.html.
  * `/sports/`, `/logos/`, `/venues/` have no SPA detail routes today — extension
  * gating still keeps image serving intact and avoids false 404s if routes land later.
  */
@@ -55,6 +55,25 @@ const CONTENT_SECURITY_POLICY = [
   "frame-ancestors 'none'",
   "upgrade-insecure-requests",
 ].join("; ");
+
+
+function cacheControlForRequest(request: Request | undefined, response: Response): string | null {
+  if (!request) return null;
+  const path = new URL(request.url).pathname.toLowerCase();
+  if (path.startsWith("/api/")) return "private, no-store";
+  if (path.startsWith("/assets/")) return "public, max-age=31536000, immutable";
+  if (
+    (path.startsWith("/logos/") || path.startsWith("/sports/")) &&
+    STATIC_FILE_EXT.test(path)
+  ) {
+    return "public, max-age=604800, stale-while-revalidate=86400";
+  }
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("text/html") || !STATIC_FILE_EXT.test(path)) {
+    return "no-cache";
+  }
+  return null;
+}
 
 const SECURITY_HEADERS: Record<string, string> = {
   "Content-Security-Policy": CONTENT_SECURITY_POLICY,

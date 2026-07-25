@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "framer-motion";`r`nimport { Link } from "wouter";
 import { Search, MapPin, Users, Mail, Shield, Trophy } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { fadeUp, staggerContainer } from "@/lib/animations";
@@ -240,6 +240,7 @@ export default function FederationClubs() {
                   )}
                 </div>
               </motion.div>
+              </Link>
             );
           })}
         </div>

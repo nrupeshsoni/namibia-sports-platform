@@ -59,8 +59,9 @@ export const clubsRouter = router({
           conditions.push(eq(clubs.federationId, input.federationId));
         }
         if (input?.region) {
-          conditions.push(eq(clubs.region, input.region));
-        }
+        const rm = regionMatches(clubs.region, input.region);
+        if (rm) conditions.push(rm);
+      }
         if (input?.search) {
           conditions.push(like(clubs.name, `%${input.search}%`));
         }
@@ -101,6 +102,25 @@ export const clubsRouter = router({
       return stripClubContact(row);
     }),
 
+
+  getBySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) return null;
+      const rows = await db
+        .select({ club: clubs, federationName: federations.name, federationSlug: federations.slug })
+        .from(clubs)
+        .leftJoin(federations, eq(clubs.federationId, federations.id))
+        .where(eq(clubs.slug, input.slug))
+        .limit(1);
+      const row = rows[0];
+      if (!row) return null;
+      if (!row.club.isActive && !canViewNonPublic(ctx.user, row.club.federationId)) return null;
+      const base = { ...row.club, federationName: row.federationName ?? null, federationSlug: row.federationSlug ?? null };
+      if (canViewNonPublic(ctx.user, row.club.federationId)) return base;
+      return stripClubContact(base);
+    }),
   create: federationAdminProcedure
     .input(
       z.object({
