@@ -76,11 +76,31 @@ export function AdminContentSyncPanel() {
     onError: (err) => setError(err.message),
   });
 
+  const batchZeroNews = trpc.contentSync.batchDraftZeroNews.useMutation({
+    onSuccess: (data) => {
+      const n = data.created.length;
+      const skip = data.skipped.length;
+      setDraftMsg(
+        `Zero-news batch: ${n} unpublished draft${n === 1 ? "" : "s"} created` +
+          (skip ? `; ${skip} skipped` : "") +
+          (data.remainingZeroNews > 0
+            ? `. ~${data.remainingZeroNews} federations still have zero published news — run again after review.`
+            : ". No zero-news federations remain.")
+      );
+      setProvider(data.provider);
+      setDisclaimer(data.disclaimer);
+      setError(null);
+      utils.adminStats.counts.invalidate();
+    },
+    onError: (err) => setError(err.message),
+  });
+
   const busy =
     suggestNews.isPending ||
     suggestEvents.isPending ||
     createNewsDraft.isPending ||
-    createEventDraft.isPending;
+    createEventDraft.isPending ||
+    batchZeroNews.isPending;
 
   const status = statusQuery.data;
   const available = status?.available === true;
@@ -201,7 +221,24 @@ export function AdminContentSyncPanel() {
           )}
           Find event candidates
         </Button>
+        <Button
+          className="gap-2 bg-amber-700/80 hover:bg-amber-700 text-white"
+          disabled={!available || busy}
+          onClick={() => batchZeroNews.mutate({ maxFederations: 17 })}
+          title="Creates unpublished AI drafts for federations with zero published news. Never auto-publishes."
+        >
+          {batchZeroNews.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4" />
+          )}
+          Draft zero-news federations
+        </Button>
       </div>
+      <p className="text-xs text-gray-500">
+        Zero-news batch: one AI call → up to 17 unpublished news drafts. Review under News before
+        publish. Rate-limited (3 runs / 10 min).
+      </p>
 
       {error && (
         <p className="text-sm text-red-400" role="alert">

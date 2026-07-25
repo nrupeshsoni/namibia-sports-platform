@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, Search } from "lucide-react";
+import { Pencil, Plus, Trash2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,16 @@ interface Props {
   /** When set, scopes library to federation entity media. */
   federationId?: number;
 }
+
+type MediaRow = {
+  id: number;
+  title: string | null;
+  fileUrl: string;
+  thumbnailUrl: string | null;
+  type: "image" | "video" | "document";
+  entityType: string;
+  entityId: number;
+};
 
 function MediaCreateForm({
   federationId,
@@ -85,9 +95,78 @@ function MediaCreateForm({
   );
 }
 
+function MediaEditForm({
+  item,
+  federationId,
+  onSuccess,
+}: {
+  item: MediaRow;
+  federationId: number;
+  onSuccess: () => void;
+}) {
+  const utils = trpc.useUtils();
+  const [error, setError] = useState<string | null>(null);
+  const [title, setTitle] = useState(item.title ?? "");
+  const [fileUrl, setFileUrl] = useState<string | null>(item.fileUrl);
+
+  const updateMut = trpc.media.update.useMutation({
+    onSuccess: () => {
+      utils.media.list.invalidate();
+      onSuccess();
+    },
+    onError: (err) => setError(err.message),
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!fileUrl) {
+      setError("Upload or paste an image URL first");
+      return;
+    }
+    updateMut.mutate({
+      id: item.id,
+      title: title || null,
+      fileUrl,
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+      <div>
+        <Label className={L}>Title</Label>
+        <Input
+          className={F}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Optional caption"
+        />
+      </div>
+      <ImageUpload
+        label="Image"
+        value={fileUrl}
+        onChange={setFileUrl}
+        federationId={federationId}
+        entity="federation"
+        entityId={federationId}
+        variant="poster"
+      />
+      {error && <p className="text-red-400 text-sm">{error}</p>}
+      <Button
+        type="submit"
+        disabled={updateMut.isPending}
+        className="w-full bg-red-600 hover:bg-red-700 text-white"
+      >
+        Save changes
+      </Button>
+    </form>
+  );
+}
+
 export function MediaLibrary({ federationId }: Props) {
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [editItem, setEditItem] = useState<MediaRow | null>(null);
   const [createFedId, setCreateFedId] = useState<number | undefined>(federationId);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
@@ -111,6 +190,8 @@ export function MediaLibrary({ federationId }: Props) {
   });
 
   const resolvedCreateFed = federationId ?? createFedId;
+  const editFedId =
+    editItem?.entityType === "federation" ? editItem.entityId : federationId ?? createFedId;
 
   return (
     <div className="space-y-6">
@@ -163,14 +244,26 @@ export function MediaLibrary({ federationId }: Props) {
                     {m.entityType}
                   </Badge>
                 </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-gray-400 hover:text-red-400 shrink-0"
-                  onClick={() => setDeleteId(m.id)}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                <div className="flex shrink-0 gap-0.5">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-gray-400 hover:text-white"
+                    onClick={() => setEditItem(m)}
+                    aria-label="Edit media"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-gray-400 hover:text-red-400"
+                    onClick={() => setDeleteId(m.id)}
+                    aria-label="Delete media"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
@@ -191,6 +284,22 @@ export function MediaLibrary({ federationId }: Props) {
             <p className="text-sm text-gray-500">Select a federation to continue.</p>
           )}
         </div>
+      </EntityModal>
+
+      <EntityModal
+        open={editItem != null}
+        onClose={() => setEditItem(null)}
+        title="Edit media"
+      >
+        {editItem != null && editFedId != null ? (
+          <MediaEditForm
+            item={editItem}
+            federationId={editFedId}
+            onSuccess={() => setEditItem(null)}
+          />
+        ) : (
+          <p className="text-sm text-gray-500">Unable to edit this item.</p>
+        )}
       </EntityModal>
 
       {deleteId != null && (
