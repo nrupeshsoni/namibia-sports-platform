@@ -19,7 +19,7 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 - **PERF-CC — Cache-Control wiring:** `cacheControlForRequest` was defined but never applied; Worker now sets hashed `/assets/*` to `immutable` + long `max-age`, API to `private, no-store`, HTML to `no-cache`.
-- **SeoHead build break:** restore `parseEventSlug` / `parseClubSlug` / `soft404Seo` (missing after slug-hydration commit); soft-404 `noindex` only when a slug record is confirmed missing (pending load stays indexable).
+- **SeoHead build break:** restore `parseEventSlug` / `parseClubSlug` / `pendingSeo` / `soft404Seo` (missing after slug-hydration commit); loading + missing entity slugs both emit `noindex`.
 - **SearchAction:** homepage `/?q=` opens `SearchCommandPalette` (Cmd/Ctrl+K + `search.global`).
 - **FederationModal a11y:** Radix `Dialog` (`role=dialog`, `aria-modal`, Escape, focus trap, labelled close).
 
@@ -33,8 +33,7 @@ All notable changes to this project are documented in this file.
 - **A4 — Docs:** `CLAUDE.md` documents real `service_role` uses (Storage + Auth Admin + aggregator PostgREST), not “storage only”.
 
 ### Fixed
-- **Soft-404 SEO:** SeoHead sets 
-oindex while loading or when federation/news/athlete/event/club slug records are missing.
+- **Soft-404 SEO:** SeoHead sets `noindex` while loading or when federation/news/athlete/event/club slug records are missing.
 - **Athletics Namibia logo:** `/logos/athletics-logo.png` was an HTML stub (World Athletics CIS page mis-saved as PNG). Removed stub; federation + media now use sport mark `/logos/marks/athletics.svg` (no verified crest in repo). Migration `20260725200000`.
 
 ### Changed
@@ -43,8 +42,6 @@ oindex while loading or when federation/news/athlete/event/club slug records are
 - **News ticker chrome:** translucent glass (`bg-white/40` / `bg-black/40` + blur) instead of opaque `theme-chrome`; small 32–36px thumbs when `featuredImage` exists (`onError` hides thumb).
 
 ### Fixed
-- **Soft-404 SEO:** SeoHead sets 
-oindex while loading or when federation/news/athlete/event/club slug records are missing.
 - **PWA navigateFallback `/api`:** VitePWA Workbox had `navigateFallback: "/index.html"` with no denylist; live `sw.js` registered bare `NavigationRoute` so document navigations to `/api/*` could get HTML. Added `navigateFallbackDenylist: [/^\/api(?:\/|$)/]`. (tRPC `fetch` was never matched — only `mode:navigate`.)
 - **SEO P0 — athlete document 404:** Worker `isStaticAssetPath` treated all `/athletes/*` (and `/sports|/logos|/venues`) as asset-only, so full-document fetches for `/athletes/:slug` returned plain-text **404** (SPA client nav still worked; sitemap listed 198 URLs). Now mirrors `/news/*`: only paths with a static file extension under those prefixes skip SPA fallback; slug routes get `index.html`.
 - **News ticker marquee:** CSS `translate3d` infinite scroll with two equal segments; pause on hover only; no Framer Motion parent transform fighting the track animation. Reduced-motion stays static scrollable chips.
