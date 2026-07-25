@@ -66,6 +66,7 @@ function Router() {
         <Route path="/federation/:slug/clubs" component={FederationRoute} />
         <Route path="/federation/:slug/athletes" component={FederationRoute} />
         <Route path="/federation/:slug/news" component={FederationRoute} />
+        <Route path="/federation/:slug/media" component={FederationRoute} />
         <Route path="/federation/:slug/streams" component={FederationRoute} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />
