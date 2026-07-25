@@ -300,5 +300,6 @@ Ohangwena, Omaheke, Omusati, Oshana, Oshikoto, Otjozondjupa, Zambezi
 2. **Crest / hollow long-tail** — logos ~64% active; hollow core-5 still above full-public gate
 3. **Live inventory thin** — nav gated; `/live` honest VOD empty states
 4. **WhatsApp / AI / Google flags off** by default for go-live honesty
-5. **Home.tsx** still has a static `federations.ts` fallback path if tRPC fails
-6. **Page-level error boundaries + submit loading locks** still open (P1 UX)
+5. **Worker Cache-Control** — API no-store; hashed assets immutable; SPA HTML no-cache
+  6. **Home.tsx** still has a static `federations.ts` fallback path if tRPC fails
+7. **Page-level error boundaries + submit loading locks** still open (P1 UX)

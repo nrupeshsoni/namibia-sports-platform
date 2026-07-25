@@ -195,6 +195,13 @@ Live enrichment (2026-07-21 Pass 7): **230** rows (228 published, 176 posters, *
 | subscription_types | text[] | |
 | is_active | boolean | DEFAULT true |
 
+### sportsplatform_venues (geo)
+| latitude | double precision | nullable — map pin |
+| longitude | double precision | nullable |
+
+### sportsplatform_schools
+| is_active | boolean | NOT NULL DEFAULT true — soft dedupe / hide inactive |
+
 ### sportsplatform_schools, sportsplatform_media, sportsplatform_hp_programs
 See `drizzle/schema.ts` and `drizzle/relations.ts` for full definitions.
 

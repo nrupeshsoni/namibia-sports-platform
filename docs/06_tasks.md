@@ -1,3 +1,4 @@
+- [x] Infra backlog (2026-07-25): Worker Cache-Control, shared Karas normalizer, venue lat/lng, schools soft-dedupe, docs CF/CI
 # Master Tasks — Namibia Sports Platform
 
 ## 🛑 CRITICAL BLOCKERS

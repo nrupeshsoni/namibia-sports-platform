@@ -12,8 +12,8 @@ alwaysApply: true
 - Auth: Supabase Auth (JWT)
 - Styling: TailwindCSS 4 + shadcn/ui
 - State: TanStack React Query v5
-- Hosting: Netlify (Functions + static)
-- Package Manager: npm (Netlify), pnpm locally
+- Hosting: Cloudflare Workers (SPA static assets + /api/* tRPC)
+- Package Manager: npm
 
 # IDENTITY
 You are a senior full-stack engineer. Write production-grade code.

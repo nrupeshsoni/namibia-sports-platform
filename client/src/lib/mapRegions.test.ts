@@ -24,6 +24,11 @@ describe("mapRegions", () => {
     expect(parseRegionParam("   ")).toBeNull();
   });
 
+  it("normalizeRegionName maps Kharas to Karas", () => {
+    expect(normalizeRegionName("Kharas")).toBe("Karas");
+    expect(parseRegionParam("Kharas")).toBe("Karas");
+  });
+
   it("normalizeRegionName maps ǁKaras aliases", () => {
     expect(normalizeRegionName("ǁKaras")).toBe("Karas");
     expect(normalizeRegionName("!Karas")).toBe("Karas");
