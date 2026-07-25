@@ -289,4 +289,6 @@ Authoritative live numbers: **`full_gap_analysis_data.md`**. Summary:
 
 ---
 
-*End of synthesis. No code or DB changes applied.*
+*End of synthesis. Backlog-clearance refresh: soft public **87/100**, full national **80/100**, weighted **~86/100**; credential rotation remains a human blocker.*
+
+

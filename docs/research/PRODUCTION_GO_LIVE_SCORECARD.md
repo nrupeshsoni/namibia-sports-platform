@@ -15,9 +15,9 @@
 
 | Metric | Value |
 |--------|------:|
-| **Soft / invite public score** | **84 / 100** |
-| **Full national launch score** | **76 / 100** |
-| **Weighted full-bar (honesty-adjusted)** | **~83 / 100** |
+| **Soft / invite public score** | **87 / 100** |
+| **Full national launch score** | **80 / 100** |
+| **Weighted full-bar (honesty-adjusted)** | **~86 / 100** |
 | **Score if DB password + service_role still unrotated** | **≤52** (hard ops cap — do not ship) |
 | **Max after human credential rotation alone** | Soft **~89** (**GO**); Full **~82** (still **NO-GO**) |
 | **Path to ≥90 full national** | Rotation + denser calendars/hollow + event URLs + crest quality + SSR/WAF polish |
@@ -219,3 +219,5 @@ Agents **cannot** complete these. Full copy-paste checklist: [`SECURITY_CREDENTI
 ---
 
 *End of Production Go-Live Scorecard. Verdict: **CONDITIONAL** — soft **84** (GO after human rotation ~89); full national **76** (**NO-GO**). Ops cap **≤52** while secrets unrotated. Builds `ci:gate` **closed**.*
+
+
