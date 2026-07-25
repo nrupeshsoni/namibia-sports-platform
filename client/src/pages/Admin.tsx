@@ -70,7 +70,6 @@ export default function Admin() {
 
   const [activeTab, setActiveTab] = useState<Tab>("federations");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterFedId, setFilterFedId] = useState<number | null>(null);
   const [scopeFedId, setScopeFedId] = useState<number | null>(null);
   const [fedModal, setFedModal] = useState<{ mode: "create" } | { mode: "edit"; data: FederationFormData } | null>(null);
   const [evtModal, setEvtModal] = useState<{ mode: "create" } | { mode: "edit"; data: EventFormData } | null>(null);
@@ -81,7 +80,7 @@ export default function Admin() {
   } | null>(null);
 
   const utils = trpc.useUtils();
-  const fedFilter = filterFedId ?? undefined;
+  const fedFilter = scopeFedId ?? undefined;
 
   const federationsQuery = trpc.federations.listAll.useQuery(undefined, { enabled: isPlatformAdmin });
   const eventsQuery = trpc.events.list.useQuery(
@@ -137,7 +136,7 @@ export default function Admin() {
   }
 
   const showSearchAdd = CRUD_TABS.includes(activeTab);
-  const createLock = filterFedId ?? undefined;
+  const createLock = scopeFedId ?? undefined;
 
   return (
     <div className="min-h-screen theme-page">
@@ -205,7 +204,7 @@ export default function Admin() {
 
         {FED_FILTER_TABS.includes(activeTab) && (
           <div className="mb-4">
-            <AdminFederationFilter value={filterFedId} onChange={setFilterFedId} />
+            <AdminFederationFilter value={scopeFedId} onChange={setScopeFedId} />
           </div>
         )}
 
@@ -253,7 +252,7 @@ export default function Admin() {
             {(id) => <FedAdminCoaches federationId={id} />}
           </AdminFedScope>
         )}
-        {activeTab === "venues" && <AdminVenuesPanel />}
+        {activeTab === "venues" && <AdminVenuesPanel uploadFederationId={scopeFedId} />}
         {activeTab === "schools" && <AdminSchoolsPanel />}
         {activeTab === "media" && (
           <AdminFedScope value={scopeFedId} onChange={setScopeFedId}>

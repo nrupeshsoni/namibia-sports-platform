@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { newsArticles } from "../../drizzle/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, isNull } from "drizzle-orm";
 import {
   publicProcedure,
   federationAdminProcedure,
@@ -13,8 +13,37 @@ import {
   assertSameFederation,
   canIncludeUnpublished,
 } from "../_core/federationScope";
-import { httpsUrlSchema } from "../_core/httpsUrl";
+import { httpsUrlSchema, optionalHttpsUrlSchema } from "../_core/httpsUrl";
 import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
+
+type ScopedUser = { role: string; federationId: number | null };
+
+function normalizeSourceUrl(sourceUrl: string | undefined): string | null | undefined {
+  if (sourceUrl === "") return null;
+  return sourceUrl;
+}
+
+/**
+ * Platform admin may assign federationId on orphan rows (null federationId).
+ * Federation admins must own the stored row and match the claimed federationId.
+ */
+function assertNewsRowAccess(
+  user: ScopedUser,
+  claimedFederationId: number,
+  existingFederationId: number | null | undefined,
+  notFoundMessage: string
+): { assignFederation: boolean } {
+  if (user.role === "admin" && existingFederationId == null) {
+    return { assignFederation: true };
+  }
+  assertClaimMatchesOwnedRow(
+    user,
+    claimedFederationId,
+    existingFederationId,
+    notFoundMessage
+  );
+  return { assignFederation: false };
+}
 
 export const newsRouter = router({
   list: publicProcedure
@@ -91,6 +120,8 @@ export const newsRouter = router({
         category: z.string().optional(),
         tags: z.array(z.string()).optional(),
         featuredImage: httpsUrlSchema.optional(),
+        sourceUrl: optionalHttpsUrlSchema,
+        sourceName: z.string().max(200).optional().nullable(),
         authorId: z.number().optional(),
       })
     )
@@ -100,10 +131,15 @@ export const newsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
+      const sourceUrl = normalizeSourceUrl(input.sourceUrl);
+      const { sourceUrl: _raw, ...rest } = input;
+
       const [result] = await db
         .insert(newsArticles)
         .values({
-          ...input,
+          ...rest,
+          sourceUrl: sourceUrl ?? null,
+          sourceName: input.sourceName ?? null,
           authorId: input.authorId ?? (ctx.user?.id ?? null),
         })
         .returning({ id: newsArticles.id });
@@ -122,6 +158,8 @@ export const newsRouter = router({
         category: z.string().optional(),
         tags: z.array(z.string()).optional(),
         featuredImage: httpsUrlSchema.optional(),
+        sourceUrl: optionalHttpsUrlSchema,
+        sourceName: z.string().max(200).optional().nullable(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -138,18 +176,33 @@ export const newsRouter = router({
       if (!existing) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
       }
-      assertClaimMatchesOwnedRow(
+      const { assignFederation } = assertNewsRowAccess(
         ctx.user,
         input.federationId,
         existing.federationId,
         "Article not found"
       );
 
-      const { id, federationId, ...data } = input;
+      const sourceUrl =
+        input.sourceUrl !== undefined
+          ? normalizeSourceUrl(input.sourceUrl) ?? null
+          : undefined;
+      const { id, federationId, sourceUrl: _raw, ...data } = input;
+      const patch = {
+        ...data,
+        ...(sourceUrl !== undefined ? { sourceUrl } : {}),
+        updatedAt: new Date(),
+        ...(assignFederation ? { federationId } : {}),
+      };
+
       await db
         .update(newsArticles)
-        .set({ ...data, updatedAt: new Date() })
-        .where(and(eq(newsArticles.id, id), eq(newsArticles.federationId, federationId)));
+        .set(patch)
+        .where(
+          assignFederation
+            ? and(eq(newsArticles.id, id), isNull(newsArticles.federationId))
+            : and(eq(newsArticles.id, id), eq(newsArticles.federationId, federationId))
+        );
       return { success: true };
     }),
 
@@ -169,7 +222,7 @@ export const newsRouter = router({
       if (!existing) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
       }
-      assertClaimMatchesOwnedRow(
+      const { assignFederation } = assertNewsRowAccess(
         ctx.user,
         input.federationId,
         existing.federationId,
@@ -178,8 +231,20 @@ export const newsRouter = router({
 
       await db
         .update(newsArticles)
-        .set({ isPublished: true, publishedAt: new Date(), updatedAt: new Date() })
-        .where(and(eq(newsArticles.id, input.id), eq(newsArticles.federationId, input.federationId)));
+        .set({
+          isPublished: true,
+          publishedAt: new Date(),
+          updatedAt: new Date(),
+          ...(assignFederation ? { federationId: input.federationId } : {}),
+        })
+        .where(
+          assignFederation
+            ? and(eq(newsArticles.id, input.id), isNull(newsArticles.federationId))
+            : and(
+                eq(newsArticles.id, input.id),
+                eq(newsArticles.federationId, input.federationId)
+              )
+        );
       return { success: true };
     }),
 
@@ -199,7 +264,7 @@ export const newsRouter = router({
       if (!existing) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
       }
-      assertClaimMatchesOwnedRow(
+      const { assignFederation } = assertNewsRowAccess(
         ctx.user,
         input.federationId,
         existing.federationId,
@@ -208,7 +273,14 @@ export const newsRouter = router({
 
       await db
         .delete(newsArticles)
-        .where(and(eq(newsArticles.id, input.id), eq(newsArticles.federationId, input.federationId)));
+        .where(
+          assignFederation
+            ? and(eq(newsArticles.id, input.id), isNull(newsArticles.federationId))
+            : and(
+                eq(newsArticles.id, input.id),
+                eq(newsArticles.federationId, input.federationId)
+              )
+        );
       return { success: true };
     }),
 });

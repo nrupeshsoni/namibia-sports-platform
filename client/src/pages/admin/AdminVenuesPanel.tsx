@@ -5,9 +5,15 @@ import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
 import { EntityModal } from "@/components/admin/EntityModal";
 import { VenueForm, type VenueFormData } from "@/components/admin/VenueForm";
+import { CreateFedPicker } from "@/components/admin/CreateFedPicker";
 
-export function AdminVenuesPanel() {
+interface Props {
+  uploadFederationId?: number | null;
+}
+
+export function AdminVenuesPanel({ uploadFederationId }: Props) {
   const [search, setSearch] = useState("");
+  const [pickerFedId, setPickerFedId] = useState<number | undefined>(undefined);
   const [modal, setModal] = useState<
     { mode: "create" } | { mode: "edit"; data: VenueFormData } | null
   >(null);
@@ -15,8 +21,7 @@ export function AdminVenuesPanel() {
 
   const utils = trpc.useUtils();
   const listQuery = trpc.venues.list.useQuery({ includeInactive: true, limit: 200 });
-  const fedsQuery = trpc.federations.listAll.useQuery();
-  const uploadFedId = fedsQuery.data?.[0]?.id ?? 1;
+  const resolvedUploadFedId = uploadFederationId ?? pickerFedId;
   const deleteMut = trpc.venues.delete.useMutation({
     onSuccess: () => {
       utils.venues.list.invalidate();
@@ -40,7 +45,13 @@ export function AdminVenuesPanel() {
             className="pl-10 bg-white/5 border-white/10 text-white"
           />
         </div>
-        <Button className="gap-2 bg-red-600 hover:bg-red-700" onClick={() => setModal({ mode: "create" })}>
+        <Button
+          className="gap-2 bg-red-600 hover:bg-red-700"
+          onClick={() => {
+            setPickerFedId(undefined);
+            setModal({ mode: "create" });
+          }}
+        >
           <Plus className="h-4 w-4" /> Add Venue
         </Button>
       </div>
@@ -122,16 +133,31 @@ export function AdminVenuesPanel() {
       </div>
       <EntityModal
         open={modal !== null}
-        onClose={() => setModal(null)}
+        onClose={() => {
+          setModal(null);
+          setPickerFedId(undefined);
+        }}
         title={modal?.mode === "create" ? "Add Venue" : "Edit Venue"}
       >
         {modal && (
-          <VenueForm
-            mode={modal.mode}
-            uploadFederationId={uploadFedId}
-            initialData={modal.mode === "edit" ? modal.data : undefined}
-            onSuccess={() => setModal(null)}
-          />
+          <div className="space-y-4">
+            {uploadFederationId == null && (
+              <CreateFedPicker value={pickerFedId} onChange={setPickerFedId} />
+            )}
+            {resolvedUploadFedId != null ? (
+              <VenueForm
+                mode={modal.mode}
+                uploadFederationId={resolvedUploadFedId}
+                initialData={modal.mode === "edit" ? modal.data : undefined}
+                onSuccess={() => {
+                  setModal(null);
+                  setPickerFedId(undefined);
+                }}
+              />
+            ) : (
+              <p className="text-sm text-gray-500">Select a federation for image uploads.</p>
+            )}
+          </div>
         )}
       </EntityModal>
       {deleteId != null && (

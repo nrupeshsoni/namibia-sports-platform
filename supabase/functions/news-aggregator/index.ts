@@ -15,6 +15,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import Anthropic from "npm:@anthropic-ai/sdk@0.32.1";
 import { fetchFeed, fetchOgImage, parseRssItems, resolveImage, type RssItem } from "./rss.ts";
 import { safeHttpsSourceUrl } from "./safeUrl.ts";
+import { publisherFromGoogleTitle, unwrapGoogleNewsUrl } from "./googleNews.ts";
 
 type RssSource = {
   url: string;
@@ -45,6 +46,9 @@ const RSS_SOURCES: RssSource[] = [
 ];
 
 const MODEL = "claude-sonnet-4-6";
+const ITEMS_PER_FEED = 8;
+const CLAUDE_PER_FEED = 3;
+const SOURCE_UNWRAP_BACKFILL = 12;
 const SPORT_RE =
   /\b(sport|sports|football|soccer|rugby|cricket|athletics|netball|hockey|boxing|tennis|olympic|paralympic|nfa|nru|gladiators|brave warriors|commonwealth|cosafa|fifa|ioc|nsc|tournament|championship|league|cup|match|athlete|coach|stadium|afrobasket|cycling|swimming|golf)\b/i;
 const NAMIBIA_RE =
@@ -73,6 +77,10 @@ type SourceStats = {
   note?: string;
   lastError?: string;
 };
+
+function isGoogleNewsUrl(url: string): boolean {
+  return /news\.google\.com/i.test(url);
+}
 
 async function hashUrl(url: string): Promise<string> {
   const data = new TextEncoder().encode(url);
@@ -158,9 +166,10 @@ function hasNamibiaSignal(item: RssItem): boolean {
 }
 
 /** Snippet + attribution footer — not full paywalled republication. */
-function buildAttributedContent(item: RssItem, sourceName: string): string {
+function buildAttributedContent(item: RssItem, sourceName: string, sourceUrl: string | null): string {
   const body = item.description || item.title;
-  return `${body}\n\n---\nSource: ${sourceName}\n${item.link}\n\nRead the original article at the source link above.`;
+  const link = sourceUrl ?? item.link;
+  return `${body}\n\n---\nSource: ${sourceName}\n${link}\n\nRead the original article at the source link above.`;
 }
 
 function publishedAtFromItem(item: RssItem): string {
@@ -169,6 +178,49 @@ function publishedAtFromItem(item: RssItem): string {
     if (!Number.isNaN(d.getTime())) return d.toISOString();
   }
   return new Date().toISOString();
+}
+
+type SourceAttribution = {
+  sourceUrl: string | null;
+  sourceName: string;
+  unwrapped: boolean;
+};
+
+/**
+ * Unwrap Google News wrappers to outlet URLs; derive publisher name from title when present.
+ */
+async function resolveSourceAttribution(
+  item: RssItem,
+  source: RssSource
+): Promise<SourceAttribution> {
+  const publisherFromTitle = publisherFromGoogleTitle(item.title);
+  let unwrapped = false;
+
+  if (isGoogleNewsUrl(item.link)) {
+    const outlet = await unwrapGoogleNewsUrl(item.link);
+    if (outlet) {
+      const safe = safeHttpsSourceUrl(outlet);
+      if (safe) {
+        return {
+          sourceUrl: safe,
+          sourceName: publisherFromTitle ?? source.name,
+          unwrapped: true,
+        };
+      }
+    }
+    const fallback = safeHttpsSourceUrl(item.link);
+    return {
+      sourceUrl: fallback,
+      sourceName: publisherFromTitle ?? source.name,
+      unwrapped,
+    };
+  }
+
+  return {
+    sourceUrl: safeHttpsSourceUrl(item.link),
+    sourceName: publisherFromTitle ?? source.name,
+    unwrapped,
+  };
 }
 
 Deno.serve(async () => {
@@ -212,6 +264,7 @@ Deno.serve(async () => {
   let inserted = 0;
   let published = 0;
   let enriched = 0;
+  let sourceUnwrapped = 0;
   let skippedNonSports = 0;
   let skippedNonNamibia = 0;
   let skippedExisting = 0;
@@ -243,7 +296,9 @@ Deno.serve(async () => {
     const items = parseRssItems(feed.xml, source.url);
     stats.items = items.length;
 
-    for (const item of items.slice(0, 3)) {
+    let newItemIndex = 0;
+
+    for (const item of items.slice(0, ITEMS_PER_FEED)) {
       try {
         if (!source.sportsOnly && !SPORT_RE.test(`${item.title} ${item.description}`)) {
           skippedNonSports++;
@@ -261,7 +316,7 @@ Deno.serve(async () => {
         const slug = `agg-${await hashUrl(item.link)}`;
         const { data: existing } = await supabase
           .from("sportsplatform_news_articles")
-          .select("id, featured_image, is_published, source_url")
+          .select("id, featured_image, is_published, source_url, source_name")
           .eq("slug", slug)
           .maybeSingle();
 
@@ -277,11 +332,15 @@ Deno.serve(async () => {
               stats.enriched++;
             }
           }
-          if (!existing.source_url) {
-            const src = safeHttpsSourceUrl(item.link);
-            if (src) {
-              patch.source_url = src;
-              patch.source_name = source.name;
+          const needsAttribution =
+            !existing.source_url ||
+            (typeof existing.source_url === "string" && isGoogleNewsUrl(existing.source_url));
+          if (needsAttribution) {
+            const attr = await resolveSourceAttribution(item, source);
+            if (attr.sourceUrl) patch.source_url = attr.sourceUrl;
+            patch.source_name = attr.sourceName;
+            if (attr.unwrapped) {
+              sourceUnwrapped++;
             }
           }
           if (Object.keys(patch).length > 0) {
@@ -293,7 +352,12 @@ Deno.serve(async () => {
           continue;
         }
 
-        const classified = await processWithClaude(item, anthropic);
+        const useClaude = !source.sportsOnly || newItemIndex < CLAUDE_PER_FEED;
+        const classified = useClaude
+          ? await processWithClaude(item, anthropic)
+          : keywordFallback(item);
+        newItemIndex++;
+
         const isSports = source.sportsOnly ? true : classified.isSports;
         if (!isSports) {
           skippedNonSports++;
@@ -301,26 +365,26 @@ Deno.serve(async () => {
           continue;
         }
 
-        // Trusted sports desks auto-publish; Informante stays draft.
         const autoPublish = source.sportsOnly && (!source.requireNamibia || namibiaOk);
         const federationId = matchFederation(feds, classified.federationHint);
         const tags = [...classified.tags, `source:${source.name}`].slice(0, 8);
         const featuredImage = safeHttpsSourceUrl(await resolveImage(item));
-        const sourceUrl = safeHttpsSourceUrl(item.link);
+        const attr = await resolveSourceAttribution(item, source);
+        if (attr.unwrapped) sourceUnwrapped++;
         const publishedAt = autoPublish ? publishedAtFromItem(item) : null;
 
         const { error } = await supabase.from("sportsplatform_news_articles").insert({
           title: item.title.slice(0, 255),
           slug,
-          content: buildAttributedContent(item, source.name),
+          content: buildAttributedContent(item, attr.sourceName, attr.sourceUrl),
           summary: classified.summary.slice(0, 500) || null,
           federation_id: federationId,
           author_id: null,
           category: (classified.category || "sports").slice(0, 100),
           tags: tags.length > 0 ? tags : null,
           featured_image: featuredImage,
-          source_url: sourceUrl,
-          source_name: source.name,
+          source_url: attr.sourceUrl,
+          source_name: attr.sourceName,
           is_published: autoPublish,
           published_at: publishedAt,
         });
@@ -387,7 +451,7 @@ Deno.serve(async () => {
     const url = safeHttpsSourceUrl(
       typeof row.source_url === "string" ? row.source_url : ""
     );
-    if (!url) continue;
+    if (!url || isGoogleNewsUrl(url)) continue;
     try {
       const img = safeHttpsSourceUrl(await fetchOgImage(url));
       if (!img) continue;
@@ -405,9 +469,49 @@ Deno.serve(async () => {
     }
   }
 
+  // Fourth pass: unwrap Google source_urls and refresh publisher names from titles.
+  const { data: googleRows } = await supabase
+    .from("sportsplatform_news_articles")
+    .select("id, source_url, title, source_name")
+    .or("source_url.ilike.%news.google.com%,source_url.is.null")
+    .order("updated_at", { ascending: false })
+    .limit(SOURCE_UNWRAP_BACKFILL);
+
+  for (const row of googleRows ?? []) {
+    try {
+      const patch: Record<string, unknown> = {};
+      const publisher = publisherFromGoogleTitle(
+        typeof row.title === "string" ? row.title : ""
+      );
+      if (publisher && publisher !== row.source_name) {
+        patch.source_name = publisher;
+      }
+
+      const currentUrl =
+        typeof row.source_url === "string" ? row.source_url : "";
+      if (currentUrl && isGoogleNewsUrl(currentUrl)) {
+        const outlet = await unwrapGoogleNewsUrl(currentUrl);
+        const safe = outlet ? safeHttpsSourceUrl(outlet) : null;
+        if (safe && safe !== currentUrl) {
+          patch.source_url = safe;
+          sourceUnwrapped++;
+        }
+      }
+
+      if (Object.keys(patch).length > 0) {
+        await supabase
+          .from("sportsplatform_news_articles")
+          .update(patch)
+          .eq("id", row.id);
+      }
+    } catch {
+      /* timeout-safe: skip */
+    }
+  }
+
   console.log(
     `[news-aggregator] inserted=${inserted} published=${published} enriched=${enriched} ` +
-      `backfilled=${backfilled} skippedNonSports=${skippedNonSports} ` +
+      `sourceUnwrapped=${sourceUnwrapped} backfilled=${backfilled} skippedNonSports=${skippedNonSports} ` +
       `skippedNonNamibia=${skippedNonNamibia} skippedExisting=${skippedExisting}`
   );
   return new Response(
@@ -417,6 +521,7 @@ Deno.serve(async () => {
       published,
       enriched,
       backfilled,
+      sourceUnwrapped,
       skippedNonSports,
       skippedNonNamibia,
       skippedExisting,

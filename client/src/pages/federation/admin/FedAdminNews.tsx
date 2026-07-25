@@ -13,12 +13,15 @@ const ADMIN_LIMIT = 200;
 export default function FedAdminNews({ federationId }: { federationId?: number }) {
   const [search, setSearch] = useState("");
   const [createFedId, setCreateFedId] = useState<number | undefined>(federationId);
+  const [assignFedId, setAssignFedId] = useState<number | undefined>(undefined);
   const [modal, setModal] = useState<
     { mode: "create" } | { mode: "edit"; data: NewsFormData } | null
   >(null);
-  const [deleteTarget, setDeleteTarget] = useState<{ id: number; federationId: number } | null>(
-    null
-  );
+  const [publishTarget, setPublishTarget] = useState<{ id: number } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: number;
+    federationId: number | null;
+  } | null>(null);
 
   const utils = trpc.useUtils();
   const listQuery = trpc.news.list.useQuery({
@@ -27,12 +30,17 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
     limit: ADMIN_LIMIT,
   });
   const publishMut = trpc.news.publish.useMutation({
-    onSuccess: () => listQuery.refetch(),
+    onSuccess: () => {
+      listQuery.refetch();
+      setPublishTarget(null);
+      setAssignFedId(undefined);
+    },
   });
   const deleteMut = trpc.news.delete.useMutation({
     onSuccess: () => {
       utils.news.list.invalidate();
       setDeleteTarget(null);
+      setAssignFedId(undefined);
     },
   });
 
@@ -40,8 +48,30 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
     n.title.toLowerCase().includes(search.toLowerCase())
   );
 
+  const isOrphan = (fedId: number | null | undefined) => fedId == null;
+
   const formFedId =
-    modal?.mode === "edit" ? modal.data.federationId : (federationId ?? createFedId);
+    modal?.mode === "edit"
+      ? isOrphan(modal.data.federationId)
+        ? assignFedId
+        : modal.data.federationId
+      : (federationId ?? createFedId);
+
+  const publishFedId =
+    publishTarget && deleteTarget == null
+      ? isOrphan(
+          items.find((n) => n.id === publishTarget.id)?.federationId ?? null
+        )
+        ? assignFedId
+        : items.find((n) => n.id === publishTarget.id)?.federationId ?? undefined
+      : undefined;
+
+  const deleteFedId =
+    deleteTarget != null
+      ? isOrphan(deleteTarget.federationId)
+        ? assignFedId ?? 0
+        : deleteTarget.federationId
+      : undefined;
 
   return (
     <div className="space-y-6">
@@ -59,6 +89,7 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
           className="gap-2 bg-red-600 hover:bg-red-700"
           onClick={() => {
             setCreateFedId(federationId);
+            setAssignFedId(undefined);
             setModal({ mode: "create" });
           }}
         >
@@ -75,6 +106,7 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
             <tr className="border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
               <th className="text-left px-4 py-3 text-xs tracking-widest text-gray-400 font-medium">Title</th>
               <th className="text-left px-4 py-3 text-xs tracking-widest text-gray-400 font-medium">Category</th>
+              <th className="text-left px-4 py-3 text-xs tracking-widest text-gray-400 font-medium">Federation</th>
               <th className="text-left px-4 py-3 text-xs tracking-widest text-gray-400 font-medium">Status</th>
               <th className="text-left px-4 py-3 text-xs tracking-widest text-gray-400 font-medium" />
             </tr>
@@ -82,11 +114,11 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
           <tbody>
             {listQuery.isLoading ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">Loading...</td>
+                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">Loading...</td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">No articles found.</td>
+                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">No articles found.</td>
               </tr>
             ) : (
               items.map((n) => (
@@ -97,6 +129,15 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
                 >
                   <td className="px-4 py-3 text-sm text-white font-medium">{n.title}</td>
                   <td className="px-4 py-3 text-sm text-gray-400">{n.category ?? "—"}</td>
+                  <td className="px-4 py-3 text-sm text-gray-400">
+                    {n.federationId == null ? (
+                      <Badge variant="outline" className="text-xs text-amber-400 border-amber-400/40">
+                        No federation
+                      </Badge>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
                   <td className="px-4 py-3">
                     {n.isPublished ? (
                       <Badge variant="secondary" className="text-xs">Published</Badge>
@@ -108,10 +149,14 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
                           variant="ghost"
                           className="text-xs text-green-400 hover:text-green-300"
                           onClick={() => {
-                            if (n.federationId == null) return;
-                            publishMut.mutate({ id: n.id, federationId: n.federationId });
+                            setAssignFedId(undefined);
+                            if (n.federationId == null) {
+                              setPublishTarget({ id: n.id });
+                            } else {
+                              publishMut.mutate({ id: n.id, federationId: n.federationId });
+                            }
                           }}
-                          disabled={publishMut.isPending || n.federationId == null}
+                          disabled={publishMut.isPending}
                         >
                           Publish
                         </Button>
@@ -125,7 +170,7 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
                         variant="ghost"
                         className="text-gray-400 hover:text-white"
                         onClick={() => {
-                          if (n.federationId == null) return;
+                          setAssignFedId(undefined);
                           setModal({
                             mode: "edit",
                             data: {
@@ -136,6 +181,8 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
                               summary: n.summary,
                               category: n.category,
                               featuredImage: n.featuredImage,
+                              sourceUrl: n.sourceUrl,
+                              sourceName: n.sourceName,
                               federationId: n.federationId,
                             },
                           });
@@ -148,7 +195,7 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
                         variant="ghost"
                         className="text-gray-400 hover:text-red-400"
                         onClick={() => {
-                          if (n.federationId == null) return;
+                          setAssignFedId(undefined);
                           setDeleteTarget({ id: n.id, federationId: n.federationId });
                         }}
                       >
@@ -165,7 +212,10 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
 
       <EntityModal
         open={modal !== null}
-        onClose={() => setModal(null)}
+        onClose={() => {
+          setModal(null);
+          setAssignFedId(undefined);
+        }}
         title={modal?.mode === "create" ? "Add Article" : "Edit Article"}
       >
         {modal && (
@@ -173,12 +223,18 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
             {modal.mode === "create" && federationId == null && (
               <CreateFedPicker value={createFedId} onChange={setCreateFedId} />
             )}
+            {modal.mode === "edit" && isOrphan(modal.data.federationId) && (
+              <CreateFedPicker value={assignFedId} onChange={setAssignFedId} />
+            )}
             {formFedId != null ? (
               <NewsForm
                 mode={modal.mode}
                 federationId={formFedId}
                 initialData={modal.mode === "edit" ? modal.data : undefined}
-                onSuccess={() => setModal(null)}
+                onSuccess={() => {
+                  setModal(null);
+                  setAssignFedId(undefined);
+                }}
               />
             ) : (
               <p className="text-sm text-gray-500">Select a federation to continue.</p>
@@ -187,11 +243,56 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
         )}
       </EntityModal>
 
+      {publishTarget != null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.8)" }}
+          onClick={() => {
+            setPublishTarget(null);
+            setAssignFedId(undefined);
+          }}
+        >
+          <div
+            className="rounded-3xl p-8 max-w-sm w-full mx-4 space-y-6"
+            style={{ background: "rgba(17,17,17,0.95)", border: "1px solid rgba(255,255,255,0.1)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-white font-medium text-center">Assign federation to publish</p>
+            <CreateFedPicker value={assignFedId} onChange={setAssignFedId} />
+            <div className="flex gap-3">
+              <Button
+                variant="ghost"
+                className="flex-1 border border-white/10"
+                onClick={() => {
+                  setPublishTarget(null);
+                  setAssignFedId(undefined);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 bg-green-600 hover:bg-green-700"
+                disabled={publishMut.isPending || publishFedId == null}
+                onClick={() => {
+                  if (publishFedId == null) return;
+                  publishMut.mutate({ id: publishTarget.id, federationId: publishFedId });
+                }}
+              >
+                Publish
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {deleteTarget != null && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
           style={{ background: "rgba(0,0,0,0.8)" }}
-          onClick={() => setDeleteTarget(null)}
+          onClick={() => {
+            setDeleteTarget(null);
+            setAssignFedId(undefined);
+          }}
         >
           <div
             className="rounded-3xl p-8 max-w-sm w-full mx-4 text-center space-y-6"
@@ -199,8 +300,18 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
             onClick={(e) => e.stopPropagation()}
           >
             <p className="text-white font-medium">Delete this article?</p>
+            {isOrphan(deleteTarget.federationId) && federationId == null && (
+              <CreateFedPicker value={assignFedId} onChange={setAssignFedId} />
+            )}
             <div className="flex gap-3">
-              <Button variant="ghost" className="flex-1 border border-white/10" onClick={() => setDeleteTarget(null)}>
+              <Button
+                variant="ghost"
+                className="flex-1 border border-white/10"
+                onClick={() => {
+                  setDeleteTarget(null);
+                  setAssignFedId(undefined);
+                }}
+              >
                 Cancel
               </Button>
               <Button
@@ -209,7 +320,7 @@ export default function FedAdminNews({ federationId }: { federationId?: number }
                 onClick={() =>
                   deleteMut.mutate({
                     id: deleteTarget.id,
-                    federationId: deleteTarget.federationId,
+                    federationId: deleteFedId ?? 0,
                   })
                 }
               >

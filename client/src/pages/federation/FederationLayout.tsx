@@ -353,6 +353,7 @@ function FederationLayoutInner({
         {currentTab === "clubs" && <FederationClubs />}
         {currentTab === "athletes" && <FederationAthletes />}
         {currentTab === "news" && <FederationNews />}
+        {currentTab === "media" && <FederationMedia />}
         {currentTab === "streams" && <FederationStreams />}
       </main>
     </div>
