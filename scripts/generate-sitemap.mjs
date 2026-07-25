@@ -115,6 +115,12 @@ function buildXml({ federations, news, athletes, events, clubs }) {
   for (const slug of athletes) {
     lines.push(urlEntry(`/athletes/${slug}`, "monthly", "0.5"));
   }
+  for (const slug of events) {
+    lines.push(urlEntry(`/events/${slug}`, "weekly", "0.6"));
+  }
+  for (const slug of clubs) {
+    lines.push(urlEntry(`/clubs/${slug}`, "monthly", "0.5"));
+  }
 
   lines.push("</urlset>", "");
   return lines.join("\n");
