@@ -26,6 +26,8 @@ export interface VenueFormData {
   contactEmail?: string | null;
   contactPhone?: string | null;
   capacity?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
   isActive?: boolean | null;
 }
 
@@ -63,6 +65,8 @@ export function VenueForm({ mode, initialData, onSuccess, uploadFederationId }: 
     contactEmail: initialData?.contactEmail ?? "",
     contactPhone: initialData?.contactPhone ?? "",
     capacity: initialData?.capacity?.toString() ?? "",
+    latitude: initialData?.latitude?.toString() ?? "",
+    longitude: initialData?.longitude?.toString() ?? "",
     isActive: initialData?.isActive ?? true,
   });
 
@@ -89,6 +93,8 @@ export function VenueForm({ mode, initialData, onSuccess, uploadFederationId }: 
       return;
     }
     const capacity = form.capacity ? parseInt(form.capacity, 10) : undefined;
+    const latitude = form.latitude ? parseFloat(form.latitude) : undefined;
+    const longitude = form.longitude ? parseFloat(form.longitude) : undefined;
     const payload = {
       name: form.name,
       description: form.description || undefined,
@@ -96,6 +102,8 @@ export function VenueForm({ mode, initialData, onSuccess, uploadFederationId }: 
       address: form.address || undefined,
       city: form.city || undefined,
       region: form.region || undefined,
+      latitude: latitude != null && !Number.isNaN(latitude) ? latitude : undefined,
+      longitude: longitude != null && !Number.isNaN(longitude) ? longitude : undefined,
       contactEmail: form.contactEmail || undefined,
       contactPhone: form.contactPhone || undefined,
       capacity: capacity && !isNaN(capacity) ? capacity : undefined,
