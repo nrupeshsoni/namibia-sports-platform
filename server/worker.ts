@@ -16,19 +16,21 @@ import { appRouter } from "./routers";
 
 const TRPC_ENDPOINT = "/api/trpc";
 
-/** Static asset trees that must 404 when missing (never SPA HTML). */
-const ASSET_ONLY_PREFIXES = [
+/**
+ * Static asset trees under `client/public/`. Paths with a file extension are
+ * served as assets (missing → real 404). Paths without an extension are SPA
+ * routes (e.g. `/athletes/:slug`, `/news/:slug`) and must get index.html.
+ * `/sports/`, `/logos/`, `/venues/` have no SPA detail routes today — extension
+ * gating still keeps image serving intact and avoids false 404s if routes land later.
+ */
+const STATIC_ASSET_PREFIXES = [
   "/sports/",
   "/logos/",
   "/athletes/",
   "/venues/",
+  "/news/",
 ] as const;
 
-/**
- * `/news/*` is both an SPA route (`/news/:slug`) and a possible static tree.
- * Only treat as a static asset when the path has a file extension.
- */
-const NEWS_ASSET_PREFIX = "/news/";
 const STATIC_FILE_EXT =
   /\.(?:avif|css|gif|ico|jpe?g|js|json|map|mp4|png|svg|txt|webm|webp|woff2?)$/i;
 
@@ -103,10 +105,10 @@ function notFoundResponse(): Response {
 /** True when the path is a static asset that must not fall back to the SPA. */
 function isStaticAssetPath(pathname: string): boolean {
   const path = pathname.toLowerCase();
-  if (ASSET_ONLY_PREFIXES.some((prefix) => path.startsWith(prefix))) {
-    return true;
+  if (!STATIC_ASSET_PREFIXES.some((prefix) => path.startsWith(prefix))) {
+    return false;
   }
-  return path.startsWith(NEWS_ASSET_PREFIX) && STATIC_FILE_EXT.test(path);
+  return STATIC_FILE_EXT.test(path);
 }
 
 /**
