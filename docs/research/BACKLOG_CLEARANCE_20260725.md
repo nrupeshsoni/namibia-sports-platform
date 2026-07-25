@@ -2,7 +2,8 @@
 
 **Mission:** Clear every agent-doable item from `FULL_GAP_ANALYSIS_20260725.md` + `gap_wave_20260725/*` until nothing agent-doable remains.  
 **Workspace:** `main` · Workers Builds deploys on push.  
-**Started:** 2026-07-25 · **Closed (agent wave):** 2026-07-25
+**Started:** 2026-07-25 · **Closed (agent wave):** 2026-07-25  
+**Verified tip:** post-clearance HEAD advanced past `2e958d8` (see git log); residual fix = PERF-CC apply + SeoHead helpers (build was red after sibling SEO commits).
 
 **Legend:** `AGENT` · `HUMAN` · `DONE` · `BLOCKED-HUMAN` · `BLOCKED` (evidence)
 
@@ -60,7 +61,7 @@
 | ADM-NULL | AGENT | Admin null-federation_id news publish path | **DONE** |
 | ADM-FILT | AGENT | Admin unified `scopeFedId` filter | **DONE** |
 | ADM-VEN | AGENT | Venue upload federationId from scope | **DONE** |
-| PERF-CC | AGENT | Cache-Control on Worker hashed assets | **DONE** |
+| PERF-CC | AGENT | Cache-Control on Worker hashed assets | **DONE** (helper was dead until wired in `withSecurityHeaders`; re-verified) |
 | PERF-IMG | AGENT | Lazy loading on cards/media; large compress deferred | **DONE** (lazy); compress = follow-on content |
 | UX-LT | AGENT | Light theme on Home/Events/News/Fed content | **DONE** |
 | LEG-CK | AGENT | Cookie disclosure + CookieNotice | **DONE** |

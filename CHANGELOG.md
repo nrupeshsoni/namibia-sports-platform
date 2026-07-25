@@ -1,4 +1,4 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to this project are documented in this file.
 
@@ -18,8 +18,8 @@ All notable changes to this project are documented in this file.
 - **SEC-M6 — AI error leak:** `ai.*` and Content Sync use `toClientSafeTrpcError` — production clients get generic messages; details logged server-side only.
 
 ### Fixed
-- **Soft-404 SEO:** SeoHead sets 
-oindex while loading or when federation/news/athlete/event/club slug records are missing.
+- **PERF-CC — Cache-Control wiring:** `cacheControlForRequest` was defined but never applied; Worker now sets hashed `/assets/*` to `immutable` + long `max-age`, API to `private, no-store`, HTML to `no-cache`.
+- **SeoHead build break:** restore `parseEventSlug` / `parseClubSlug` / `soft404Seo` (missing after slug-hydration commit); soft-404 `noindex` only when a slug record is confirmed missing (pending load stays indexable).
 - **SearchAction:** homepage `/?q=` opens `SearchCommandPalette` (Cmd/Ctrl+K + `search.global`).
 - **FederationModal a11y:** Radix `Dialog` (`role=dialog`, `aria-modal`, Escape, focus trap, labelled close).
 

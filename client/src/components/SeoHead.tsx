@@ -126,6 +126,28 @@ function parseAthleteSlug(path: string): string | null {
   return m?.[1] ?? null;
 }
 
+function parseEventSlug(path: string): string | null {
+  const m = path.match(/^\/events\/([^/]+)/);
+  return m?.[1] ?? null;
+}
+
+function parseClubSlug(path: string): string | null {
+  const m = path.match(/^\/clubs\/([^/]+)/);
+  return m?.[1] ?? null;
+}
+
+/** Placeholder while a slug query is in flight — noindex until the entity resolves. */
+function pendingSeo(meta: { title: string; description: string; path: string }): void {
+  applySeo({ ...meta, noIndex: true });
+  clearJsonLd();
+}
+
+/** Confirmed missing slug — do not compete for indexation. */
+function soft404Seo(meta: { title: string; description: string; path: string }): void {
+  applySeo({ ...meta, noIndex: true });
+  clearJsonLd();
+}
+
 function federationTabLabel(path: string, slug: string): string {
   const base = `/federation/${slug}`;
   if (path === base || path === `${base}/`) return "";
@@ -186,7 +208,11 @@ export function SeoHead() {
   useEffect(() => {
     if (fedSlug && !isFedAdmin) {
       const fed = federationQuery.data;
-      if (federationQuery.isLoading || !fed) {
+      if (federationQuery.isLoading) {
+        pendingSeo({ title: "Federation", description: DEFAULT_DESCRIPTION, path });
+        return;
+      }
+      if (!fed) {
         soft404Seo({ title: "Federation", description: DEFAULT_DESCRIPTION, path });
         return;
       }
@@ -224,7 +250,11 @@ export function SeoHead() {
 
     if (newsSlug) {
       const article = newsQuery.data;
-      if (newsQuery.isLoading || !article) {
+      if (newsQuery.isLoading) {
+        pendingSeo({ title: "News", description: "Namibia sports news on sports.com.na.", path });
+        return;
+      }
+      if (!article) {
         soft404Seo({ title: "News", description: "Namibia sports news on sports.com.na.", path });
         return;
       }
@@ -243,7 +273,11 @@ export function SeoHead() {
 
     if (athleteSlug) {
       const athlete = athleteQuery.data;
-      if (athleteQuery.isLoading || !athlete || !athlete.slug) {
+      if (athleteQuery.isLoading) {
+        pendingSeo({ title: "Athlete", description: "Athlete profile on sports.com.na.", path });
+        return;
+      }
+      if (!athlete || !athlete.slug) {
         soft404Seo({ title: "Athlete", description: "Athlete profile on sports.com.na.", path });
         return;
       }
@@ -273,7 +307,11 @@ export function SeoHead() {
 
     if (eventSlug) {
       const event = eventDetailQuery.data;
-      if (eventDetailQuery.isLoading || !event) {
+      if (eventDetailQuery.isLoading) {
+        pendingSeo({ title: "Event", description: "Sports events on sports.com.na.", path });
+        return;
+      }
+      if (!event) {
         soft404Seo({ title: "Event", description: "Sports events on sports.com.na.", path });
         return;
       }
@@ -289,7 +327,11 @@ export function SeoHead() {
 
     if (clubSlug) {
       const club = clubDetailQuery.data;
-      if (clubDetailQuery.isLoading || !club) {
+      if (clubDetailQuery.isLoading) {
+        pendingSeo({ title: "Club", description: "Sports clubs on sports.com.na.", path });
+        return;
+      }
+      if (!club) {
         soft404Seo({ title: "Club", description: "Sports clubs on sports.com.na.", path });
         return;
       }

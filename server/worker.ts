@@ -90,6 +90,10 @@ function withSecurityHeaders(response: Response, request?: Request): Response {
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
     headers.set(key, value);
   }
+  const cacheControl = cacheControlForRequest(request, response);
+  if (cacheControl) {
+    headers.set("Cache-Control", cacheControl);
+  }
   const cors = corsHeadersForOrigin(request?.headers.get("Origin") ?? null);
   if (cors) {
     for (const [key, value] of Object.entries(cors)) {
