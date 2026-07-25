@@ -14,6 +14,7 @@ All notable changes to this project are documented in this file.
 - **Athletics Namibia logo:** `/logos/athletics-logo.png` was an HTML stub (World Athletics CIS page mis-saved as PNG). Removed stub; federation + media now use sport mark `/logos/marks/athletics.svg` (no verified crest in repo). Migration `20260725200000`.
 
 ### Changed
+- Production go-live scorecard refreshed: soft **84** / full **76** / weighted **~83** (was single **85**). Still **CONDITIONAL**; soft **GO ~89** after human rotation; full national remains **NO-GO** on content/SEO/map. Builds `ci:gate` no longer a human blocker. See `docs/research/PRODUCTION_GO_LIVE_SCORECARD.md`.
 - **Home Sports News → ticker:** mid-page card grid replaced with a compact teaser; latest headlines scroll in a fixed top ticker (below header) that appears after ~160px scroll and hides at the top. Click opens shared `NewsArticleModal`. `/news` keeps card/list layout. `prefers-reduced-motion` uses a static horizontal chip list; pause on hover.
 - **News ticker chrome:** translucent glass (`bg-white/40` / `bg-black/40` + blur) instead of opaque `theme-chrome`; small 32–36px thumbs when `featuredImage` exists (`onError` hides thumb).
 
@@ -26,6 +27,7 @@ All notable changes to this project are documented in this file.
 - **news-aggregator image enrich:** stronger RSS media/`<img>` extraction (skips ad banners), twitter/og/JSON-LD meta, WordPress **oEmbed thumbnail** fallback (Economist), capped fetch timeouts (12s feed / 6s og); DB backfill via `source_url`; **Google News unwrap** (browser UA + batchexecute `garturlres`) so outlet `og:image` can be fetched.
 
 ### Added
+- **Full gap analysis (2026-07-25):** master synthesis `docs/research/FULL_GAP_ANALYSIS_20260725.md` + remaining wave slices `05`–`09`, `11`–`18` under `docs/research/gap_wave_20260725/`. Soft public **84/100** (CONDITIONAL → GO after credential rotation); full national **76/100** (**NO-GO**). Ops hard-cap **≤52** while DB/`service_role` unrotated. Workers Builds `ci:gate` verified **closed**.
 - Gap analysis: `docs/research/gap_wave_20260725/02_data_completeness.md` — live DB completeness (83 actives: logo/hero/desc 100%; contact 88%; website 66%; content zeros; events 291/40 upcoming; news 147; population priorities).
 - Gap analysis: `docs/research/gap_wave_20260725/01_security.md` — SECURITY/AUTH/RBAC slice (Hyperdrive still `postgres`, credential rotation Critical, tenancy/PII/WhatsApp/AI/storage audit; live MCP 2026-07-25).
 - Gap analysis: `docs/research/gap_wave_20260725/13_integrations.md` — WhatsApp / Anthropic / Workers AI / Google OAuth / email / Web Push / Edge Functions inventory (live function list + cron 2026-07-25).

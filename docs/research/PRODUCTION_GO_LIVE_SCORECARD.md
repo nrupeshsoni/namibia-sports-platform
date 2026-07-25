@@ -1,12 +1,13 @@
 # Production Go-Live Scorecard — sports.com.na
 
-**Orchestrator:** PRODUCTION ORCHESTRATOR (hollow gate + tab honesty pass)  
-**Date:** 2026-07-24 ~20:30 CAT  
-**HEAD assessed:** `main` @ hollow long-tail fill + public tab hide  
-**Bar:** **FULL PUBLIC** national launch (same bar as `PUBLIC_READY_GAP_ANALYSIS.md`)  
-**Sources:** prior scorecard (84), live SQL hollow measure, `hollow_longtail_ux_fill_20260724.md`, code spot-check.
+**Orchestrator:** Gap-wave SYNTHESIZER (2026-07-25)  
+**Date:** 2026-07-25 ~20:05 CAT  
+**HEAD assessed:** `main` @ adversarial A1–A3 + news/SEO/PWA harden  
+**Bar:** Soft public **and** full national (see dual scores)  
+**Master synthesis:** [`FULL_GAP_ANALYSIS_20260725.md`](./FULL_GAP_ANALYSIS_20260725.md)  
+**Wave slices:** [`gap_wave_20260725/`](./gap_wave_20260725/)
 
-**DB mutations this scorecard:** verified hollow fill applied live (`hollow_longtail_verified_fill` — ledger `20260724190000_hollow_longtail_verified_fill.sql`). No DDL.
+**DB mutations this scorecard:** none.
 
 ---
 
@@ -14,17 +15,19 @@
 
 | Metric | Value |
 |--------|------:|
-| **FULL PUBLIC launch score (code + data bar)** | **85 / 100** |
+| **Soft / invite public score** | **84 / 100** |
+| **Full national launch score** | **76 / 100** |
+| **Weighted full-bar (honesty-adjusted)** | **~83 / 100** |
 | **Score if DB password + service_role still unrotated** | **≤52** (hard ops cap — do not ship) |
-| **Max after human credential rotation alone** | **~89** (soft public **GO**) |
-| **Path to ≥90 full public** | Rotation + Hyperdrive app role + Builds `ci:gate` (hollow **experience** gate closed via tab hide) |
-| **Go / No-Go** | **CONDITIONAL — NO-GO until human rotation** |
-| Soft / invite public (Home + Events + News + Big-8) | **GO after §6 human checklist** |
-| Full national marketing launch | **NO-GO** until §6 rotation + Builds `ci:gate` |
+| **Max after human credential rotation alone** | Soft **~89** (**GO**); Full **~82** (still **NO-GO**) |
+| **Path to ≥90 full national** | Rotation + denser calendars/hollow + event URLs + crest quality + SSR/WAF polish |
+| **Go / No-Go** | **CONDITIONAL** — soft **GO after §6 human checklist**; full national **NO-GO** |
+| Soft / invite public (Home + Events + News + Big-8) | **GO after §6** |
+| Full national marketing launch | **NO-GO** (content / SEO / map bind after ops unlock) |
 
 ### One-line decision
 
-**Agent work closed the hollow long-tail public UX gate** (hide empty Fed tabs) and cut raw core-5 **28.9% → 21.7%** with verified fills. Credential rotation still hard-caps live risk at ≤52. After rotation expect **~89** soft/full-ready; Workers Builds `ci:gate` pushes the weighted total to **≥90**.
+**Agent + wave work keeps soft public agent-ready.** Workers Builds `ci:gate` is **closed** (no longer a human blocker). Credential rotation + Hyperdrive least-privilege still hard-cap live risk at ≤52. After rotation: soft public **GO ~89**; full national stays **NO-GO** until hollow/calendar/SEO depth improve.
 
 ---
 
@@ -33,12 +36,12 @@
 | Band | Meaning |
 |------|---------|
 | 90–100 | National launch — dense coverage, hardened abuse/legal surface |
-| **75–89** | **← code bar here (85)** Public OK with known long-tail gaps (tabs hidden when empty) |
+| **75–89** | **← soft public (84)** Public OK with known long-tail gaps |
 | 60–74 | Soft public / marketing to hubs + Big-8 |
 | 40–59 | Invite-only (also the **ops-capped** band while secrets unrotated → **≤52**) |
 | &lt;40 | Internal demo |
 
-Delta vs prior scorecard (**84**, earlier 2026-07-24): **+1** from hollow verified fill (+2 clubs / +5 athletes / +6 news) + public FederationLayout inventory-gated tabs + vitest.
+Delta vs prior scorecard (**85**, 2026-07-24): **−1 soft / −9 full honesty** — Legal/Frontend/Perf·SEO overstatement corrected; offset by `ci:gate` ✅ + A1–A3 security fixes + news pipeline. See master synthesis §7.
 
 ---
 
@@ -50,11 +53,13 @@ Delta vs prior scorecard (**84**, earlier 2026-07-24): **+1** from hollow verifi
 | Point Hyperdrive `dbfcf635…` at `sportsplatform_app` (password set) | **Blocker** | **Blocker** |
 | Keep Live nav inventory-gated; WA/AI/Google flags **off** | Required | Required |
 | WhatsApp tRPC remains hard-disabled | Required | Required |
-| Crests / logos ≥85% active (today **100%** / 83 — **55** crests + **28** sport marks) | **Done** | **Done** |
-| Hollow core-5 ≤15% **or** hide empty federation tabs | **Done** (UX hide; raw core-5 **21.7%**) | Soft OK |
-| Privacy / Terms live + footer links (Home/Events/News/Live/Map) | **Done** | **Done** |
-| Workers Builds build command → `npm run ci:gate` | Strongly required | Required within 48h |
-| No “live streaming” / “every federation complete” claims | **Done** (meta + Live hero) | Required |
+| Crests / logos ≥85% active (today **100%** / 83 — crests + marks) | Prefer real crests | **Done** |
+| Hollow core-5 ≤15% **or** hide empty federation tabs | UX **Done**; raw **21.7%** | Soft OK |
+| Privacy / Terms live + footer links | **Done** | **Done** |
+| Workers Builds build command → `npm run ci:gate` | **Done** ✅ | **Done** ✅ |
+| No “live streaming” / “every federation complete” claims | Required | Required |
+| Event detail URLs + denser upcoming calendars | **Open** | Soft OK |
+| Map as geocoded national product | **Open** | Do not claim |
 
 **Soft public GO only if:** human checklist in §6 completed **and** feature flags remain default-off **and** marketing stays Big-8 / directory scoped.
 
@@ -67,15 +72,18 @@ Delta vs prior scorecard (**84**, earlier 2026-07-24): **+1** from hollow verifi
 | Item | Status |
 |------|--------|
 | Federation tenancy `assertSameFederation` + tests | ✅ Done |
+| Upload entity ownership (A1 — not just federationId claim) | ✅ Done (2026-07-25) |
+| News `sourceUrl` via `safeHttpsHref` (A2) | ✅ Done (2026-07-25) |
+| Aggregator outbound SSRF allowlist (A3) | ✅ Done (2026-07-25) |
 | Public athlete/coach/club PII stripped; `includePii` tenant-scoped | ✅ Done |
-| Draft/inactive gates (events/news/athletes/coaches/clubs/HP/federations/venues) | ✅ Done |
-| WhatsApp API hard-disabled (`WHATSAPP_API_ENABLED=false`) | ✅ Done |
-| Rate limits: AI, upload, search | ✅ Done (per-isolate; WAF still open) |
+| Draft/inactive gates | ✅ Done |
+| WhatsApp API hard-disabled | ✅ Done |
+| Rate limits: AI, upload, search, contentSync | ✅ Done (per-isolate; WAF still open) |
 | Worker CSP / security headers / CORS allowlist | ✅ Done |
 | Storage MIME + public SELECT on `sportsplatform_*` | ✅ Done |
 | Stream / federation / club website https-only | ✅ Done |
-| Load-then-assert ownership (events/news/streams/clubs/athletes) | ✅ Done |
-| `users.setRole` assignable roles only; `federationId` required for fed admin | ✅ Done |
+| Load-then-assert ownership | ✅ Done |
+| `users.setRole` assignable roles only | ✅ Done |
 | `media.list` unscoped dump = platform admin only | ✅ Done |
 | Anthropic client `timeout: 30_000` | ✅ Done |
 | Scrub secrets from working tree | ✅ Done |
@@ -83,36 +91,38 @@ Delta vs prior scorecard (**84**, earlier 2026-07-24): **+1** from hollow verifi
 | **Hyperdrive on `sportsplatform_app` (not `postgres`)** | ❌ **HUMAN** |
 | Global/WAF rate limits | ⬜ Open (P1) |
 
-### CMS
+### CMS / product
 
 | Item | Status |
 |------|--------|
 | Platform + Federation Admin CRUD | ✅ Done |
-| Loading locks on admin forms (`isPending`) | ✅ Done |
-| Page-level error boundaries (Federation + Admin) | ✅ Done |
-| ErrorBoundary stack traces DEV-only | ✅ Done |
+| Content Sync AI + news-aggregator cron | ✅ Done |
+| Loading locks / page-level ErrorBoundaries | ✅ Done |
+| News auto-publish trusted RSS | ✅ Done |
 
 ### SEO / legal / honesty
 
 | Item | Status |
 |------|--------|
 | Privacy / Terms + Register acceptance | ✅ Done |
-| SiteLegalFooter on News / Live / Map (+ Home/Events) | ✅ Done |
-| Soft-public meta (no “live streams” / “every sport”) | ✅ Done |
-| Live hero VOD-honest when inventory empty | ✅ Done |
-| Sitemap hubs + feds; `/live` omitted while VOD-only | ✅ Done |
+| Soft-public meta; Live hero VOD-honest | ✅ Done |
+| Sitemap hubs + feds; `/live` omitted | ✅ Done |
+| `/athletes/:slug` Worker SPA fetch (not hard 404) | ✅ Done (2026-07-25) |
 | Feature flags default off | ✅ Done |
-| Public Fed tabs hide when Clubs/Athletes/News/Streams empty | ✅ Done |
+| Public Fed tabs hide when empty | ✅ Done |
+| SearchAction wired / removed | ⬜ Open |
+| Event / club detail routes | ⬜ Open |
+| Cookie / POPIA depth | ⬜ Partial (Legal ~68–78 not 92) |
 
 ### Data
 
 | Item | Status |
 |------|--------|
-| Big-8 calendars + logos + clubs + news | ✅ Pass |
-| Active federation logos **83/83 (100%)** | ✅ Done (crests + sport marks) |
+| Big-8 calendars + logos + clubs + news | ✅ Pass (upcoming uneven) |
+| Active federation logos **83/83 (100%)** | ✅ Done |
+| Published news **147** (incl. 58 agg) | ✅ Up |
 | Live streams: 0 live / 0 scheduled (4 VOD) | ⚠️ Honest gate |
-| Hollow long-tail: core-5 **24 → 18** (28.9% → 21.7%); public empty tabs hidden | ✅ Experience gate |
-| Crest/mark assets under `/logos` + `/logos/marks` | ✅ Deployable with Worker assets |
+| Hollow long-tail: core-5 **21.7%**; public empty tabs hidden | ✅ Experience gate |
 
 ### Ops
 
@@ -121,9 +131,8 @@ Delta vs prior scorecard (**84**, earlier 2026-07-24): **+1** from hollow verifi
 | Cloudflare Worker + Hyperdrive + apex Custom Domain | ✅ Live |
 | `sportsplatform_app` role + grants in DB | ✅ Done |
 | Hyperdrive origin switched to app role | ❌ **HUMAN** |
-| Workers Builds build command = `npm run ci:gate` | ❌ **HUMAN** |
+| Workers Builds build command = `npm run ci:gate` | ✅ **Done** (verified 2026-07-24 builds) |
 | GitHub Actions `quality-gates` (= `ci:gate`) | ✅ Done |
-| Docs aligned to Workers | ✅ Mostly |
 
 ---
 
@@ -131,28 +140,29 @@ Delta vs prior scorecard (**84**, earlier 2026-07-24): **+1** from hollow verifi
 
 | Domain | Score | Weight | Notes |
 |--------|------:|-------:|-------|
-| Features | **87** | 10% | Admin CMS; Live + Fed tab inventory honesty |
-| Security | **76** | 18% | App hardened; **creds + Hyperdrive still Critical** |
-| RBAC | **92** | 10% | Tenancy + setRole; `club_manager` not assignable |
+| Features | **88** | 10% | CMS + Content Sync + news pipeline |
+| Security | **78** | 18% | A1–A3 closed; **creds + Hyperdrive still Critical** |
+| RBAC | **92** | 10% | Tenancy + upload ownership |
 | Schema | **80** | 8% | A−; index hygiene residual |
-| Data | **88** | 12% | Logos 100%; hollow fill; raw core-5 still 21.7% |
-| Flows | **90** | 8% | Empty Fed tabs hidden for public; admin preview intact |
-| API | **91** | 8% | Caps; WA off; load-assert; media scope; timeouts; https |
-| Frontend | **91** | 8% | SEO honesty; legal footers; page EBs; Fed tab gate |
-| Ops | **66** | 6% | Role ready; rotation + Builds `ci:gate` pending |
-| Integrations | **66** | 4% | WA/AI/Google off; Anthropic timeout set |
-| Legal | **92** | 4% | Privacy/Terms + footers + register |
-| Perf / SEO | **93** | 2% | Sitemap + honest meta; `/live` demoted |
-| CMS | **93** | 1% | CRUD + loading locks + route EBs |
-| Tests | **74** | 1% | + federationPublicTabs vitest |
-| **Weighted** | **~85** | 100% | Caps to **≤52** while secrets unrotated |
+| Data | **86** | 12% | Logos 100%; news/events up; hollow 21.7% |
+| Flows | **88** | 8% | Empty Fed tabs hidden; light theme incomplete |
+| API | **88** | 8% | Caps; WA off; entity upload assert |
+| Frontend | **82** | 8% | Soft dark OK; UX deep dive 68 |
+| Ops | **82** | 6% | **ci:gate done**; rotation pending |
+| Integrations | **72** | 4% | Honest flags; aggregator live |
+| Legal | **78** | 4% | Privacy/Terms; cookie/a11y debt |
+| Perf / SEO | **70** | 2% | SEO ~65; perf ~58; athlete crawl fixed |
+| CMS | **90** | 1% | Strong beta |
+| Tests | **72** | 1% | Tenancy + guards; ci:gate live |
+| **Weighted** | **~83** | 100% | Caps to **≤52** while secrets unrotated |
 
 ### Score math (after human rotation — estimate)
 
-| Unlock | Security | Ops | Weighted ≈ |
-|--------|---------:|----:|-----------:|
-| Rotation + Hyperdrive app role | **94** | **88** | **~89** soft public **GO** (hollow UX done) |
-| + Builds `ci:gate` | 94 | **94** | **≥90** full public |
+| Unlock | Soft public | Full national |
+|--------|------------:|--------------:|
+| Rotation + Hyperdrive app role | **~89 GO** | **~82** still NO-GO |
+| + calendars / hollow / event URLs / crests | — | **~88–90** path |
+| + WAF / SSR polish | Polish | ≥90 national |
 
 ---
 
@@ -166,48 +176,46 @@ Agents **cannot** complete these. Full copy-paste checklist: [`SECURITY_CREDENTI
 4. **Rotate** `SUPABASE_SERVICE_ROLE_KEY` (consider anon if abused).
 5. **`wrangler secret put`** updated keys on Worker `namibia-sports-platform` (+ staging if used).
 6. **Smoke:** `federations.list` on `https://sports.com.na` returns data; storage upload still works; old password/key fail.
-7. **Workers Builds:** Dashboard → Worker → Settings → Build → Build command = `npm run ci:gate` (see `docs/CI.md`).
+7. ~~Workers Builds → `npm run ci:gate`~~ — **DONE** (keep monitoring dashboard does not revert to `npm run build`).
 8. Confirm prod **VITE_SHOW_*** and `VITE_ENABLE_GOOGLE_AUTH` remain **unset**.
 
 ---
 
-## 7. Remaining gaps to ≥90 (ordered)
+## 7. Remaining gaps to soft GO / full ≥90 (ordered)
 
 | # | Gap | Owner | Points unlocked |
 |---|-----|-------|-----------------|
-| 1 | §6 steps 1–6 (rotation + Hyperdrive) | **HUMAN** | ~+3–4 (Security/Ops); lifts ops cap |
-| 2 | Workers Builds → `npm run ci:gate` | **HUMAN** | ~+1 Ops (cleans ≥90) |
-| 3 | Hollow long-tail experience | **Done** | Tab hide + verified fill (raw % still 21.7%) |
-| 4 | Optional: CF WAF / rate limit on `/api/trpc/*` | **HUMAN** | ~+1 Security |
-| 5 | Optional: more verified clubs/news toward raw core-5 ≤15% | Content | Polish only |
+| 1 | §6 steps 1–6 (rotation + Hyperdrive) | **HUMAN** | Lifts ops cap; soft → **GO ~89** |
+| 2 | Confirm VITE flags unset in Builds env | **HUMAN** | Honesty gate |
+| 3 | Workers Builds `ci:gate` | **Done** | Already banked |
+| 4 | Upcoming events + contacts + zero-news fills | Content / Agent | Full national path |
+| 5 | Event detail routes + SearchAction fix | Agent | SEO / share |
+| 6 | Optional: CF WAF on `/api/trpc/*` | **HUMAN** | ~+1 Security |
 
 ---
 
-## 8. Agent-fixable shipped this raise (2026-07-24)
+## 8. Agent-fixable shipped this raise (since 2026-07-24 scorecard)
 
-1. Soft-public SEO copy (`index.html`, `seo.ts`, `SeoHead` `/live`, Home, Live hero).
-2. `club_manager` removed from assignable roles (UI + Zod); docs honesty.
-3. Clubs/athletes load-then-assert; club `website` https; `media.list` scoped.
-4. Anthropic `timeout: 30_000`.
-5. Page EBs (FederationRoute + Admin); ErrorBoundary stack DEV-only.
-6. Live `isError` UI; SiteLegalFooter already on News/Live/Map (sibling).
-7. Crest/sport-mark coverage **83/83** (sibling migration + assets — credited in Data score).
-8. Medium guards + features vitest (sibling); prior scorecard ownership.
-9. **Hollow long-tail:** verified fill (SKN/NSHA/NFGF/NMTF/NM/NSB + NIIHA athletes) + **public Fed tab inventory gate** + vitest.
+1. News aggregator auto-publish + image enrich + Google News unwrap.  
+2. Content Sync AI + Admin all-fed lists + Add User.  
+3. Light theme chrome + Map mobile/ErrorBoundary harden.  
+4. Home news ticker (replaces mid-page news grid).  
+5. Worker `/athletes/:slug` SPA document fetch.  
+6. PWA navigateFallback denylist for `/api`.  
+7. Adversarial A1–A3: upload ownership, news href, aggregator SSRF.  
+8. Gap wave docs + this scorecard refresh + master synthesis.
 
 ---
 
 ## 9. Related artifacts
 
-- `docs/research/PUBLIC_READY_GAP_ANALYSIS.md` — prior **65 / NO-GO**
-- `docs/research/PRODUCTION_SECURITY_AUDIT.md` — code Criticals closed; human C1/C2 open
-- `docs/research/SECURITY_CREDENTIAL_ROTATION.md` — **do this first**
-- `docs/research/FEDERATION_PHOTOS_COVERAGE.md` — logos 83/83 evidence
-- `docs/research/hollow_longtail_ux_fill_20260724.md` — hollow before/after + UX
-- `docs/CI.md` — Workers Builds dashboard path
-- `client/src/lib/features.ts` — hide/ship flags
-- `client/src/lib/federationPublicTabs.ts` — Fed public tab inventory gate
+- `docs/research/FULL_GAP_ANALYSIS_20260725.md` — **master synthesis**  
+- `docs/research/gap_wave_20260725/` — 19 domain slices  
+- `docs/research/PUBLIC_READY_GAP_ANALYSIS.md` — superseded for go/no-go (65 / 2026-07-21)  
+- `docs/research/PRODUCTION_SECURITY_AUDIT.md` — code Criticals closed; human C1/C2 open  
+- `docs/research/SECURITY_CREDENTIAL_ROTATION.md` — **do this first**  
+- `docs/CI.md` — Workers Builds path (`ci:gate` live)
 
 ---
 
-*End of Production Go-Live Scorecard. Verdict: **CONDITIONAL** — agent bar **85**; after human rotation **~89**; **≥90** with Builds `ci:gate`. Hollow public UX gate **closed**.*
+*End of Production Go-Live Scorecard. Verdict: **CONDITIONAL** — soft **84** (GO after human rotation ~89); full national **76** (**NO-GO**). Ops cap **≤52** while secrets unrotated. Builds `ci:gate` **closed**.*
