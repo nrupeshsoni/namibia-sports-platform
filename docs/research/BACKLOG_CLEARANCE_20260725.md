@@ -61,7 +61,7 @@
 | ADM-NULL | AGENT | Admin null-federation_id news publish path | **DONE** |
 | ADM-FILT | AGENT | Admin unified `scopeFedId` filter | **DONE** |
 | ADM-VEN | AGENT | Venue upload federationId from scope | **DONE** |
-| PERF-CC | AGENT | Cache-Control on Worker hashed assets | **DONE** (helper was dead until wired in `withSecurityHeaders`; re-verified) |
+| PERF-CC | AGENT | Cache-Control on Worker hashed assets | **DONE** (wired in `withSecurityHeaders` + `/assets/*` in `run_worker_first`) |
 | PERF-IMG | AGENT | Lazy loading on cards/media; large compress deferred | **DONE** (lazy); compress = follow-on content |
 | UX-LT | AGENT | Light theme on Home/Events/News/Fed content | **DONE** |
 | LEG-CK | AGENT | Cookie disclosure + CookieNotice | **DONE** |

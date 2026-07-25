@@ -32,8 +32,12 @@
     //   1) serve tRPC (not SPA HTML) on /api/*
     //   2) return real 404s for missing /sports|/logos|/athletes|/venues|/news assets
     // Requires wrangler >= 4.20 for the array form.
+    // Include /assets/* so hashed Vite bundles get Worker Cache-Control
+    // (immutable + long max-age). Without this, Assets serves them directly
+    // with CF default max-age=0 and the Worker helper never runs.
     "run_worker_first": [
       "/api/*",
+      "/assets/*",
       "/sports/*",
       "/logos/*",
       "/athletes/*",
@@ -115,6 +119,7 @@
         "not_found_handling": "single-page-application",
         "run_worker_first": [
           "/api/*",
+          "/assets/*",
           "/sports/*",
           "/logos/*",
           "/athletes/*",
