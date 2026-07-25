@@ -44,8 +44,10 @@ function Router() {
     <Suspense fallback={<RouteFallback />}>
       <Switch>
         <Route path={"/"} component={Home} />
-        <Route path="/athletes/:slug" component={AthleteProfile} />`r`n        <Route path="/events/:slug" component={EventDetail} />
-        <Route path="/events" component={Events} />`r`n        <Route path="/clubs/:slug" component={ClubDetail} />
+        <Route path="/athletes/:slug" component={AthleteProfile} />
+        <Route path="/events/:slug" component={EventDetail} />
+        <Route path="/events" component={Events} />
+        <Route path="/clubs/:slug" component={ClubDetail} />
         <Route path="/news/:slug" component={News} />
         <Route path="/news" component={News} />
         <Route path="/live" component={Live} />
