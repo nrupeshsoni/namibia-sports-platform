@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, varchar, boolean, json, integer, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, varchar, boolean, json, integer, pgEnum, doublePrecision } from "drizzle-orm/pg-core";
 
 /**
  * Namibia Sports Management Platform - Database Schema
@@ -118,6 +118,7 @@ export const schools = pgTable("sportsplatform_schools", {
   
   // Sports offered as text array
   sportsOffered: text("sports_offered").array(),
+  isActive: boolean("is_active").default(true).notNull(),
   
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -216,6 +217,8 @@ export const venues = pgTable("sportsplatform_venues", {
   
   capacity: integer("capacity"),
   facilities: text("facilities").array(),
+  latitude: doublePrecision("latitude"),
+  longitude: doublePrecision("longitude"),
   
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -350,3 +353,6 @@ export type InsertLiveStream = typeof liveStreams.$inferInsert;
 
 export type WhatsappSubscription = typeof whatsappSubscriptions.$inferSelect;
 export type InsertWhatsappSubscription = typeof whatsappSubscriptions.$inferInsert;
+
+
+

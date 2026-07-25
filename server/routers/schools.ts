@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { regionMatches } from "../_core/regionFilter";
 import { getDb } from "../db";
 import { schools } from "../../drizzle/schema";
 import { eq, like, and } from "drizzle-orm";
@@ -40,7 +41,8 @@ export const schoolsRouter = router({
 
       const conditions = [];
       if (input?.region) {
-        conditions.push(eq(schools.region, input.region));
+        const rm = regionMatches(schools.region, input.region);
+        if (rm) conditions.push(rm);
       }
       if (input?.search) {
         conditions.push(like(schools.name, `%${input.search}%`));
@@ -121,7 +123,8 @@ export const schoolsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      await db.delete(schools).where(eq(schools.id, input.id));
+      await db.update(schools).set({ isActive: false }).where(eq(schools.id, input.id));
       return { success: true };
     }),
 });
+

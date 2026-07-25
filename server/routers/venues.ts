@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { regionMatches } from "../_core/regionFilter";
 import { getDb } from "../db";
 import { venues } from "../../drizzle/schema";
 import { eq, like, and } from "drizzle-orm";
@@ -41,7 +42,8 @@ export const venuesRouter = router({
         conditions.push(eq(venues.isActive, true));
       }
       if (input?.region) {
-        conditions.push(eq(venues.region, input.region));
+        const rm = regionMatches(venues.region, input.region);
+        if (rm) conditions.push(rm);
       }
       if (input?.search) {
         conditions.push(like(venues.name, `%${input.search}%`));
@@ -135,3 +137,4 @@ export const venuesRouter = router({
       return { success: true };
     }),
 });
+

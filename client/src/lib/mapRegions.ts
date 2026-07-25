@@ -1,7 +1,9 @@
 /**
- * Namibia administrative regions for the interactive map.
- * Keys must match Home region cards and common DB `region` values.
+ * Namibia map region helpers — coords stay client-side; names shared with server.
  */
+
+export { ALL_REGIONS, normalizeRegionName, parseRegionParam } from "@shared/regions";
+import { parseRegionParam } from "@shared/regions";
 
 /** Approximate center coordinates for Namibia's 14 regions */
 export const NAMIBIA_REGION_COORDS: Record<string, [number, number]> = {
@@ -22,34 +24,6 @@ export const NAMIBIA_REGION_COORDS: Record<string, [number, number]> = {
 };
 
 export const NAMIBIA_CENTER: [number, number] = [-22.0, 17.5];
-
-export const ALL_REGIONS: readonly string[] = Object.keys(NAMIBIA_REGION_COORDS);
-
-/**
- * Normalize DB / URL region labels (e.g. `ǁKaras` / `!Karas` → `Karas`).
- */
-export function normalizeRegionName(raw: string): string {
-  const cleaned = raw.replace(/^[ǁ!]+/, "").trim();
-  const hit = ALL_REGIONS.find((r) => r.toLowerCase() === cleaned.toLowerCase());
-  return hit ?? cleaned;
-}
-
-/**
- * Parse a `?region=` query value into a known region, or null if missing/invalid.
- */
-export function parseRegionParam(raw: string | null | undefined): string | null {
-  if (raw == null) return null;
-  let value = raw.trim();
-  if (!value) return null;
-  try {
-    value = decodeURIComponent(value).trim();
-  } catch {
-    // keep trimmed raw — malformed % sequences must not crash the page
-  }
-  if (!value) return null;
-  const normalized = normalizeRegionName(value);
-  return ALL_REGIONS.includes(normalized) ? normalized : null;
-}
 
 /** Read `?region=` from a query string (with or without leading `?`). */
 export function regionFromSearch(search: string = ""): string | null {
