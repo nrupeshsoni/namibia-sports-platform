@@ -56,6 +56,8 @@ export const RATE_LIMITS = {
   ai: { limit: 10, windowMs: 60_000 } satisfies RateLimitOptions,
   /** Platform-admin contentSync suggest/create (Workers AI / Anthropic). */
   contentSync: { limit: 10, windowMs: 60_000 } satisfies RateLimitOptions,
+  /** Platform-admin zero-news batch draft (costlier; fewer runs). */
+  contentSyncBatch: { limit: 3, windowMs: 10 * 60_000 } satisfies RateLimitOptions,
   /** WhatsApp subscribe / unsubscribe / list. */
   whatsapp: { limit: 5, windowMs: 60_000 } satisfies RateLimitOptions,
   /** Federation-admin image uploads (storage + bandwidth). */

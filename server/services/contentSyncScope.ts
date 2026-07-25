@@ -5,7 +5,7 @@
 import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { federations } from "../../drizzle/schema";
+import { federations, newsArticles } from "../../drizzle/schema";
 import type { ContentSuggestion } from "./contentSyncAi";
 
 export type FedRow = {
@@ -114,4 +114,35 @@ export function parseOptionalDate(value: string | null | undefined): Date | null
   if (!value) return null;
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/** Active federations with zero published news (for batch draft fill). */
+export async function loadZeroNewsFederations(limit: number): Promise<FedRow[]> {
+  const all = await loadActiveFederations();
+  const db = await getDb();
+  if (!db) {
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+  }
+  const published = await db
+    .select({ federationId: newsArticles.federationId })
+    .from(newsArticles)
+    .where(eq(newsArticles.isPublished, true))
+    .groupBy(newsArticles.federationId);
+
+  const withNews = new Set(
+    published.map((r) => r.federationId).filter((id): id is number => id != null)
+  );
+  return all.filter((f) => !withNews.has(f.id)).slice(0, Math.max(1, Math.min(limit, 100)));
+}
+
+export function buildZeroNewsBatchPrompt(feds: FedRow[]): string {
+  const year = new Date().getFullYear();
+  const list = feds.map((f) => `- ${f.name}${f.website ? ` (${f.website})` : ""}`).join("\n");
+  return `These Namibian sports federations currently have ZERO published news on the national platform.
+Suggest exactly one verifiable news TOPIC lead per federation (up to ${feds.length} total).
+Set federationHint to the federation's exact name from the list.
+Do not invent scores, quotes, or dates you cannot ground. Year context: ${year}.
+
+Federations:
+${list}`;
 }

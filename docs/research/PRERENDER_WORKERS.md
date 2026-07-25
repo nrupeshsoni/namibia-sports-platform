@@ -1,0 +1,1 @@
+# Prerender / SSR on Cloudflare Workers (SPA)\n\n**Status (2026-07-25):** Partial ship — build-time HTML shells. **Not BLOCKED.**\n\nPost-build `scripts/prerender-shells.mjs` writes meta for `/`, `/news`, `/events`, and 10 key federations.\n

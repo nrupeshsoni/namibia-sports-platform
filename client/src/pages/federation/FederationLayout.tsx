@@ -139,7 +139,7 @@ function FederationLayoutInner({
     (user.role === "admin" ||
       (user.role === "federation_admin" && user.federationId === federation.id));
 
-  // Public nav: hide empty Clubs/Athletes/News/Streams. Admins (and auth loading) see all.
+  // Public nav: hide empty Clubs/Athletes/News/Media/Streams. Admins (and auth loading) see all.
   const showAllPublicTabs = Boolean(hasAdminAccess) || meQuery.isLoading;
   const clubsQuery = trpc.clubs.list.useQuery(
     { federationId: federation.id },
@@ -153,6 +153,10 @@ function FederationLayoutInner({
     { federationId: federation.id, limit: 1 },
     { enabled: !isAdminPathVal }
   );
+  const mediaQuery = trpc.media.list.useQuery(
+    { entityType: "federation", entityId: federation.id },
+    { enabled: !isAdminPathVal }
+  );
   const streamsQuery = trpc.streams.list.useQuery(
     { federationId: federation.id },
     { enabled: !isAdminPathVal }
@@ -161,12 +165,14 @@ function FederationLayoutInner({
     clubs: clubsQuery.data?.length ?? 0,
     athletes: athletesQuery.data?.length ?? 0,
     news: newsQuery.data?.length ?? 0,
+    media: mediaQuery.data?.length ?? 0,
     streams: streamsQuery.data?.length ?? 0,
   };
   const inventoryReady =
     clubsQuery.isSuccess &&
     athletesQuery.isSuccess &&
     newsQuery.isSuccess &&
+    mediaQuery.isSuccess &&
     streamsQuery.isSuccess;
   const visibleTabs = TABS.filter((tab) =>
     shouldShowFederationPublicTab(tab.path, tabInventory, showAllPublicTabs)
@@ -345,6 +351,7 @@ function FederationLayoutInner({
         {currentTab === "clubs" && <FederationClubs />}
         {currentTab === "athletes" && <FederationAthletes />}
         {currentTab === "news" && <FederationNews />}
+        {currentTab === "media" && <FederationMedia />}
         {currentTab === "streams" && <FederationStreams />}
       </main>
     </div>

@@ -85,7 +85,7 @@ export default function Home() {
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
   const [selectedNews, setSelectedNews] = useState<NewsArticleModalItem | null>(null);
 
-  // Search and filter state
+  // Search and filter state (federation grid). Global `/?q=` opens SearchCommandPalette.
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showSearch, setShowSearch] = useState(false);
@@ -194,6 +194,9 @@ export default function Home() {
   // tRPC data for home sections
   const upcomingEventsQuery = trpc.events.list.useQuery({ upcoming: true, limit: 8 });
   const newsQuery = trpc.news.list.useQuery({ limit: 12 });
+  /** Honesty gate for Home HP marketing — hide CTA when catalogue is empty. */
+  const hpProgramsQuery = trpc.hpPrograms.list.useQuery({ limit: 5 });
+  const hpProgramCount = hpProgramsQuery.data?.length ?? 0;
   const upcomingEvents = (upcomingEventsQuery.data ?? []) as Array<{
     id: number;
     name: string;
@@ -221,8 +224,8 @@ export default function Home() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between min-h-[44px] gap-2">
           <button
             onClick={() => setShowSearch(!showSearch)}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl transition-all duration-300 touch-target"
-            style={{ color: 'var(--chrome-fg)', background: 'var(--chrome-btn-bg)' }}
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl transition-all duration-300 touch-target focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            style={{ color: 'var(--chrome-fg)', background: 'var(--chrome-btn-bg)', outlineColor: 'var(--ring)' }}
             aria-label={showSearch ? 'Close search' : 'Open search'}
             aria-expanded={showSearch}
           >
@@ -256,8 +259,8 @@ export default function Home() {
             <ThemeToggle />
             <button
               onClick={() => setNavDrawerOpen(true)}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl transition-all duration-300 touch-target"
-              style={{ color: 'var(--chrome-fg)', background: 'var(--chrome-btn-bg)' }}
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl transition-all duration-300 touch-target focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              style={{ color: 'var(--chrome-fg)', background: 'var(--chrome-btn-bg)', outlineColor: 'var(--ring)' }}
               aria-label="Open menu"
             >
               <Menu className="w-6 h-6" />
@@ -271,9 +274,9 @@ export default function Home() {
             <div 
               className="relative rounded-2xl overflow-hidden"
               style={{
-                background: 'rgba(255, 255, 255, 0.08)',
+                background: 'var(--chrome-btn-bg)',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
+                border: '1px solid var(--chrome-border)',
               }}
             >
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -282,13 +285,13 @@ export default function Home() {
                 placeholder="Search federations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-14 pr-14 py-4 bg-transparent text-white placeholder:text-gray-400 focus:outline-none"
+                className="w-full pl-14 pr-14 py-4 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 autoFocus
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-all focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label="Clear search"
                 >
                   <X className="w-5 h-5" />
@@ -412,7 +415,7 @@ export default function Home() {
           </motion.div>
           {upcomingEventsQuery.isLoading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-10 h-10 text-white animate-spin" />
+              <Loader2 className="w-10 h-10 text-foreground animate-spin" />
             </div>
           ) : upcomingEvents.length > 0 ? (
             <motion.div
@@ -428,13 +431,13 @@ export default function Home() {
                   variants={fadeUp}
                   className="flex-shrink-0 w-[280px] snap-center group"
                 >
-                  <Link href={`/events?slug=${evt.slug}`}>
+                  <Link href={evt.slug ? `/events/${evt.slug}` : '/events'}>
                     <div
                       className="h-full rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 hover:scale-105 hover:-translate-y-1"
                       style={{
-                        background: 'var(--chrome-btn-bg)',
+                        background: 'var(--glass-surface)',
                         backdropFilter: 'blur(20px)',
-                        border: '1px solid rgba(255,255,255,0.12)',
+                        border: '1px solid var(--glass-surface-border)',
                         boxShadow: '0 20px 40px -15px rgba(0,0,0,0.4)',
                       }}
                     >
@@ -577,12 +580,12 @@ export default function Home() {
                 style={{
                   background: selectedCategory === filter.key 
                     ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))'
-                    : 'rgba(255, 255, 255, 0.08)',
+                    : 'var(--chrome-btn-bg)',
                   backdropFilter: 'blur(10px)',
                   border: selectedCategory === filter.key 
                     ? '1px solid rgba(239, 68, 68, 0.5)'
-                    : '1px solid rgba(255, 255, 255, 0.15)',
-                  color: 'white',
+                    : '1px solid var(--chrome-border)',
+                  color: selectedCategory === filter.key ? '#fff' : 'var(--chrome-fg)',
                   boxShadow: selectedCategory === filter.key 
                     ? '0 8px 32px -8px rgba(239, 68, 68, 0.4)'
                     : 'none',
@@ -597,14 +600,14 @@ export default function Home() {
           {(searchQuery || selectedCategory !== 'all') && (
             <p className="text-center text-gray-400 mb-6">
               Showing {filteredFederations.length} of {federations.length} federations
-              {searchQuery && <span> matching "<span className="text-white">{searchQuery}</span>"</span>}
+              {searchQuery && <span> matching "<span className="text-foreground">{searchQuery}</span>"</span>}
             </p>
           )}
 
           {/* Loading State */}
           {isLoading && (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 text-white animate-spin" />
+              <Loader2 className="w-8 h-8 text-foreground animate-spin" />
             </div>
           )}
 
@@ -709,9 +712,9 @@ export default function Home() {
                 <div
                   className="p-4 text-center transition-all duration-300 hover:scale-105 cursor-pointer rounded-2xl group h-full"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
+                    background: 'var(--glass-surface)',
                     backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    border: '1px solid var(--glass-surface-border)',
                   }}
                 >
                   <div
@@ -748,14 +751,14 @@ export default function Home() {
                 key={stat.label}
                 className="text-center p-8 rounded-3xl transition-all duration-500 hover:scale-105 hover:-translate-y-2"
                 style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
+                  background: 'var(--glass-surface)',
                   backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  border: '1px solid var(--glass-surface-border)',
                   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
                 }}
               >
                 <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
-                  <span className="text-2xl font-bold text-white">{stat.value.charAt(0)}</span>
+                  <span className="text-2xl font-bold text-foreground">{stat.value.charAt(0)}</span>
                 </div>
                 <p className="text-4xl md:text-5xl font-serif text-foreground mb-2">{stat.value}</p>
                 <p className="text-xs tracking-[0.2em] text-gray-400">{stat.label}</p>
@@ -802,7 +805,7 @@ export default function Home() {
                 style={{
                   background: 'rgba(0, 0, 0, 0.4)',
                   backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  border: '1px solid var(--glass-surface-border)',
                 }}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -845,7 +848,7 @@ export default function Home() {
                 style={{
                   background: 'rgba(0, 0, 0, 0.4)',
                   backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  border: '1px solid var(--glass-surface-border)',
                 }}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -890,7 +893,7 @@ export default function Home() {
                   style={{
                     background: 'rgba(0, 0, 0, 0.3)',
                     backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    border: '1px solid var(--glass-surface-border)',
                   }}
                 >
                   <h4 className="text-base font-serif text-white">{venue.name.replace('Namibia ', '').replace(' Stadium', '')}</h4>
@@ -916,7 +919,7 @@ export default function Home() {
               style={{
                 background: 'rgba(255, 255, 255, 0.03)',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                border: '1px solid var(--glass-surface-border)',
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
               }}
             >
@@ -931,18 +934,32 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-serif text-foreground mb-4">HIGH PERFORMANCE</h3>
               <p className="text-gray-400 mb-6 leading-relaxed">
-                Elite athlete development programs nurturing Namibia's next generation of champions across Namibian sport.
+                {hpProgramCount > 0
+                  ? 'Named national pathways and talent programmes across federations — catalogues grow as verified rosters land.'
+                  : 'High-performance programme directory is not public yet. Federations manage pathways in their admin areas.'}
               </p>
-              <a 
-                href="#federations" 
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm text-white transition-all duration-300 hover:gap-4"
-                style={{
-                  background: 'rgba(239, 68, 68, 0.2)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                }}
-              >
-                LEARN MORE <span>→</span>
-              </a>
+              {hpProgramCount > 0 ? (
+                <Link
+                  href="/federations"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm text-white transition-all duration-300 hover:gap-4"
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                  }}
+                >
+                  BROWSE FEDERATIONS <span>→</span>
+                </Link>
+              ) : (
+                <span
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm text-gray-500"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                  }}
+                >
+                  Coming soon
+                </span>
+              )}
             </div>
 
             {/* Events Calendar */}
@@ -951,7 +968,7 @@ export default function Home() {
               style={{
                 background: 'rgba(255, 255, 255, 0.03)',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                border: '1px solid var(--glass-surface-border)',
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
               }}
             >
@@ -980,13 +997,13 @@ export default function Home() {
               </a>
             </div>
 
-            {/* Athlete Registration */}
+            {/* Create account — /register is platform account signup, not athlete enrolment */}
             <div 
               className="p-8 rounded-3xl transition-all duration-500 hover:scale-105 hover:-translate-y-2 group"
               style={{
                 background: 'rgba(255, 255, 255, 0.03)',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                border: '1px solid var(--glass-surface-border)',
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
               }}
             >
@@ -999,9 +1016,9 @@ export default function Home() {
               >
                 <Users className="w-8 h-8 text-green-400" />
               </div>
-              <h3 className="text-2xl font-serif text-foreground mb-4">ATHLETE REGISTRATION</h3>
+              <h3 className="text-2xl font-serif text-foreground mb-4">CREATE AN ACCOUNT</h3>
               <p className="text-gray-400 mb-6 leading-relaxed">
-                Register as an athlete, coach, or official. Join Namibia's sporting community and access development programs.
+                Sign up for a sports.com.na account to follow federations, save preferences, and access member features as they roll out.
               </p>
               <Link href="/register">
                 <span
@@ -1011,7 +1028,7 @@ export default function Home() {
                     border: '1px solid rgba(34, 197, 94, 0.3)',
                   }}
                 >
-                  REGISTER NOW <span>→</span>
+                  CREATE ACCOUNT <span>→</span>
                 </span>
               </Link>
             </div>
@@ -1023,8 +1040,8 @@ export default function Home() {
       <footer 
         className="text-foreground py-16 relative"
         style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,1))',
-          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+          background: 'var(--page-bg)',
+          borderTop: '1px solid var(--chrome-border)',
         }}
       >
         {/* Subtle glow */}
@@ -1033,17 +1050,18 @@ export default function Home() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             <div>
-              <h3 className="text-2xl font-serif mb-4 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">NAMIBIA SPORTS</h3>
-              <p className="text-gray-400 text-sm">Excellence in Athletics, Unity in Sport</p>
+              <h3 className="text-2xl font-serif mb-4 text-foreground">NAMIBIA SPORTS</h3>
+              <p className="text-sm" style={{ color: 'var(--chrome-muted)' }}>Excellence in Athletics, Unity in Sport</p>
             </div>
             <div>
-              <h4 className="text-sm tracking-wider text-gray-300 mb-4">QUICK LINKS</h4>
+              <h4 className="text-sm tracking-wider mb-4" style={{ color: 'var(--chrome-muted)' }}>QUICK LINKS</h4>
               <ul className="space-y-3 text-sm">
                 {footerQuickLinks.map((link) => (
                   <li key={link.label}>
                     <a 
                       href={link.href} 
-                      className="text-gray-500 hover:text-white transition-all duration-300 hover:pl-2 inline-block"
+                      className="transition-all duration-300 hover:pl-2 inline-block hover:opacity-90"
+                      style={{ color: 'var(--chrome-muted)' }}
                     >
                       {link.label}
                     </a>
@@ -1052,8 +1070,8 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="text-sm tracking-wider text-gray-300 mb-4">CONTACT</h4>
-              <ul className="space-y-3 text-sm text-gray-500">
+              <h4 className="text-sm tracking-wider mb-4" style={{ color: 'var(--chrome-muted)' }}>CONTACT</h4>
+              <ul className="space-y-3 text-sm" style={{ color: 'var(--chrome-muted)' }}>
                 <li>Namibia Sports Commission</li>
                 <li>Windhoek, Namibia</li>
                 <li>
@@ -1072,16 +1090,17 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="text-sm tracking-wider text-gray-300 mb-4">FOLLOW US</h4>
+              <h4 className="text-sm tracking-wider mb-4" style={{ color: 'var(--chrome-muted)' }}>FOLLOW US</h4>
               <div className="flex gap-3">
                 <a
                   href="https://facebook.com/NamibiaSportsCommission"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white transition-all duration-300"
+                  className="px-4 py-2 rounded-lg text-sm transition-all duration-300 hover:opacity-90"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    color: 'var(--chrome-muted)',
+                    background: 'var(--glass-surface)',
+                    border: '1px solid var(--glass-surface-border)',
                   }}
                 >
                   Facebook
@@ -1093,17 +1112,17 @@ export default function Home() {
           <div 
             className="pt-8 text-center rounded-2xl p-6"
             style={{
-              background: 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid rgba(255, 255, 255, 0.05)',
+              background: 'var(--glass-surface)',
+              border: '1px solid var(--glass-surface-border)',
             }}
           >
-            <p className="text-sm text-gray-500 mb-3">
+            <p className="text-sm mb-3" style={{ color: 'var(--chrome-muted)' }}>
               © {new Date().getFullYear()} Namibia Sports Platform. All rights reserved.
             </p>
-            <p className="text-xs text-gray-500 mb-3">
-              <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
-              <span className="mx-2 text-gray-600">·</span>
-              <a href="/terms" className="hover:text-white transition-colors">Terms of Use</a>
+            <p className="text-xs mb-3" style={{ color: 'var(--chrome-muted)' }}>
+              <a href="/privacy" className="hover:opacity-90 transition-opacity" style={{ color: 'var(--chrome-fg)' }}>Privacy Policy</a>
+              <span className="mx-2" style={{ color: 'var(--chrome-muted)' }}>·</span>
+              <a href="/terms" className="hover:opacity-90 transition-opacity" style={{ color: 'var(--chrome-fg)' }}>Terms of Use</a>
             </p>
             <p className="text-xs text-gray-600">
               Website Designed and Developed by{' '}

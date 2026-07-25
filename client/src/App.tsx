@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+﻿import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
@@ -22,8 +22,6 @@ import Terms from "./pages/legal/Terms";
 import FederationRoute from "./pages/federation/FederationRoute";
 import AthleteProfile from "./pages/athletes/AthleteProfile";
 import { SeoHead } from "./components/SeoHead";
-import { SkipToContent } from "./components/SkipToContent";
-import { CookieNotice } from "./components/CookieNotice";
 
 const Admin = lazy(() => import("./pages/Admin"));
 const Map = lazy(() => import("./pages/Map"));
@@ -66,6 +64,7 @@ function Router() {
         <Route path="/federation/:slug/clubs" component={FederationRoute} />
         <Route path="/federation/:slug/athletes" component={FederationRoute} />
         <Route path="/federation/:slug/news" component={FederationRoute} />
+        <Route path="/federation/:slug/media" component={FederationRoute} />
         <Route path="/federation/:slug/streams" component={FederationRoute} />
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />
@@ -86,14 +85,9 @@ function App() {
         <AuthProvider>
           <TooltipProvider>
             <SeoHead />
-            <SkipToContent />
             <OfflineBanner />
             <Toaster />
-            <main
-              id="main-content"
-              tabIndex={-1}
-              className={showMobileNav ? "pb-[72px] md:pb-0" : ""}
-            >
+            <main className={showMobileNav ? "pb-[72px] md:pb-0" : ""}>
               <Router />
             </main>
             <SearchCommandPalette />
@@ -103,7 +97,6 @@ function App() {
               </Suspense>
             )}
             <PWAInstallBanner />
-            <CookieNotice />
             <MobileBottomNav />
           </TooltipProvider>
         </AuthProvider>

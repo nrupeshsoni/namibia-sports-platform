@@ -1,7 +1,6 @@
 /**
- * Public federation sub-nav honesty: hide Clubs / Athletes / News / Streams
+ * Public federation sub-nav honesty: hide Clubs / Athletes / News / Streams / Media
  * when that federation has zero published items. Home + Events always stay.
- * Admins pass `showAllTabs` so federation_admin can still open empty CMS targets.
  */
 
 export type FederationTabInventory = {
@@ -9,19 +8,13 @@ export type FederationTabInventory = {
   athletes: number;
   news: number;
   streams: number;
+  media: number;
 };
 
-/** Tab paths gated by inventory for anonymous / non-admin public nav. */
 export function isInventoryGatedTab(path: string): boolean {
-  return path === "clubs" || path === "athletes" || path === "news" || path === "streams";
+  return path === "clubs" || path === "athletes" || path === "news" || path === "streams" || path === "media";
 }
 
-/**
- * Whether a federation public tab should appear in the sticky nav.
- * @param path - Tab path segment (`""` = Home, `events`, `clubs`, …)
- * @param inventory - Published/active counts for gated tabs
- * @param showAllTabs - true for platform/federation admin preview
- */
 export function shouldShowFederationPublicTab(
   path: string,
   inventory: FederationTabInventory,
@@ -33,5 +26,6 @@ export function shouldShowFederationPublicTab(
   if (path === "athletes") return inventory.athletes > 0;
   if (path === "news") return inventory.news > 0;
   if (path === "streams") return inventory.streams > 0;
+  if (path === "media") return inventory.media > 0;
   return true;
 }

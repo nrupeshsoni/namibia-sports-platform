@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "wrangler dev",
     "prebuild": "npm run generate-icons && npm run generate-sitemap",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender-shells.mjs",
+    "prerender-shells": "node scripts/prerender-shells.mjs",
     "generate-sitemap": "node scripts/generate-sitemap.mjs",
     "check": "tsc --noEmit",
     "ci:gate": "npm run check && npm run test && npm run build",
