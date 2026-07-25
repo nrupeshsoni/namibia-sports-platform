@@ -92,6 +92,8 @@ export const venuesRouter = router({
         contactEmail: z.string().optional(),
         contactPhone: z.string().optional(),
         capacity: z.number().optional(),
+        latitude: z.number().min(-90).max(90).optional(),
+        longitude: z.number().min(-180).max(180).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -115,6 +117,8 @@ export const venuesRouter = router({
         contactEmail: z.string().optional(),
         contactPhone: z.string().optional(),
         capacity: z.number().optional(),
+        latitude: z.number().min(-90).max(90).nullable().optional(),
+        longitude: z.number().min(-180).max(180).nullable().optional(),
         isActive: z.boolean().optional(),
       })
     )

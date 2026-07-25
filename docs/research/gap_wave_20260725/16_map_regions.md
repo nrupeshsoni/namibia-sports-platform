@@ -58,7 +58,7 @@ Ship `/map` as a **region browser** (14 centroids + side-panel lists). Do **not*
 | Layer | Present? | Notes |
 |-------|:--------:|-------|
 | 14 region **centroid** markers | ✅ | Hardcoded `NAMIBIA_REGION_COORDS` |
-| Per-venue markers | ❌ | No lat/lng columns; panel list only |
+| Per-venue markers | ✅ partial | Blue markers when lat/lng set (18/42 as of 2026-07-25 backfill); nulls list-only |
 | Per-club markers | ❌ | Clubs not queried on Map page |
 | Event markers | ❌ | Upcoming events list in panel only |
 | Region polygons / boundaries | ❌ | Points only |

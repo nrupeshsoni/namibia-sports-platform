@@ -85,6 +85,17 @@ function MapScreen() {
   const venues = asList(venuesQuery.data);
   const events = asList(eventsQuery.data);
 
+  /** Venues with real coords — plotted as markers; null lat/lng stay list-only. */
+  const geocodedVenues = useMemo(() => {
+    return venues.filter(
+      (v): v is typeof v & { latitude: number; longitude: number } =>
+        typeof v.latitude === "number" &&
+        typeof v.longitude === "number" &&
+        Number.isFinite(v.latitude) &&
+        Number.isFinite(v.longitude),
+    );
+  }, [venues]);
+
   const regionStats = useMemo(() => {
     const byRegion: Record<string, { venues: number; events: number }> = {};
     for (const r of ALL_REGIONS) byRegion[r] = { venues: 0, events: 0 };
@@ -158,7 +169,7 @@ function MapScreen() {
                 const isSelected = selectedRegion === region;
                 return (
                   <Marker
-                    key={region}
+                    key={`region-${region}`}
                     position={coords}
                     icon={createIcon(isSelected ? "#EF4444" : "#10B981")}
                     eventHandlers={{ click: () => setSelectedRegion(region) }}
@@ -182,6 +193,27 @@ function MapScreen() {
                   </Marker>
                 );
               })}
+              {geocodedVenues.map((venue) => (
+                <Marker
+                  key={`venue-${venue.id}`}
+                  position={[venue.latitude, venue.longitude]}
+                  icon={createIcon("#3B82F6")}
+                >
+                  <Popup>
+                    <div className="text-sm">
+                      <strong className="text-gray-900">{venue.name}</strong>
+                      {(venue.city || venue.region) && (
+                        <p className="text-gray-600 mt-1">
+                          {[venue.city, venue.region].filter(Boolean).join(" · ")}
+                        </p>
+                      )}
+                      {venue.address ? (
+                        <p className="text-gray-500 mt-0.5 text-xs">{venue.address}</p>
+                      ) : null}
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
               {selectedRegion ? <MapCenterController center={mapCenter} /> : null}
             </MapContainer>
           )}

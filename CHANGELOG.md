@@ -5,6 +5,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Venue geocode backfill:** Nominatim OSM (1 req/sec + User-Agent) + curated pins for **18**/42 active venues; **24** left null when unsure. Map plots blue venue markers when lat/lng present. Admin `venues.create`/`update` accept lat/lng. Evidence: `docs/research/venues_geocode_backfill_20260725.md`; script `scripts/geocode-venues-nominatim.mjs`.
 - **SEO entity pages:** published event and active club slug routes with sitemap discovery.
 - Public **/events/:slug** and **/clubs/:slug** detail pages: getBySlug tRPC, SPA routes, card links, JSON-LD, sitemap entries.
 - **Tenancy tests (T4):** `server/federationScopeDbFirst.test.ts` — mocked-`getDb` coverage for `media.create/update/delete`, `coaches`/`hpPrograms` update/delete, and `upload.image` entity ownership (A1). Client `safeHttpsHref` news sourceUrl cases in `features.test.ts`.
