@@ -22,10 +22,15 @@ import {
 import {
   attachFederationIds,
   buildScopePrompt,
+  buildZeroNewsBatchPrompt,
   loadActiveFederations,
+  loadZeroNewsFederations,
+  matchFederation,
   parseOptionalDate,
   uniqueSlug,
 } from "../services/contentSyncScope";
+import { toClientSafeTrpcError } from "../_core/clientSafeError";
+import type { ContentSuggestion } from "../services/contentSyncAi";
 
 const MANUAL_CMS_HINT =
   "Use the News or Events tabs in Platform Admin to create drafts manually.";
@@ -78,10 +83,14 @@ async function runSuggest(
     if (msg.includes("No AI provider")) {
       throw new TRPCError({
         code: "PRECONDITION_FAILED",
-        message: `${msg} ${MANUAL_CMS_HINT}`,
+        message: `AI unavailable. ${MANUAL_CMS_HINT}`,
       });
     }
-    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: msg });
+    throw toClientSafeTrpcError(
+      `contentSync.suggest.${kind}`,
+      e,
+      `Content Sync failed. ${MANUAL_CMS_HINT}`
+    );
   }
 }
 
@@ -151,8 +160,13 @@ export const contentSyncRouter = router({
       }
 
       const { suggestion } = input;
-      const sourceNote = suggestion.sourceUrl
-        ? `\n\n---\nResearch source (unverified): ${suggestion.sourceUrl}`
+      const rawSource = suggestion.sourceUrl?.trim() ?? "";
+      const sourceUrl =
+        rawSource.startsWith("https://") && rawSource.length <= 2_000
+          ? rawSource
+          : null;
+      const sourceNote = sourceUrl
+        ? `\n\n---\nResearch source (unverified): ${sourceUrl}`
         : "\n\n---\nResearch lead from Content Sync AI — verify before publish.";
 
       const [result] = await db
@@ -165,6 +179,8 @@ export const contentSyncRouter = router({
           content: `${suggestion.summary}${sourceNote}`,
           category: "sports",
           tags: ["content-sync", "ai-draft"],
+          sourceUrl,
+          sourceName: sourceUrl ? "Content Sync AI" : null,
           authorId: ctx.user.id,
           isPublished: false,
           publishedAt: null,
@@ -229,6 +245,143 @@ export const contentSyncRouter = router({
         id: result.id,
         isPublished: false as const,
         startDatePlaceholder: parsed == null,
+      };
+    }),
+
+  /**
+   * Auth: admin. One AI call for up to N zero-news federations → unpublished news drafts.
+   * Never auto-publishes. Rate-limited separately (3 / 10 min).
+   */
+  batchDraftZeroNews: adminProcedure
+    .input(
+      z
+        .object({
+          maxFederations: z.number().int().min(1).max(20).default(17),
+        })
+        .optional()
+    )
+    .mutation(async ({ ctx, input }) => {
+      assertContentSyncEnabled();
+      enforceRateLimit(`contentSync.batchDraftZeroNews:${ctx.user.id}`, {
+        ...RATE_LIMITS.contentSyncBatch,
+        message: "Zero-news batch already ran recently. Wait a few minutes.",
+      });
+      enforceRateLimit(`contentSync.batchDraftZeroNews:ip:${clientKey(ctx.req)}`, {
+        ...RATE_LIMITS.contentSyncBatch,
+        message: "Zero-news batch already ran recently. Wait a few minutes.",
+      });
+
+      const max = input?.maxFederations ?? 17;
+      const zeroFeds = await loadZeroNewsFederations(max);
+      if (zeroFeds.length === 0) {
+        return {
+          provider: resolveContentSyncProvider(ctx.env),
+          created: [] as { federationId: number; federationName: string; id: number }[],
+          skipped: [] as { federationName: string; reason: string }[],
+          remainingZeroNews: 0,
+          disclaimer:
+            "No active federations with zero published news. Drafts only — never auto-publish.",
+        };
+      }
+
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      }
+
+      let provider: "workers-ai" | "anthropic" | null = null;
+      let suggestions: ContentSuggestion[] = [];
+      try {
+        const result = await generateContentSuggestions(
+          ctx.env,
+          buildZeroNewsBatchPrompt(zeroFeds)
+        );
+        provider = result.provider;
+        suggestions = result.suggestions;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "AI request failed";
+        if (msg.includes("No AI provider")) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: `AI unavailable. ${MANUAL_CMS_HINT}`,
+          });
+        }
+        throw toClientSafeTrpcError(
+          "contentSync.batchDraftZeroNews",
+          e,
+          `Content Sync batch failed. ${MANUAL_CMS_HINT}`
+        );
+      }
+
+      const created: { federationId: number; federationName: string; id: number }[] = [];
+      const skipped: { federationName: string; reason: string }[] = [];
+      const usedFedIds = new Set<number>();
+
+      for (const suggestion of suggestions) {
+        const federationId = matchFederation(zeroFeds, null, suggestion.federationHint);
+        if (federationId == null) {
+          skipped.push({
+            federationName: suggestion.federationHint ?? "(unknown)",
+            reason: "Could not match federationHint",
+          });
+          continue;
+        }
+        if (usedFedIds.has(federationId)) continue;
+        usedFedIds.add(federationId);
+
+        const fed = zeroFeds.find((f) => f.id === federationId);
+        const rawSource = suggestion.sourceUrl?.trim() ?? "";
+        const sourceUrl =
+          rawSource.startsWith("https://") && rawSource.length <= 2_000
+            ? rawSource
+            : null;
+        const sourceNote = sourceUrl
+          ? `\n\n---\nResearch source (unverified): ${sourceUrl}`
+          : "\n\n---\nResearch lead from Content Sync AI — verify before publish.";
+
+        const [row] = await db
+          .insert(newsArticles)
+          .values({
+            federationId,
+            title: suggestion.title.slice(0, 255),
+            slug: uniqueSlug(suggestion.title),
+            summary: suggestion.summary.slice(0, 2_000),
+            content: `${suggestion.summary}${sourceNote}`,
+            category: "sports",
+            tags: ["content-sync", "ai-draft", "zero-news-batch"],
+            sourceUrl,
+            sourceName: sourceUrl ? "Content Sync AI" : null,
+            authorId: ctx.user.id,
+            isPublished: false,
+            publishedAt: null,
+          })
+          .returning({ id: newsArticles.id });
+
+        created.push({
+          federationId,
+          federationName: fed?.name ?? `federation #${federationId}`,
+          id: row.id,
+        });
+      }
+
+      for (const fed of zeroFeds) {
+        if (!usedFedIds.has(fed.id)) {
+          skipped.push({
+            federationName: fed.name,
+            reason: "No AI suggestion matched this federation",
+          });
+        }
+      }
+
+      const stillZero = await loadZeroNewsFederations(100);
+
+      return {
+        provider,
+        created,
+        skipped,
+        remainingZeroNews: stillZero.length,
+        disclaimer:
+          "AI research leads only. All rows are unpublished drafts (isPublished=false). Verify before publish.",
       };
     }),
 });

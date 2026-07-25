@@ -20,16 +20,25 @@ import {
   Loader2,
 } from "lucide-react";
 
-/** Global search command palette triggered by Cmd+K / Ctrl+K */
+/** Global search command palette triggered by Cmd+K / Ctrl+K or `/?q=` (SearchAction). */
 export function SearchCommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
 
   const { data, isLoading, isFetching } = trpc.search.global.useQuery(
     { query },
     { enabled: open && query.length >= 2 }
   );
+
+  /** Wire homepage JSON-LD SearchAction (`/?q={search_term_string}`). */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q")?.trim();
+    if (!q) return;
+    setOpen(true);
+    setQuery(q);
+  }, [location]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -122,7 +131,7 @@ export function SearchCommandPalette() {
                     key={`evt-${e.id}`}
                     value={`event-${e.id}`}
                     onSelect={() =>
-                      navigateAndClose(`/events${e.slug ? `?slug=${e.slug}` : ""}`)
+                      navigateAndClose(e.slug ? `/events/${e.slug}` : "/events")
                     }
                     className="flex items-center gap-3 cursor-pointer"
                   >
@@ -149,32 +158,25 @@ export function SearchCommandPalette() {
             )}
             {clubs.length > 0 && (
               <CommandGroup heading="Clubs">
-                {clubs.map((c) =>
-                  c.federationSlug ? (
-                    <CommandItem
-                      key={`club-${c.id}`}
-                      value={`club-${c.id}`}
-                      onSelect={() =>
-                        navigateAndClose(
-                          `/federation/${c.federationSlug}/clubs`
-                        )
-                      }
-                      className="flex items-center gap-3 cursor-pointer"
-                    >
-                      <Users className="w-4 h-4 text-amber-400 shrink-0" />
-                      <span>{c.name}</span>
-                    </CommandItem>
-                  ) : (
-                    <CommandItem
-                      key={`club-${c.id}`}
-                      value={`club-${c.id}`}
-                      className="flex items-center gap-3 opacity-75"
-                    >
-                      <Users className="w-4 h-4 text-amber-400 shrink-0" />
-                      <span>{c.name}</span>
-                    </CommandItem>
-                  )
-                )}
+                {clubs.map((c) => (
+                  <CommandItem
+                    key={`club-${c.id}`}
+                    value={`club-${c.id}`}
+                    onSelect={() =>
+                      navigateAndClose(
+                        c.slug
+                          ? `/clubs/${c.slug}`
+                          : c.federationSlug
+                            ? `/federation/${c.federationSlug}/clubs`
+                            : "/"
+                      )
+                    }
+                    className="flex items-center gap-3 cursor-pointer"
+                  >
+                    <Users className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>{c.name}</span>
+                  </CommandItem>
+                ))}
               </CommandGroup>
             )}
             {athletes.length > 0 && (

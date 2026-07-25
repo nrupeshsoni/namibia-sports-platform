@@ -6,6 +6,7 @@ import { eq, and } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
 import { assertSameFederation } from "../_core/federationScope";
 import { resolveEntityFederationId } from "../_core/resolveEntityFederation";
+import { mediaAssetUrlSchema, optionalMediaAssetUrlSchema } from "../_core/httpsUrl";
 
 const entityTypeSchema = z.enum(["federation", "club", "event", "athlete", "venue", "coach"]);
 
@@ -80,8 +81,8 @@ export const mediaRouter = router({
     .input(
       z.object({
         title: z.string().optional(),
-        fileUrl: z.string().min(1),
-        thumbnailUrl: z.string().min(1).optional(),
+        fileUrl: mediaAssetUrlSchema,
+        thumbnailUrl: optionalMediaAssetUrlSchema,
         type: z.enum(["image", "video", "document"]).default("image"),
         entityType: entityTypeSchema,
         entityId: z.number(),
@@ -94,8 +95,70 @@ export const mediaRouter = router({
       const federationId = await resolveMediaFederationId(input.entityType, input.entityId);
       assertSameFederation(ctx.user, federationId);
 
-      const [result] = await db.insert(media).values(input).returning({ id: media.id });
+      const thumbnailUrl =
+        input.thumbnailUrl === "" || input.thumbnailUrl == null
+          ? undefined
+          : input.thumbnailUrl;
+
+      const [result] = await db
+        .insert(media)
+        .values({
+          title: input.title,
+          fileUrl: input.fileUrl,
+          thumbnailUrl,
+          type: input.type,
+          entityType: input.entityType,
+          entityId: input.entityId,
+        })
+        .returning({ id: media.id });
       return { success: true, id: result.id };
+    }),
+
+  /** Auth: federationAdmin. Update caption/URL/type; ownership from existing row. */
+  update: federationAdminProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        title: z.string().max(255).optional().nullable(),
+        fileUrl: mediaAssetUrlSchema.optional(),
+        thumbnailUrl: optionalMediaAssetUrlSchema,
+        type: z.enum(["image", "video", "document"]).optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const [existing] = await db
+        .select()
+        .from(media)
+        .where(eq(media.id, input.id))
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Media not found" });
+      }
+
+      const federationId = await resolveMediaFederationId(
+        existing.entityType,
+        existing.entityId
+      );
+      assertSameFederation(ctx.user, federationId);
+
+      const patch: {
+        title?: string | null;
+        fileUrl?: string;
+        thumbnailUrl?: string | null;
+        type?: "image" | "video" | "document";
+      } = {};
+      if (input.title !== undefined) patch.title = input.title;
+      if (input.fileUrl !== undefined) patch.fileUrl = input.fileUrl;
+      if (input.thumbnailUrl !== undefined) {
+        patch.thumbnailUrl = input.thumbnailUrl === "" ? null : input.thumbnailUrl;
+      }
+      if (input.type !== undefined) patch.type = input.type;
+
+      await db.update(media).set(patch).where(eq(media.id, input.id));
+      return { success: true as const };
     }),
 
   delete: federationAdminProcedure

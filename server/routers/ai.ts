@@ -7,6 +7,7 @@ import { TRPCError } from "@trpc/server";
 import { generateSummary, suggestTags, chatAssistant } from "../services/anthropic";
 import { protectedProcedure, router } from "../_core/trpc";
 import { clientKey, enforceRateLimit, RATE_LIMITS } from "../_core/rateLimit";
+import { toClientSafeTrpcError } from "../_core/clientSafeError";
 
 /**
  * Every chat call spends real money at Anthropic, so the cost of a single
@@ -30,6 +31,14 @@ function enforceAiRateLimit(procedure: string, userId: number | undefined, req: 
   });
 }
 
+function aiFailure(procedure: string, e: unknown): never {
+  throw toClientSafeTrpcError(
+    `ai.${procedure}`,
+    e,
+    "AI request failed. Please try again later."
+  );
+}
+
 export const aiRouter = router({
   generateSummary: protectedProcedure
     .input(z.object({ text: z.string().min(1).max(50_000) }))
@@ -38,8 +47,7 @@ export const aiRouter = router({
       try {
         return await generateSummary(input.text);
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "AI request failed";
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: msg });
+        aiFailure("generateSummary", e);
       }
     }),
 
@@ -50,8 +58,7 @@ export const aiRouter = router({
       try {
         return await suggestTags(input.content);
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "AI request failed";
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: msg });
+        aiFailure("suggestTags", e);
       }
     }),
 
@@ -80,8 +87,7 @@ export const aiRouter = router({
       try {
         return await chatAssistant(input.message, input.history);
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "AI request failed";
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: msg });
+        aiFailure("chatAssistant", e);
       }
     }),
 });

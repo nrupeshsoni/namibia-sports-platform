@@ -31,6 +31,9 @@ const entityIdSchema = z.union([
 
 const contentTypeSchema = z.enum(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
+/** ~5MB binary ≈ 6.7MB base64; + data-URL prefix margin — reject before decode. */
+export const MAX_UPLOAD_BASE64_CHARS = 7_500_000;
+
 export const uploadRouter = router({
   image: federationAdminProcedure
     .input(
@@ -39,7 +42,7 @@ export const uploadRouter = router({
         federationId: z.number(),
         entity: entitySchema,
         entityId: entityIdSchema,
-        base64: z.string(), // data URL or raw base64
+        base64: z.string().min(1).max(MAX_UPLOAD_BASE64_CHARS),
         contentType: contentTypeSchema.optional(),
       })
     )
