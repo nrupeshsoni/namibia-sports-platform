@@ -5,6 +5,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- **SEO entity pages:** published event and active club slug routes with sitemap discovery.
 - Public **/events/:slug** and **/clubs/:slug** detail pages: getBySlug tRPC, SPA routes, card links, JSON-LD, sitemap entries.
 - **Tenancy tests (T4):** `server/federationScopeDbFirst.test.ts` — mocked-`getDb` coverage for `media.create/update/delete`, `coaches`/`hpPrograms` update/delete, and `upload.image` entity ownership (A1). Client `safeHttpsHref` news sourceUrl cases in `features.test.ts`.
 - **`media.update`:** Title / fileUrl / thumbnailUrl / type patch with `mediaAssetUrlSchema` + entity federation ownership.
@@ -52,6 +53,7 @@ oindex while loading or when federation/news/athlete/event/club slug records are
 - **news-aggregator image enrich:** stronger RSS media/`<img>` extraction (skips ad banners), twitter/og/JSON-LD meta, WordPress **oEmbed thumbnail** fallback (Economist), capped fetch timeouts (12s feed / 6s og); DB backfill via `source_url`; **Google News unwrap** (browser UA + batchexecute `garturlres`) so outlet `og:image` can be fetched.
 
 ### Added
+- **SEO entity pages:** published event and active club slug routes with sitemap discovery.
 - Public **/events/:slug** and **/clubs/:slug** detail pages: getBySlug tRPC, SPA routes, card links, JSON-LD, sitemap entries.
 - **Full gap analysis (2026-07-25):** master synthesis `docs/research/FULL_GAP_ANALYSIS_20260725.md` + remaining wave slices `05`–`09`, `11`–`18` under `docs/research/gap_wave_20260725/`. Soft public **84/100** (CONDITIONAL → GO after credential rotation); full national **76/100** (**NO-GO**). Ops hard-cap **≤52** while DB/`service_role` unrotated. Workers Builds `ci:gate` verified **closed**.
 - Gap analysis: `docs/research/gap_wave_20260725/02_data_completeness.md` — live DB completeness (83 actives: logo/hero/desc 100%; contact 88%; website 66%; content zeros; events 291/40 upcoming; news 147; population priorities).
@@ -101,6 +103,7 @@ oindex while loading or when federation/news/athlete/event/club slug records are
 - Sitemap hubs: include `/privacy` + `/terms`; omit `/live` while stream inventory is VOD-only (`scripts/generate-sitemap.mjs`).
 
 ### Added
+- **SEO entity pages:** published event and active club slug routes with sitemap discovery.
 - Public **/events/:slug** and **/clubs/:slug** detail pages: getBySlug tRPC, SPA routes, card links, JSON-LD, sitemap entries.
 - Hollow long-tail fill + UX (2026-07-24 evening): +**2** clubs (Deluded Bros / Let's Go Hiking), +**5** NIIHA World Games athletes, +**6** news (SKN/NFGF/NMTF/NM/NSB/NIIHA). Hollow core-5 **28.9% → 21.7%** (24→18). Migration `20260724190000`. Evidence: `docs/research/hollow_longtail_ux_fill_20260724.md`. Vitest: `federationPublicTabs.test.ts`.
 - Hollow fill pass (2026-07-24): +**18** clubs (NIIHA×4, Fistball×4, Cue/NCSF×9, Mountain Club), +**15** athletes (NESA Dota 2×5, darts×4, cue×5, TKD Owen Samunzala), +**5** news. Live: athletes **193**, clubs **189**, news **83**. Migrations `20260724180000`–`20260724180200`. Evidence: `docs/research/crests_hollow_fill_batch_20260724.md`.
@@ -127,6 +130,7 @@ oindex while loading or when federation/news/athlete/event/club slug records are
 - Public list procedures now enforce default **50** / max **200** row caps (`server/_core/listLimits.ts`): `events`, `clubs`, `athletes`, `coaches`, `streams`, `venues`, `federations`, `hpPrograms`. Callers that need fuller directories pass an explicit `limit` (capped at 200).
 
 ### Added
+- **SEO entity pages:** published event and active club slug routes with sitemap discovery.
 - Public **/events/:slug** and **/clubs/:slug** detail pages: getBySlug tRPC, SPA routes, card links, JSON-LD, sitemap entries.
 - Production polish (2026-07-23): regenerated sitemap slug JSONs from live DB (**83** feds / **79** news / **178** athletes) and rebuilt `client/public/sitemap.xml`. Migration `20260723100000_athletes_clubs_hollow_polish.sql` (+**16** athletes, +**2** clubs — karate OGKN/UFAK, dance nationals, triathlon World Triathlon elites, TKD Mabuza). Crest re-hunt Golf/Karate/Badminton/PWFN — **0** new crests (prior rejections stand). Footer: NSC Facebook only (dropped dead `#` socials); Events footer Privacy/Terms. Google OAuth remains gated by `VITE_ENABLE_GOOGLE_AUTH`.
 - Production SEO + AIO: route-aware `document.title` / meta description / OG+Twitter / canonical via `SeoHead` + `client/src/lib/seo.ts` (Home, Events, News, news slug, Live, Map, federation pages, athlete profiles). JSON-LD: `WebSite`+`SearchAction` (home), `SportsOrganization`/`Organization` (federations), `NewsArticle` (news), `SportsEvent` ItemList (events), `Person` (athletes). Per-federation OG image/title when on `/federation/:slug`.
@@ -229,3 +233,4 @@ oindex while loading or when federation/news/athlete/event/club slug records are
 ### Notes
 - Supabase `sportsplatform_logos` still unused (local `/logos` paths consistent).
 - Logo coverage **49/83 active**; still null for Karate, Golf, Badminton, Weightlifting/PWFN, Handball, Dance Sport, Horse Racing, Taekwondo, etc. Contact gaps tracked separately by sibling agents.
+

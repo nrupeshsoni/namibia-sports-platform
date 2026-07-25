@@ -234,7 +234,32 @@ export type SportsEventSeoInput = {
   posterUrl?: string | null;
 };
 
-/** SportsEvent JSON-LD (single event or ItemList of events). */
+/** Single SportsEvent node for ItemList or detail pages. */
+export function sportsEventNode(ev: SportsEventSeoInput): Record<string, unknown> {
+  const slug = ev.slug?.trim();
+  const eventUrl = slug ? `${SITE_ORIGIN}/events/${slug}` : `${SITE_ORIGIN}/events`;
+  return {
+    "@type": "SportsEvent",
+    name: ev.name,
+    description: ev.description || undefined,
+    startDate: toIso(ev.startDate),
+    endDate: toIso(ev.endDate),
+    image: ev.posterUrl ? absoluteUrl(ev.posterUrl) : undefined,
+    url: eventUrl,
+    location: ev.location
+      ? {
+          "@type": "Place",
+          name: ev.location,
+          address: { "@type": "PostalAddress", addressCountry: "NA" },
+        }
+      : undefined,
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    eventStatus: "https://schema.org/EventScheduled",
+    organizer: { "@type": "Organization", name: DEFAULT_TITLE, url: SITE_ORIGIN },
+  };
+}
+
+/** SportsEvent JSON-LD (ItemList of events). */
 export function buildSportsEventJsonLd(
   events: SportsEventSeoInput[]
 ): Record<string, unknown> | null {
@@ -242,32 +267,57 @@ export function buildSportsEventJsonLd(
   const items = events.slice(0, 12).map((ev, i) => ({
     "@type": "ListItem",
     position: i + 1,
-    item: {
-      "@type": "SportsEvent",
-      name: ev.name,
-      description: ev.description || undefined,
-      startDate: toIso(ev.startDate),
-      endDate: toIso(ev.endDate),
-      image: ev.posterUrl ? absoluteUrl(ev.posterUrl) : undefined,
-      url: `${SITE_ORIGIN}/events`,
-      location: ev.location
-        ? {
-            "@type": "Place",
-            name: ev.location,
-            address: { "@type": "PostalAddress", addressCountry: "NA" },
-          }
-        : undefined,
-      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-      eventStatus: "https://schema.org/EventScheduled",
-      organizer: { "@type": "Organization", name: DEFAULT_TITLE, url: SITE_ORIGIN },
-    },
+    item: sportsEventNode(ev),
   }));
-
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Upcoming sports events in Namibia",
     itemListElement: items,
+  };
+}
+
+export type SportsEventDetailSeoInput = SportsEventSeoInput & { federationName?: string | null };
+
+export function buildSportsEventDetailJsonLd(event: SportsEventDetailSeoInput): Record<string, unknown> {
+  const slug = event.slug?.trim();
+  return {
+    "@context": "https://schema.org",
+    ...sportsEventNode(event),
+    mainEntityOfPage: slug ? `${SITE_ORIGIN}/events/${slug}` : `${SITE_ORIGIN}/events`,
+    organizer: event.federationName
+      ? { "@type": "SportsOrganization", name: event.federationName }
+      : { "@type": "Organization", name: DEFAULT_TITLE, url: SITE_ORIGIN },
+  };
+}
+
+export type ClubSeoInput = {
+  name: string;
+  slug: string;
+  description?: string | null;
+  logoUrl?: string | null;
+  region?: string | null;
+  city?: string | null;
+  website?: string | null;
+  federationName?: string | null;
+};
+
+export function buildClubJsonLd(club: ClubSeoInput): Record<string, unknown> {
+  const url = `${SITE_ORIGIN}/clubs/${club.slug}`;
+  const sameAs = club.website && /^https?:\/\//i.test(club.website) ? [club.website] : undefined;
+  return {
+    "@context": "https://schema.org",
+    "@type": "SportsClub",
+    name: club.name,
+    url,
+    description: club.description || undefined,
+    logo: club.logoUrl ? absoluteUrl(club.logoUrl) : undefined,
+    image: club.logoUrl ? absoluteUrl(club.logoUrl) : undefined,
+    sameAs,
+    address: club.region || club.city
+      ? { "@type": "PostalAddress", addressLocality: club.city || undefined, addressRegion: club.region || undefined, addressCountry: "NA" }
+      : undefined,
+    memberOf: club.federationName ? { "@type": "SportsOrganization", name: club.federationName } : undefined,
   };
 }
 

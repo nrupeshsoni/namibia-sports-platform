@@ -168,6 +168,7 @@ export default function AthleteProfile() {
                     </Link>
                   )}
                   {a.clubSlug && (
+                    <Link href={`/clubs/${a.clubSlug}`}>
                     <span
                       className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-300"
                       style={{
@@ -178,6 +179,7 @@ export default function AthleteProfile() {
                       <Building2 className="w-4 h-4" />
                       {a.clubName ?? "Club"}
                     </span>
+                    </Link>
                   )}
                 </motion.div>
 

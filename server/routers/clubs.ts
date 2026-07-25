@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { clubs } from "../../drizzle/schema";
+import { clubs, federations } from "../../drizzle/schema";
 import { eq, like, and } from "drizzle-orm";
+import { regionMatches } from "../_core/regionFilter";
 import { federationAdminProcedure, publicProcedure, router } from "../_core/trpc";
 import {
   assertSameFederation,
@@ -232,3 +233,4 @@ export const clubsRouter = router({
       return { success: true };
     }),
 });
+

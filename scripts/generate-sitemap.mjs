@@ -62,7 +62,7 @@ async function fetchSlugsFromSupabase() {
     return rows.map((r) => r.slug).filter(Boolean);
   }
 
-  const [federations, news, athletes] = await Promise.all([
+  const [federations, news, athletes, events, clubs] = await Promise.all([
     page("sportsplatform_federations", "slug", {
       is_active: "eq.true",
       slug: "not.is.null",
@@ -77,7 +77,7 @@ async function fetchSlugsFromSupabase() {
     }),
   ]);
 
-  return { federations, news, athletes };
+  return { federations, news, athletes, events, clubs };
 }
 
 function escapeXml(value) {
@@ -97,7 +97,7 @@ function urlEntry(loc, changefreq, priority) {
   </url>`;
 }
 
-function buildXml({ federations, news, athletes }) {
+function buildXml({ federations, news, athletes, events, clubs }) {
   const lines = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
@@ -124,6 +124,8 @@ async function main() {
   let federations = readSlugFile("federation-slugs.json");
   let news = readSlugFile("news-slugs.json");
   let athletes = readSlugFile("athlete-slugs.json");
+  let events = readSlugFile("event-slugs.json");
+  let clubs = readSlugFile("club-slugs.json");
   let source = "committed scripts/data/*-slugs.json";
 
   try {
@@ -179,10 +181,10 @@ async function main() {
     process.exit(1);
   }
 
-  const xml = buildXml({ federations, news, athletes });
+  const xml = buildXml({ federations, news, athletes, events, clubs });
   fs.writeFileSync(OUT, xml);
   console.log(
-    `[generate-sitemap] wrote ${OUT} (${federations.length} feds, ${news.length} news, ${athletes.length} athletes) via ${source}`
+    `[generate-sitemap] wrote ${OUT} (${federations.length} feds, ${news.length} news, ${athletes.length} athletes, ${events.length} events, ${clubs.length} clubs) via ${source}`
   );
 }
 

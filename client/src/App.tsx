@@ -1,4 +1,4 @@
-﻿import { lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
@@ -21,6 +21,8 @@ import Privacy from "./pages/legal/Privacy";
 import Terms from "./pages/legal/Terms";
 import FederationRoute from "./pages/federation/FederationRoute";
 import AthleteProfile from "./pages/athletes/AthleteProfile";
+import EventDetail from "./pages/events/EventDetail";
+import ClubDetail from "./pages/clubs/ClubDetail";
 import { SeoHead } from "./components/SeoHead";
 import { SkipToContent } from "./components/SkipToContent";
 import { CookieNotice } from "./components/CookieNotice";
@@ -42,8 +44,8 @@ function Router() {
     <Suspense fallback={<RouteFallback />}>
       <Switch>
         <Route path={"/"} component={Home} />
-        <Route path="/athletes/:slug" component={AthleteProfile} />
-        <Route path="/events" component={Events} />
+        <Route path="/athletes/:slug" component={AthleteProfile} />`r`n        <Route path="/events/:slug" component={EventDetail} />
+        <Route path="/events" component={Events} />`r`n        <Route path="/clubs/:slug" component={ClubDetail} />
         <Route path="/news/:slug" component={News} />
         <Route path="/news" component={News} />
         <Route path="/live" component={Live} />

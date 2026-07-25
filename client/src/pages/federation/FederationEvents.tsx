@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Clock, Trophy } from 'lucide-react';
-import { Link } from 'wouter';
 import { trpc } from '@/lib/trpc';
 import { fadeUp, staggerContainer } from '@/lib/animations';
 import { useFederation } from '@/contexts/FederationContext';
@@ -129,10 +128,8 @@ function EventPoster({
 function FederationEventCard({ event }: FederationEventCardProps) {
   const colors = TYPE_COLORS[event.type] ?? TYPE_COLORS.other;
   const deadline = getDeadlineCountdown(event.registrationDeadline);
-  const detailHref = /events/;
 
   return (
-    <Link href={detailHref}>
     <motion.div
       variants={fadeUp}
       className="rounded-3xl overflow-hidden group hover:scale-[1.02] hover:-translate-y-1 transition-all duration-500 flex flex-col"
@@ -217,7 +214,6 @@ function FederationEventCard({ event }: FederationEventCardProps) {
         )}
       </div>
     </motion.div>
-    </Link>
   );
 }
 

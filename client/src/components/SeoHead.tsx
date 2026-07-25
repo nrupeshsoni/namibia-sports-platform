@@ -10,10 +10,8 @@ import {
   DEFAULT_TITLE,
   applySeo,
   buildAthleteJsonLd,
-  buildClubJsonLd,
   buildFederationJsonLd,
   buildNewsArticleJsonLd,
-  buildSportsEventDetailJsonLd,
   buildSportsEventJsonLd,
   buildWebSiteJsonLd,
   clearJsonLd,
@@ -149,8 +147,6 @@ export function SeoHead() {
   const fedSlug = parseFederationSlug(path);
   const newsSlug = parseNewsSlug(path);
   const athleteSlug = parseAthleteSlug(path);
-  const eventSlug = parseEventSlug(path);
-  const clubSlug = parseClubSlug(path);
   const isFedAdmin = Boolean(fedSlug && path.includes("/admin"));
 
   const federationQuery = trpc.federations.getBySlug.useQuery(
@@ -169,14 +165,6 @@ export function SeoHead() {
     { limit: 12 },
     { enabled: path === "/events" }
   );
-  const eventDetailQuery = trpc.events.getBySlug.useQuery(
-    { slug: eventSlug! },
-    { enabled: Boolean(eventSlug) }
-  );
-  const clubDetailQuery = trpc.clubs.getBySlug.useQuery(
-    { slug: clubSlug! },
-    { enabled: Boolean(clubSlug) }
-  );
 
   const staticRoute = useMemo(
     () => STATIC_ROUTES.find((r) => r.match(path)),
@@ -186,8 +174,13 @@ export function SeoHead() {
   useEffect(() => {
     if (fedSlug && !isFedAdmin) {
       const fed = federationQuery.data;
-      if (federationQuery.isLoading || !fed) {
-        soft404Seo({ title: "Federation", description: DEFAULT_DESCRIPTION, path });
+      if (!fed) {
+        applySeo({
+          title: "Federation",
+          description: DEFAULT_DESCRIPTION,
+          path,
+        });
+        clearJsonLd();
         return;
       }
       const tab = federationTabLabel(path, fed.slug || fedSlug);
@@ -224,8 +217,13 @@ export function SeoHead() {
 
     if (newsSlug) {
       const article = newsQuery.data;
-      if (newsQuery.isLoading || !article) {
-        soft404Seo({ title: "News", description: "Namibia sports news on sports.com.na.", path });
+      if (!article) {
+        applySeo({
+          title: "News",
+          description: "Namibia sports news on sports.com.na.",
+          path,
+        });
+        clearJsonLd();
         return;
       }
       applySeo({
@@ -243,8 +241,13 @@ export function SeoHead() {
 
     if (athleteSlug) {
       const athlete = athleteQuery.data;
-      if (athleteQuery.isLoading || !athlete || !athlete.slug) {
-        soft404Seo({ title: "Athlete", description: "Athlete profile on sports.com.na.", path });
+      if (!athlete || !athlete.slug) {
+        applySeo({
+          title: "Athlete",
+          description: "Athlete profile on sports.com.na.",
+          path,
+        });
+        clearJsonLd();
         return;
       }
       const name = `${athlete.firstName} ${athlete.lastName}`.trim();
@@ -270,38 +273,6 @@ export function SeoHead() {
       return;
     }
 
-
-    if (eventSlug) {
-      const event = eventDetailQuery.data;
-      if (eventDetailQuery.isLoading || !event) {
-        soft404Seo({ title: "Event", description: "Sports events on sports.com.na.", path });
-        return;
-      }
-      applySeo({
-        title: event.name,
-        description: truncateMeta(event.description || `${event.name}${event.federationName ? ` — ${event.federationName}` : ""} | Namibia sports event.`),
-        path,
-        image: event.posterUrl,
-      });
-      setJsonLd([buildSportsEventDetailJsonLd({ name: event.name, slug: event.slug, description: event.description, startDate: event.startDate, endDate: event.endDate, location: event.location, posterUrl: event.posterUrl, federationName: event.federationName })]);
-      return;
-    }
-
-    if (clubSlug) {
-      const club = clubDetailQuery.data;
-      if (clubDetailQuery.isLoading || !club) {
-        soft404Seo({ title: "Club", description: "Sports clubs on sports.com.na.", path });
-        return;
-      }
-      applySeo({
-        title: club.name,
-        description: truncateMeta(club.description || `${club.name}${club.federationName ? ` — ${club.federationName}` : ""} | Namibia sports club.`),
-        path,
-        image: club.logoUrl,
-      });
-      setJsonLd([buildClubJsonLd({ name: club.name, slug: club.slug, description: club.description, logoUrl: club.logoUrl, region: club.region, city: club.city, website: club.website, federationName: club.federationName })]);
-      return;
-    }
     if (isFedAdmin || (fedSlug && path.includes("/admin"))) {
       applySeo({
         title: "Federation Admin",
@@ -347,20 +318,11 @@ export function SeoHead() {
     fedSlug,
     newsSlug,
     athleteSlug,
-    eventSlug,
-    clubSlug,
     isFedAdmin,
     staticRoute,
     federationQuery.data,
-    federationQuery.isLoading,
     newsQuery.data,
-    newsQuery.isLoading,
     athleteQuery.data,
-    athleteQuery.isLoading,
-    eventDetailQuery.data,
-    eventDetailQuery.isLoading,
-    clubDetailQuery.data,
-    clubDetailQuery.isLoading,
     eventsQuery.data,
   ]);
 

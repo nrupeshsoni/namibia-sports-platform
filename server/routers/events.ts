@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { events } from "../../drizzle/schema";
+import { events, federations } from "../../drizzle/schema";
 import { eq, desc, asc, like, and, gte } from "drizzle-orm";
+import { regionMatches } from "../_core/regionFilter";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
 import {
   assertClaimMatchesOwnedRow,
@@ -213,3 +214,4 @@ export const eventsRouter = router({
       return { success: true };
     }),
 });
+
