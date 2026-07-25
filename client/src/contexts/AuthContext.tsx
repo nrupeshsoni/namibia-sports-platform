@@ -21,7 +21,8 @@ interface AuthContextValue {
   signUp: (
     email: string,
     password: string,
-    name?: string
+    name?: string,
+    options?: { termsAccepted?: boolean }
   ) => Promise<{ error: Error | null; needsEmailConfirmation: boolean }>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
@@ -55,7 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = useCallback(
-    async (email: string, password: string, name?: string) => {
+    async (
+      email: string,
+      password: string,
+      name?: string,
+      options?: { termsAccepted?: boolean }
+    ) => {
+      const acceptedAt = new Date().toISOString();
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -63,7 +70,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // The project's global Site URL serves 15+ products, so the
           // confirmation link has to be told where to come back to.
           emailRedirectTo: `${window.location.origin}/login`,
-          ...(name ? { data: { full_name: name } } : {}),
+          data: {
+            ...(name ? { full_name: name } : {}),
+            ...(options?.termsAccepted
+              ? {
+                  terms_accepted_at: acceptedAt,
+                  privacy_accepted_at: acceptedAt,
+                }
+              : {}),
+          },
         },
       });
       return {

@@ -33,7 +33,8 @@ export default function Register() {
     const { error: err, needsEmailConfirmation } = await signUp(
       email,
       password,
-      name || undefined
+      name || undefined,
+      { termsAccepted: true }
     );
     setIsSubmitting(false);
     if (err) {
@@ -51,6 +52,10 @@ export default function Register() {
 
   const handleGoogle = async () => {
     setError(null);
+    if (!acceptedTerms) {
+      setError("Please accept the Terms of Use and Privacy Policy before continuing with Google.");
+      return;
+    }
     const { error: err } = await signInWithGoogle();
     if (err) setError(err.message ?? "Failed to sign in with Google");
   };
@@ -238,6 +243,8 @@ export default function Register() {
                     variant="outline"
                     className="w-full border-white/20 text-white hover:bg-white/10"
                     onClick={handleGoogle}
+                    disabled={!acceptedTerms}
+                    aria-disabled={!acceptedTerms}
                   >
                     Google
                   </Button>

@@ -31,7 +31,8 @@ export default function MobileBottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
+      className="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-50 md:hidden"
+      aria-label="Primary"
       style={{
         background: "var(--bottom-nav-bg)",
         backdropFilter: "blur(20px)",

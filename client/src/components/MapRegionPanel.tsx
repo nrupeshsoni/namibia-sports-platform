@@ -54,6 +54,7 @@ export function MapRegionPanel({
   return (
     <aside
       className="w-full md:w-[380px] flex-shrink-0 overflow-y-auto max-h-[50vh] md:max-h-none border-t md:border-t-0 md:border-l"
+      aria-label="Map region filter and listings"
       style={{
         background: "var(--chrome-bg)",
         backdropFilter: "blur(20px)",
@@ -71,6 +72,9 @@ export function MapRegionPanel({
             type="button"
             onClick={onToggleFilter}
             className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-left min-h-[44px]"
+            aria-expanded={showRegionFilter}
+            aria-haspopup="listbox"
+            aria-controls="map-region-listbox"
             style={{
               background: "var(--chrome-btn-bg)",
               border: "1px solid var(--chrome-border)",
@@ -88,6 +92,9 @@ export function MapRegionPanel({
           </button>
           {showRegionFilter && (
             <motion.div
+              id="map-region-listbox"
+              role="listbox"
+              aria-label="Regions"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               className="absolute top-full left-0 right-0 mt-2 rounded-xl overflow-hidden max-h-64 overflow-y-auto z-50"

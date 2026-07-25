@@ -145,6 +145,7 @@ export function NewsTicker({
 }: NewsTickerProps) {
   const visible = useScrollPast(threshold);
   const reducedMotion = usePrefersReducedMotion();
+  const [paused, setPaused] = useState(false);
 
   if (articles.length === 0) return null;
 
@@ -186,13 +187,36 @@ export function NewsTicker({
             </div>
           ) : (
             <div className="news-ticker-marquee">
-              <div className="news-ticker-track">
+              <div
+                className={`news-ticker-track${paused ? " news-ticker-track--paused" : ""}`}
+              >
                 <HeadlineSegment articles={articles} onSelect={onSelect} keyPrefix="a" />
-                <HeadlineSegment articles={articles} onSelect={onSelect} keyPrefix="b" />
+                <div className="news-ticker-segment" aria-hidden>
+                  {articles.map((article) => (
+                    <HeadlineButton
+                      key={`b-${article.id}`}
+                      article={article}
+                      onSelect={onSelect}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           )}
         </div>
+
+        {!reducedMotion && (
+          <button
+            type="button"
+            onClick={() => setPaused((p) => !p)}
+            className="flex items-center justify-center min-h-[40px] min-w-[40px] shrink-0 border-l"
+            style={{ borderColor: "var(--chrome-border)", color: "var(--chrome-muted)" }}
+            aria-label={paused ? "Play news ticker" : "Pause news ticker"}
+            aria-pressed={paused}
+          >
+            {paused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
+          </button>
+        )}
 
         <Link href="/news">
           <span
@@ -202,7 +226,7 @@ export function NewsTicker({
               color: "var(--chrome-muted)",
             }}
           >
-            All →
+            All news →
           </span>
         </Link>
       </div>

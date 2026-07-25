@@ -285,6 +285,37 @@ html {
   color: var(--foreground);
 }
 
+.skip-to-content {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  z-index: 10000;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform 0.15s ease;
+}
+
+.skip-to-content:focus {
+  transform: translateY(0);
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.theme-chrome a:focus-visible,
+.theme-chrome button:focus-visible,
+nav a:focus-visible,
+nav button:focus-visible,
+.mobile-bottom-nav a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
 /* Glow effects */
 .glow-red {
   box-shadow: 0 0 40px rgba(239, 68, 68, 0.3);
@@ -378,7 +409,8 @@ html {
   padding-inline: 1rem;
 }
 
-.news-ticker-marquee:hover .news-ticker-track {
+.news-ticker-marquee:hover .news-ticker-track,
+.news-ticker-track--paused {
   animation-play-state: paused;
 }
 
