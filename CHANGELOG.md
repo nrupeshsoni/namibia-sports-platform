@@ -16,6 +16,7 @@ All notable changes to this project are documented in this file.
 - **news-aggregator image enrich:** stronger RSS media/`<img>` extraction (skips ad banners), twitter/og/JSON-LD meta, WordPress **oEmbed thumbnail** fallback (Economist), capped fetch timeouts (12s feed / 6s og); DB backfill via `source_url`; **Google News unwrap** (browser UA + batchexecute `garturlres`) so outlet `og:image` can be fetched.
 
 ### Added
+- Gap analysis: `docs/research/gap_wave_20260725/02_data_completeness.md` — live DB completeness (83 actives: logo/hero/desc 100%; contact 88%; website 66%; content zeros; events 291/40 upcoming; news 147; population priorities).
 - Gap analysis: `docs/research/gap_wave_20260725/01_security.md` — SECURITY/AUTH/RBAC slice (Hyperdrive still `postgres`, credential rotation Critical, tenancy/PII/WhatsApp/AI/storage audit; live MCP 2026-07-25).
 - Gap analysis: `docs/research/gap_wave_20260725/13_integrations.md` — WhatsApp / Anthropic / Workers AI / Google OAuth / email / Web Push / Edge Functions inventory (live function list + cron 2026-07-25).
 - Gap analysis: `docs/research/gap_wave_20260725/19_adversarial.md` — adversarial hunt (IDOR upload vs media ownership, news `sourceUrl` hrefs, og:image SSRF, service_role beyond storage, slug/soft-delete/race gaps).
