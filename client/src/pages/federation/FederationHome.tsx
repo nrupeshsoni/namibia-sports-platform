@@ -47,13 +47,13 @@ export default function FederationHome() {
               key={stat.label}
               className="p-6 rounded-2xl"
               style={{
-                background: "rgba(255, 255, 255, 0.05)",
+                background: "var(--glass-surface)",
                 backdropFilter: "blur(20px)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
+                border: "1px solid var(--glass-surface-border)",
               }}
             >
               <Icon className="w-8 h-8 mb-2 text-gray-400" style={{ color: stat.color }} />
-              <p className="text-3xl font-serif text-white">{stat.value}</p>
+              <p className="text-3xl font-serif text-foreground">{stat.value}</p>
               <p className="text-sm text-gray-400">{stat.label}</p>
             </div>
           );
@@ -79,7 +79,7 @@ export default function FederationHome() {
             {liveStreams.map((s) => (
               <Link key={s.id} href={`/federation/${slug}/streams`}>
                 <button
-                  className="px-4 py-2 rounded-xl text-white font-medium"
+                  className="px-4 py-2 rounded-xl text-foreground font-medium"
                   style={{
                     background: "linear-gradient(135deg, rgba(239, 68, 68, 0.8), rgba(220, 38, 38, 0.8))",
                   }}
@@ -95,7 +95,7 @@ export default function FederationHome() {
       {/* Upcoming Events */}
       <motion.section variants={fadeUp}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-serif text-white">Upcoming Events</h2>
+          <h2 className="text-xl font-serif text-foreground">Upcoming Events</h2>
           <Link href={`/federation/${slug}/events`}>
             <span className="text-sm text-red-400 hover:text-red-300 transition-colors">View all →</span>
           </Link>
@@ -105,8 +105,8 @@ export default function FederationHome() {
             <div
               className="text-center py-10 px-4 rounded-2xl"
               style={{
-                background: "rgba(255, 255, 255, 0.03)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "var(--glass-surface)",
+                border: "1px solid var(--glass-surface-border)",
               }}
             >
               <Calendar className="w-8 h-8 text-gray-600 mx-auto mb-3" />
@@ -127,9 +127,9 @@ export default function FederationHome() {
                 <div
                   className="p-4 rounded-xl cursor-pointer transition-all hover:scale-[1.01]"
                   style={{
-                    background: "rgba(255, 255, 255, 0.05)",
+                    background: "var(--glass-surface)",
                     backdropFilter: "blur(20px)",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    border: "1px solid var(--glass-surface-border)",
                   }}
                 >
                   <div className="flex items-center gap-2 mb-2">
@@ -138,7 +138,7 @@ export default function FederationHome() {
                       {event.startDate ? new Date(event.startDate).toLocaleDateString() : "-"}
                     </span>
                   </div>
-                  <h3 className="text-white font-medium">{event.name}</h3>
+                  <h3 className="text-foreground font-medium">{event.name}</h3>
                   {event.location && <p className="text-sm text-gray-500">{event.location}</p>}
                 </div>
               </Link>
@@ -150,7 +150,7 @@ export default function FederationHome() {
       {/* Recent News */}
       <motion.section variants={fadeUp}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-serif text-white">Recent News</h2>
+          <h2 className="text-xl font-serif text-foreground">Recent News</h2>
           {news.length > 0 && (
             <Link href={`/federation/${slug}/news`}>
               <span className="text-sm text-red-400 hover:text-red-300 transition-colors">View all →</span>
@@ -162,8 +162,8 @@ export default function FederationHome() {
             <div
               className="col-span-full text-center py-10 px-4 rounded-2xl"
               style={{
-                background: "rgba(255, 255, 255, 0.03)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "var(--glass-surface)",
+                border: "1px solid var(--glass-surface-border)",
               }}
             >
               <Newspaper className="w-8 h-8 text-gray-600 mx-auto mb-3" />
@@ -184,9 +184,9 @@ export default function FederationHome() {
                 key={article.id}
                 className="rounded-xl overflow-hidden"
                 style={{
-                  background: "rgba(255, 255, 255, 0.05)",
+                  background: "var(--glass-surface)",
                   backdropFilter: "blur(20px)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  border: "1px solid var(--glass-surface-border)",
                 }}
               >
                 {article.featuredImage && (
@@ -207,7 +207,7 @@ export default function FederationHome() {
                       {article.category}
                     </span>
                   )}
-                  <h3 className="text-white font-medium mt-2 line-clamp-2">{article.title}</h3>
+                  <h3 className="text-foreground font-medium mt-2 line-clamp-2">{article.title}</h3>
                   {article.summary && <p className="text-sm text-gray-500 mt-1 line-clamp-2">{article.summary}</p>}
                 </div>
               </div>

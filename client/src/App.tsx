@@ -22,6 +22,8 @@ import Terms from "./pages/legal/Terms";
 import FederationRoute from "./pages/federation/FederationRoute";
 import AthleteProfile from "./pages/athletes/AthleteProfile";
 import { SeoHead } from "./components/SeoHead";
+import { SkipToContent } from "./components/SkipToContent";
+import { CookieNotice } from "./components/CookieNotice";
 
 const Admin = lazy(() => import("./pages/Admin"));
 const Map = lazy(() => import("./pages/Map"));
@@ -84,9 +86,14 @@ function App() {
         <AuthProvider>
           <TooltipProvider>
             <SeoHead />
+            <SkipToContent />
             <OfflineBanner />
             <Toaster />
-            <main className={showMobileNav ? "pb-[72px] md:pb-0" : ""}>
+            <main
+              id="main-content"
+              tabIndex={-1}
+              className={showMobileNav ? "pb-[72px] md:pb-0" : ""}
+            >
               <Router />
             </main>
             <SearchCommandPalette />
@@ -96,6 +103,7 @@ function App() {
               </Suspense>
             )}
             <PWAInstallBanner />
+            <CookieNotice />
             <MobileBottomNav />
           </TooltipProvider>
         </AuthProvider>

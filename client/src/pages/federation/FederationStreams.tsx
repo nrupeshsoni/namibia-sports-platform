@@ -72,7 +72,7 @@ function EmbedModal({ stream, onClose }: { stream: StreamItem; onClose: () => vo
                   <span className="text-red-400 text-xs font-bold uppercase tracking-wider">LIVE</span>
                 </span>
               )}
-              <span className="text-white font-medium text-sm">{stream.title}</span>
+              <span className="font-medium text-sm text-white">{stream.title}</span>
             </div>
             <button
               onClick={onClose}
@@ -156,7 +156,7 @@ function ScheduledCard({ stream }: { stream: StreamItem }) {
         {!stream.thumbnailUrl && <Radio className="w-6 h-6 text-blue-500/50" />}
       </div>
       <div className="flex-1 min-w-0">
-        <h4 className="text-white text-sm font-medium line-clamp-1">{stream.title}</h4>
+        <h4 className="text-foreground text-sm font-medium line-clamp-1">{stream.title}</h4>
         <div className="flex items-center gap-3 mt-1 flex-wrap">
           <span className="text-xs text-gray-500 capitalize flex items-center gap-1">
             {PLATFORM_ICONS[stream.platformType.toLowerCase()] ?? <Radio className="w-3 h-3" />}
@@ -248,7 +248,7 @@ export default function FederationStreams() {
               <span className="text-red-400 text-xs font-bold uppercase tracking-wider">LIVE</span>
             </span>
           )}
-          <h2 className="text-3xl font-serif tracking-widest text-white uppercase">
+          <h2 className="text-3xl font-serif tracking-widest text-foreground uppercase">
             {federation.name} Streams
           </h2>
         </div>
@@ -313,7 +313,7 @@ export default function FederationStreams() {
                     variants={fadeUp}
                     className="rounded-2xl overflow-hidden cursor-pointer group transition-all hover:scale-[1.02]"
                     style={{
-                      background: "rgba(255,255,255,0.05)",
+                      background: "var(--glass-surface)",
                       backdropFilter: "blur(20px)",
                       border: "1px solid rgba(239,68,68,0.25)",
                     }}
@@ -336,11 +336,11 @@ export default function FederationStreams() {
                         style={{ background: "rgba(239,68,68,0.9)" }}
                       >
                         <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                        <span className="text-white text-xs font-bold uppercase tracking-wider">LIVE</span>
+                        <span className="text-foreground text-xs font-bold uppercase tracking-wider">LIVE</span>
                       </div>
                       {stream.viewerCount != null && stream.viewerCount > 0 && (
                         <div
-                          className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-white"
+                          className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-foreground"
                           style={{ background: "rgba(0,0,0,0.6)" }}
                         >
                           <Eye className="w-3 h-3" />
@@ -359,7 +359,7 @@ export default function FederationStreams() {
                         <span className="text-gray-400">{PLATFORM_ICONS[stream.platformType.toLowerCase()] ?? <Radio className="w-4 h-4" />}</span>
                         <span className="text-xs text-gray-500 capitalize">{stream.platformType}</span>
                       </div>
-                      <h3 className="text-white font-serif text-sm leading-snug">{stream.title}</h3>
+                      <h3 className="text-foreground font-serif text-sm leading-snug">{stream.title}</h3>
                     </div>
                   </motion.div>
                 ))}
@@ -372,7 +372,7 @@ export default function FederationStreams() {
             <motion.section variants={fadeUp}>
               <div className="flex items-center gap-2 mb-4">
                 <Clock className="w-5 h-5 text-blue-400" />
-                <h2 className="text-lg font-serif text-white tracking-wide">UPCOMING STREAMS</h2>
+                <h2 className="text-lg font-serif text-foreground tracking-wide">UPCOMING STREAMS</h2>
               </div>
               <div className="space-y-3">
                 {filterByPlatform(scheduled).map((stream) => (
@@ -400,7 +400,7 @@ export default function FederationStreams() {
             <motion.section variants={fadeUp}>
               <div className="flex items-center gap-2 mb-4">
                 <Youtube className="w-5 h-5 text-amber-400" />
-                <h2 className="text-lg font-serif text-white tracking-wide">RECENT COVERAGE</h2>
+                <h2 className="text-lg font-serif text-foreground tracking-wide">RECENT COVERAGE</h2>
                 <span className="text-gray-500 text-sm">{filterByPlatform(recent).length}</span>
               </div>
               <div className="space-y-3">
@@ -434,7 +434,7 @@ export default function FederationStreams() {
                       {!stream.thumbnailUrl && <Youtube className="w-6 h-6 text-amber-500/50" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-white text-sm font-medium line-clamp-1">{stream.title}</h4>
+                      <h4 className="text-foreground text-sm font-medium line-clamp-1">{stream.title}</h4>
                       <span className="text-xs text-gray-500 capitalize flex items-center gap-1 mt-1">
                         {PLATFORM_ICONS[stream.platformType.toLowerCase()] ?? (
                           <Radio className="w-3 h-3" />

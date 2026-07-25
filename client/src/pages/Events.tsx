@@ -126,7 +126,7 @@ function EventCard({ event, viewMode, highlighted = false }: EventCardProps) {
         variants={fadeUp}
         className="flex gap-0 rounded-2xl overflow-hidden group hover:scale-[1.01] transition-transform duration-300"
         style={{
-          background: 'rgba(255,255,255,0.05)',
+          background: 'var(--glass-surface)',
           backdropFilter: 'blur(20px)',
           border: highlightBorder,
           boxShadow: highlightShadow,
@@ -137,7 +137,7 @@ function EventCard({ event, viewMode, highlighted = false }: EventCardProps) {
           className="flex-shrink-0 w-20 md:w-28 flex flex-col items-center justify-center p-4 text-center"
           style={{ background: 'rgba(239,68,68,0.12)', borderRight: '1px solid rgba(255,255,255,0.08)' }}
         >
-          <span className="text-2xl font-bold text-white leading-none">
+          <span className="text-2xl font-bold text-foreground leading-none">
             {new Date(event.startDate).getDate()}
           </span>
           <span className="text-xs text-gray-400 uppercase tracking-wider mt-1">
@@ -172,7 +172,7 @@ function EventCard({ event, viewMode, highlighted = false }: EventCardProps) {
                 <span className="text-xs text-gray-500 truncate">{event.region}</span>
               )}
             </div>
-            <h3 className="font-serif text-white text-base md:text-lg leading-tight line-clamp-2">
+            <h3 className="font-serif text-foreground text-base md:text-lg leading-tight line-clamp-2">
               {event.name}
             </h3>
           </div>
@@ -203,7 +203,7 @@ function EventCard({ event, viewMode, highlighted = false }: EventCardProps) {
       variants={fadeUp}
       className="rounded-3xl overflow-hidden group hover:scale-[1.02] hover:-translate-y-1 transition-all duration-500 flex flex-col"
       style={{
-        background: 'rgba(255,255,255,0.04)',
+        background: 'var(--glass-surface)',
         backdropFilter: 'blur(20px)',
         border: highlighted ? highlightBorder : '1px solid rgba(255,255,255,0.09)',
         boxShadow: highlightShadow ?? '0 25px 50px -12px rgba(0,0,0,0.3)',
@@ -239,7 +239,7 @@ function EventCard({ event, viewMode, highlighted = false }: EventCardProps) {
               className="text-xs px-2 py-1 rounded-full text-gray-300"
               style={{
                 background: 'rgba(0,0,0,0.5)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid var(--glass-surface-border)',
                 backdropFilter: 'blur(8px)',
               }}
             >
@@ -264,7 +264,7 @@ function EventCard({ event, viewMode, highlighted = false }: EventCardProps) {
 
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
-        <h3 className="font-serif text-white text-lg leading-snug mb-3 line-clamp-2">
+        <h3 className="font-serif text-foreground text-lg leading-snug mb-3 line-clamp-2">
           {event.name}
         </h3>
 
@@ -290,8 +290,8 @@ function SkeletonCard() {
     <div
       className="rounded-3xl overflow-hidden animate-pulse"
       style={{
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.07)',
+        background: 'var(--glass-surface)',
+        border: '1px solid var(--glass-surface-border)',
       }}
     >
       <div className="h-48 bg-white/5" />
@@ -483,7 +483,7 @@ export default function Events() {
                     style={{
                       background: 'rgba(20,20,20,0.95)',
                       backdropFilter: 'blur(20px)',
-                      border: '1px solid rgba(255,255,255,0.1)',
+                      border: '1px solid var(--glass-surface-border)',
                       boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
                     }}
                   >
@@ -510,7 +510,7 @@ export default function Events() {
             {/* Upcoming / Past tabs */}
             <div
               className="flex rounded-xl overflow-hidden"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+              style={{ background: 'var(--glass-surface)', border: '1px solid var(--glass-surface-border)' }}
             >
               {(['upcoming', 'past'] as const).map((t) => (
                 <button
@@ -536,7 +536,7 @@ export default function Events() {
               {/* Grid / List toggle */}
               <div
                 className="flex rounded-xl overflow-hidden"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                style={{ background: 'var(--glass-surface)', border: '1px solid var(--glass-surface-border)' }}
               >
                 <button
                   onClick={() => setViewMode('grid')}
@@ -606,7 +606,7 @@ export default function Events() {
             >
               <div
                 className="w-24 h-24 rounded-full flex items-center justify-center mb-6"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                style={{ background: 'var(--glass-surface)', border: '1px solid var(--glass-surface-border)' }}
               >
                 <Trophy className="w-10 h-10 text-gray-600" />
               </div>

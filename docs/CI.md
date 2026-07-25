@@ -80,6 +80,13 @@ injected at runtime — not in the repo.
   (including `events` / `news` / `streams` / `upload`)
 - Same-tenant pass-through negative controls (guard allows; failure is DB/storage)
 
+`server/federationScopeDbFirst.test.ts` (mocked `getDb`) covers DB-first paths:
+
+- `media.create` / `media.delete` (federation + club entity ownership)
+- `coaches.update` / `coaches.delete`, `hpPrograms.update` / `hpPrograms.delete`
+- `upload.image` entity ownership (A1): own `federationId` + foreign `entityId`,
+  venue reject, missing row, matching ownership success
+
 ## Data layer
 
 Postgres is reached through a **Hyperdrive** binding (`HYPERDRIVE`), not a direct

@@ -117,9 +117,9 @@ Also: unit tests for `assertSameFederation`, `assertClaimMatchesOwnedRow`, `canI
 
 | Mutation / path | Why untested | Risk |
 |-----------------|--------------|------|
-| `coaches.update` / `coaches.delete` | Load `existing.federationId` from DB **before** assert — no DB in suite | Medium — code has asserts; regression would skip early-input pattern only |
-| `hpPrograms.update` / `hpPrograms.delete` | Same DB-first pattern | Medium |
-| `media.create` / `media.delete` | Resolve federation via entity lookup; delete input is `{ id }` only | **High relative** — media is federation-scoped but **absent from matrix** |
+| `coaches.update` / `coaches.delete` | ~~Load before assert — no DB~~ | **Covered** — `federationScopeDbFirst.test.ts` (mocked `getDb`) |
+| `hpPrograms.update` / `hpPrograms.delete` | ~~Same DB-first pattern~~ | **Covered** — same suite |
+| `media.create` / `media.delete` | ~~Resolve via entity lookup~~ | **Covered** — same suite (+ club ownership case) |
 | Claim≠row on `events/news/streams` update/delete/publish/setLive | `assertClaimMatchesOwnedRow` needs a loaded row | Medium — unit-tested helper; not end-to-end |
 | `federations.*` admin mutations | Platform-admin scoped (not fed-tenant) | N/A for A6 |
 | Read paths leaking unpublished/inactive | Helpers unit-tested; list queries not integration-tested | Medium |
@@ -302,7 +302,7 @@ Timeframe `2026-07-24T00:00:00Z` → `2026-07-25T18:00:00Z`: **21** events with 
 | T1 | No vitest coverage reporting / thresholds | Medium | Eng | Open |
 | T2 | No E2E; almost no UI tests | Medium–High | Frontend | Open |
 | T3 | Most routers lack procedure tests | Medium | Backend | Open |
-| T4 | `media` / DB-first coach+hp mutations missing from federationScope matrix | Medium–High | Backend | Open |
+| T4 | `media` / DB-first coach+hp mutations missing from federationScope matrix | Medium–High | Backend | **Closed 2026-07-25** — `federationScopeDbFirst.test.ts` |
 | C1 | Workers Builds build command ≠ `ci:gate` | ~~Critical~~ | Infra | **Closed 2026-07-24** |
 | C2 | Docs/scorecard still claim Builds HUMAN | Medium | Docs | Open (doc fix) |
 | C3 | Dual deploy writers (Builds + manual) | Medium | Infra | Accepted risk — document smoke after manual |

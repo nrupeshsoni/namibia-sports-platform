@@ -2,7 +2,7 @@
  * Fixed top news ticker — hidden at page top, slides in after scroll threshold.
  * Marquee on motion-ok devices; static horizontal chips when reduced-motion.
  */
-import { Newspaper } from "lucide-react";
+import { Newspaper, Pause, Play } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 

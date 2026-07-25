@@ -42,7 +42,7 @@ function AthleteAvatar({
           onError={() => setBroken(true)}
         />
       ) : (
-        <span className="text-lg font-serif text-white/80">{initials}</span>
+        <span className="text-lg font-serif text-foreground/80">{initials}</span>
       )}
     </div>
   );
@@ -58,7 +58,7 @@ function SkeletonCard() {
   return (
     <div
       className="rounded-2xl p-5 space-y-3 animate-pulse text-center"
-      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+      style={{ background: "var(--glass-surface)", border: "1px solid rgba(255,255,255,0.1)" }}
     >
       <div className="w-16 h-16 rounded-full mx-auto" style={{ background: "rgba(255,255,255,0.1)" }} />
       <div className="h-3 rounded w-3/4 mx-auto" style={{ background: "rgba(255,255,255,0.1)" }} />
@@ -121,7 +121,7 @@ export default function FederationAthletes() {
     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-6">
       {/* Header */}
       <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-3">
-        <h2 className="text-3xl font-serif tracking-widest text-white uppercase">Athletes</h2>
+        <h2 className="text-3xl font-serif tracking-widest text-foreground uppercase">Athletes</h2>
         <span
           className="px-3 py-1 rounded-full text-sm font-medium"
           style={{ background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.4)", color: "#EF4444" }}
@@ -146,7 +146,7 @@ export default function FederationAthletes() {
           <div
             className="relative rounded-xl overflow-hidden max-w-md"
             style={{
-              background: "rgba(255,255,255,0.05)",
+              background: "var(--glass-surface)",
               backdropFilter: "blur(20px)",
               border: "1px solid rgba(255,255,255,0.1)",
             }}
@@ -157,7 +157,7 @@ export default function FederationAthletes() {
               placeholder="Search athletes by name..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-transparent text-white placeholder:text-gray-500 focus:outline-none"
+              className="w-full pl-12 pr-4 py-3 bg-transparent text-foreground placeholder:text-gray-500 focus:outline-none"
             />
           </div>
 
@@ -240,7 +240,7 @@ export default function FederationAthletes() {
                 variants={fadeUp}
                 className={`rounded-2xl p-5 text-center transition-all hover:scale-[1.02] ${profileUrl ? "cursor-pointer" : ""}`}
                 style={{
-                  background: "rgba(255,255,255,0.05)",
+                  background: "var(--glass-surface)",
                   backdropFilter: "blur(20px)",
                   border: "1px solid rgba(255,255,255,0.1)",
                 }}
@@ -259,7 +259,7 @@ export default function FederationAthletes() {
                   />
                 </div>
 
-                <h3 className="text-sm font-serif text-white leading-tight">
+                <h3 className="text-sm font-serif text-foreground leading-tight">
                   {athlete.firstName} {athlete.lastName}
                 </h3>
 
@@ -316,7 +316,7 @@ export default function FederationAthletes() {
         <motion.div variants={fadeUp} className="text-center py-16 px-4">
           <div
             className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center"
-            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+            style={{ background: "var(--glass-surface)", border: "1px solid rgba(255,255,255,0.1)" }}
           >
             <User className="w-9 h-9 text-gray-600" />
           </div>

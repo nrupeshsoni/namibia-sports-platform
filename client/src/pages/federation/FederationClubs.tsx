@@ -31,7 +31,7 @@ function ClubLogo({ name, logoUrl, color }: { name: string; logoUrl: string | nu
     />
   ) : (
     <div
-      className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-serif text-white"
+      className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-serif text-foreground"
       style={{ background: `${color}33`, border: `1px solid ${color}66` }}
     >
       {name.charAt(0).toUpperCase()}
@@ -43,7 +43,7 @@ function SkeletonCard() {
   return (
     <div
       className="rounded-2xl overflow-hidden animate-pulse"
-      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+      style={{ background: "var(--glass-surface)", border: "1px solid rgba(255,255,255,0.1)" }}
     >
       <div className="h-20" style={{ background: "rgba(255,255,255,0.07)" }} />
       <div className="p-5 space-y-3">
@@ -82,7 +82,7 @@ export default function FederationClubs() {
     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-6">
       {/* Header */}
       <motion.div variants={fadeUp} className="flex items-center gap-4 flex-wrap">
-        <h2 className="text-3xl font-serif tracking-widest text-white uppercase">Our Clubs</h2>
+        <h2 className="text-3xl font-serif tracking-widest text-foreground uppercase">Our Clubs</h2>
         <span
           className="px-3 py-1 rounded-full text-sm font-medium"
           style={{ background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.4)", color: "#EF4444" }}
@@ -97,7 +97,7 @@ export default function FederationClubs() {
           <div
             className="relative rounded-xl overflow-hidden max-w-md"
             style={{
-              background: "rgba(255,255,255,0.05)",
+              background: "var(--glass-surface)",
               backdropFilter: "blur(20px)",
               border: "1px solid rgba(255,255,255,0.1)",
             }}
@@ -108,7 +108,7 @@ export default function FederationClubs() {
               placeholder="Search by name, city or region..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-transparent text-white placeholder:text-gray-500 focus:outline-none"
+              className="w-full pl-12 pr-4 py-3 bg-transparent text-foreground placeholder:text-gray-500 focus:outline-none"
             />
           </div>
 
@@ -156,7 +156,7 @@ export default function FederationClubs() {
                 variants={fadeUp}
                 className="rounded-2xl overflow-hidden transition-all hover:scale-[1.02]"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
+                  background: "var(--glass-surface)",
                   backdropFilter: "blur(20px)",
                   border: "1px solid rgba(255,255,255,0.1)",
                 }}
@@ -183,7 +183,7 @@ export default function FederationClubs() {
                 </div>
 
                 <div className="p-5 space-y-2.5">
-                  <h3 className="text-lg font-serif text-white leading-tight">{club.name}</h3>
+                  <h3 className="text-lg font-serif text-foreground leading-tight">{club.name}</h3>
 
                   {(club.region || club.city) && (
                     <div className="flex flex-wrap gap-1.5">
@@ -250,7 +250,7 @@ export default function FederationClubs() {
         <motion.div variants={fadeUp} className="text-center py-16 px-4">
           <div
             className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center"
-            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+            style={{ background: "var(--glass-surface)", border: "1px solid rgba(255,255,255,0.1)" }}
           >
             <Users className="w-9 h-9 text-gray-600" />
           </div>

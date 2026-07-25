@@ -386,7 +386,7 @@ export default function Home() {
       </section>
 
       {/* Schedules Section - Aggregate schedules across sports */}
-      <section className="py-16 px-4 bg-black relative overflow-hidden">
+      <section className="py-16 px-4 bg-background relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-red-500/5 rounded-full blur-[120px]" />
         <div className="container mx-auto relative z-10">
           <motion.div
@@ -397,7 +397,7 @@ export default function Home() {
             className="text-center mb-10"
           >
             <p className="text-sm tracking-[0.3em] text-red-400 mb-2">UPCOMING</p>
-            <h2 className="text-3xl md:text-5xl font-serif text-white mb-2">
+            <h2 className="text-3xl md:text-5xl font-serif text-foreground mb-2">
               SCHEDULES
             </h2>
             <p className="text-gray-400">Matches and competitions across Namibian sport</p>
@@ -432,7 +432,7 @@ export default function Home() {
                     <div
                       className="h-full rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 hover:scale-105 hover:-translate-y-1"
                       style={{
-                        background: 'rgba(255,255,255,0.06)',
+                        background: 'var(--chrome-btn-bg)',
                         backdropFilter: 'blur(20px)',
                         border: '1px solid rgba(255,255,255,0.12)',
                         boxShadow: '0 20px 40px -15px rgba(0,0,0,0.4)',
@@ -446,7 +446,7 @@ export default function Home() {
                         <span className="text-xs font-medium text-red-400 uppercase tracking-wider">
                           {evt.type}
                         </span>
-                        <h3 className="text-white font-serif mt-1 line-clamp-2">{evt.name}</h3>
+                        <h3 className="text-foreground font-serif mt-1 line-clamp-2">{evt.name}</h3>
                         <div className="flex items-center gap-2 mt-2 text-gray-400 text-sm">
                           <Calendar className="w-4 h-4 flex-shrink-0" />
                           {formatEventDate(evt.startDate)}
@@ -466,7 +466,7 @@ export default function Home() {
           ) : (
             <div
               className="text-center py-12 rounded-2xl"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+              style={{ background: 'var(--glass-surface)', border: '1px solid var(--glass-surface-border)' }}
             >
               <Clock className="w-12 h-12 mx-auto text-gray-600 mb-3" />
               <p className="text-gray-500">No upcoming events scheduled</p>
@@ -479,7 +479,7 @@ export default function Home() {
       </section>
 
       {/* Sports News teaser — full feed lives in the top ticker + /news */}
-      <section className="py-10 px-4 bg-black relative overflow-hidden">
+      <section className="py-10 px-4 bg-background relative overflow-hidden">
         <div className="container mx-auto relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -544,11 +544,11 @@ export default function Home() {
       </section>
 
       {/* Federations Grid */}
-      <section id="federations" className="py-12 px-4 bg-black">
+      <section id="federations" className="py-12 px-4 bg-background">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <p className="text-sm tracking-[0.3em] text-gray-400 mb-4">DISCOVER</p>
-            <h2 className="text-4xl md:text-6xl font-serif text-white mb-4">
+            <h2 className="text-4xl md:text-6xl font-serif text-foreground mb-4">
               SPORTING FEDERATIONS
             </h2>
             <p className="text-lg text-gray-300 max-w-2xl mx-auto">
@@ -669,7 +669,7 @@ export default function Home() {
       </section>
 
       {/* Regions Preview - Glass Cards */}
-      <section className="py-20 bg-black relative overflow-hidden">
+      <section className="py-20 bg-background relative overflow-hidden">
         {/* Ambient glow */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[300px] bg-gradient-to-t from-red-500/10 to-transparent rounded-full blur-[100px]" />
         
@@ -678,7 +678,7 @@ export default function Home() {
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
               <div>
                 <p className="text-sm tracking-[0.3em] text-red-400 mb-4">ACROSS</p>
-                <h2 className="text-3xl md:text-5xl font-serif text-white mb-4">
+                <h2 className="text-3xl md:text-5xl font-serif text-foreground mb-4">
                   14 REGIONS
                 </h2>
                 <p className="text-gray-300">
@@ -722,7 +722,7 @@ export default function Home() {
                   >
                     <MapPin className={`w-5 h-5 ${index % 2 === 0 ? 'text-red-400' : 'text-blue-400'}`} />
                   </div>
-                  <p className="text-white text-sm font-medium">{region}</p>
+                  <p className="text-foreground text-sm font-medium">{region}</p>
                 </div>
               </Link>
             ))}
@@ -731,7 +731,7 @@ export default function Home() {
       </section>
 
       {/* Stats Section - Glass Cards */}
-      <section className="py-20 bg-gradient-to-b from-black to-gray-900 relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-b from-background to-muted relative overflow-hidden">
         {/* Background glow effects */}
         <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-red-500/20 rounded-full blur-[120px]" />
         <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px]" />
@@ -757,7 +757,7 @@ export default function Home() {
                 <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
                   <span className="text-2xl font-bold text-white">{stat.value.charAt(0)}</span>
                 </div>
-                <p className="text-4xl md:text-5xl font-serif text-white mb-2">{stat.value}</p>
+                <p className="text-4xl md:text-5xl font-serif text-foreground mb-2">{stat.value}</p>
                 <p className="text-xs tracking-[0.2em] text-gray-400">{stat.label}</p>
               </div>
             ))}
@@ -766,14 +766,14 @@ export default function Home() {
       </section>
 
       {/* Sports Venues Section - Glass Design */}
-      <section id="venues" className="py-20 px-4 bg-black relative overflow-hidden">
+      <section id="venues" className="py-20 px-4 bg-background relative overflow-hidden">
         {/* Background glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-red-500/10 rounded-full blur-[150px]" />
         
         <div className="container mx-auto relative z-10">
           <div className="text-center mb-16">
             <p className="text-sm tracking-[0.3em] text-red-400 mb-4">WORLD-CLASS</p>
-            <h2 className="text-4xl md:text-6xl font-serif text-white mb-4">
+            <h2 className="text-4xl md:text-6xl font-serif text-foreground mb-4">
               SPORTS VENUES
             </h2>
             <p className="text-lg text-gray-300 max-w-2xl mx-auto">
@@ -929,7 +929,7 @@ export default function Home() {
               >
                 <Trophy className="w-8 h-8 text-red-400" />
               </div>
-              <h3 className="text-2xl font-serif text-white mb-4">HIGH PERFORMANCE</h3>
+              <h3 className="text-2xl font-serif text-foreground mb-4">HIGH PERFORMANCE</h3>
               <p className="text-gray-400 mb-6 leading-relaxed">
                 Elite athlete development programs nurturing Namibia's next generation of champions across Namibian sport.
               </p>
@@ -964,7 +964,7 @@ export default function Home() {
               >
                 <Calendar className="w-8 h-8 text-blue-400" />
               </div>
-              <h3 className="text-2xl font-serif text-white mb-4">EVENTS CALENDAR</h3>
+              <h3 className="text-2xl font-serif text-foreground mb-4">EVENTS CALENDAR</h3>
               <p className="text-gray-400 mb-6 leading-relaxed">
                 Stay updated with national championships, international competitions, and community sports events across Namibia.
               </p>
@@ -999,7 +999,7 @@ export default function Home() {
               >
                 <Users className="w-8 h-8 text-green-400" />
               </div>
-              <h3 className="text-2xl font-serif text-white mb-4">ATHLETE REGISTRATION</h3>
+              <h3 className="text-2xl font-serif text-foreground mb-4">ATHLETE REGISTRATION</h3>
               <p className="text-gray-400 mb-6 leading-relaxed">
                 Register as an athlete, coach, or official. Join Namibia's sporting community and access development programs.
               </p>
@@ -1021,7 +1021,7 @@ export default function Home() {
 
       {/* Footer - Glass Design */}
       <footer 
-        className="text-white py-16 relative"
+        className="text-foreground py-16 relative"
         style={{
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,1))',
           borderTop: '1px solid rgba(255, 255, 255, 0.05)',

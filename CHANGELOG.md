@@ -5,6 +5,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Tenancy tests (T4):** `server/federationScopeDbFirst.test.ts` — mocked-`getDb` coverage for `media.create/update/delete`, `coaches`/`hpPrograms` update/delete, and `upload.image` entity ownership (A1). Client `safeHttpsHref` news sourceUrl cases in `features.test.ts`.
 - **`media.update`:** Title / fileUrl / thumbnailUrl / type patch with `mediaAssetUrlSchema` + entity federation ownership.
 - **Backlog clearance tracker:** `docs/research/BACKLOG_CLEARANCE_20260725.md`.
 - **Events upcoming refresh (Big-8 / mid-tier):** +12 published forward-dated events (NASFED 2, Golf 6, Bowls/Gymnastics/NPC/Motorsport 1 each). NHU remains 0 (no day-level fixtures after SA women’s tests). Migration `20260725210000`; evidence `docs/research/events_upcoming_big8_midtier_20260725.md`.

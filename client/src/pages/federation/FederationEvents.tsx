@@ -103,7 +103,7 @@ function EventPoster({
           background: 'linear-gradient(135deg, rgba(239,68,68,0.35), rgba(59,130,246,0.25))',
         }}
       >
-        <span className="text-5xl font-serif text-white/70">
+        <span className="text-5xl font-serif text-foreground/70">
           {name.trim().charAt(0).toUpperCase() || 'E'}
         </span>
       </div>
@@ -134,9 +134,9 @@ function FederationEventCard({ event }: FederationEventCardProps) {
       variants={fadeUp}
       className="rounded-3xl overflow-hidden group hover:scale-[1.02] hover:-translate-y-1 transition-all duration-500 flex flex-col"
       style={{
-        background: 'rgba(255,255,255,0.04)',
+        background: 'var(--glass-surface)',
         backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255,255,255,0.09)',
+        border: '1px solid var(--glass-surface-border)',
         boxShadow: '0 25px 50px -12px rgba(0,0,0,0.3)',
       }}
     >
@@ -167,7 +167,7 @@ function FederationEventCard({ event }: FederationEventCardProps) {
               className="text-xs px-2 py-1 rounded-full text-gray-300"
               style={{
                 background: 'rgba(0,0,0,0.5)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid var(--glass-surface-border)',
                 backdropFilter: 'blur(8px)',
               }}
             >
@@ -192,7 +192,7 @@ function FederationEventCard({ event }: FederationEventCardProps) {
 
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
-        <h3 className="font-serif text-white text-lg leading-snug mb-3 line-clamp-2">
+        <h3 className="font-serif text-foreground text-lg leading-snug mb-3 line-clamp-2">
           {event.name}
         </h3>
 
@@ -222,8 +222,8 @@ function SkeletonCard() {
     <div
       className="rounded-3xl overflow-hidden animate-pulse"
       style={{
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.07)',
+        background: 'var(--glass-surface)',
+        border: '1px solid var(--glass-surface-border)',
       }}
     >
       <div className="h-48 bg-white/5" />
@@ -283,7 +283,7 @@ export default function FederationEvents() {
           <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-3 justify-between">
             <div
               className="flex rounded-xl overflow-hidden"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+              style={{ background: 'var(--glass-surface)', border: '1px solid var(--glass-surface-border)' }}
             >
               {(['upcoming', 'past'] as const).map((t) => (
                 <button
@@ -362,8 +362,8 @@ export default function FederationEvents() {
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'var(--glass-surface)',
+              border: '1px solid var(--glass-surface-border)',
             }}
           >
             <Trophy className="w-9 h-9 text-gray-600" />
@@ -385,8 +385,8 @@ export default function FederationEvents() {
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'var(--glass-surface)',
+              border: '1px solid var(--glass-surface-border)',
             }}
           >
             <Calendar className="w-9 h-9 text-gray-600" />
@@ -404,7 +404,7 @@ export default function FederationEvents() {
           {filtersActive && (
             <button
               onClick={() => { setTypeFilter('all'); setTab('upcoming'); }}
-              className="mt-5 px-5 py-2 rounded-xl text-sm font-medium text-white transition-all hover:scale-105"
+              className="mt-5 px-5 py-2 rounded-xl text-sm font-medium text-foreground transition-all hover:scale-105"
               style={{
                 background: 'linear-gradient(135deg, rgba(239,68,68,0.7), rgba(220,38,38,0.7))',
                 border: '1px solid rgba(239,68,68,0.4)',
@@ -416,7 +416,7 @@ export default function FederationEvents() {
           {!filtersActive && tab === 'upcoming' && (
             <button
               onClick={() => setTab('past')}
-              className="mt-5 px-5 py-2 rounded-xl text-sm font-medium text-white transition-all hover:scale-105"
+              className="mt-5 px-5 py-2 rounded-xl text-sm font-medium text-foreground transition-all hover:scale-105"
               style={{
                 background: 'rgba(255,255,255,0.08)',
                 border: '1px solid rgba(255,255,255,0.15)',

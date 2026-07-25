@@ -22,4 +22,14 @@ describe("safeHttpsHref (client)", () => {
     expect(safeHttpsHref("javascript:alert(1)")).toBeNull();
     expect(safeHttpsHref("http://legacy.example")).toBeNull();
   });
+
+  it("guards news sourceUrl / footer hrefs (A2)", () => {
+    expect(safeHttpsHref("https://economist.com.na/sport/a")).toBe(
+      "https://economist.com.na/sport/a"
+    );
+    expect(safeHttpsHref("javascript:void(0)")).toBeNull();
+    expect(safeHttpsHref("data:text/html,xss")).toBeNull();
+    expect(safeHttpsHref("//cdn.evil/x")).toBeNull();
+    expect(safeHttpsHref(null)).toBeNull();
+  });
 });

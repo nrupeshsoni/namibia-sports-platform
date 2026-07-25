@@ -6,7 +6,7 @@ import { LegalPageLayout } from "./LegalPageLayout";
  */
 export default function Privacy() {
   return (
-    <LegalPageLayout title="Privacy Policy" lastUpdated="21 July 2026">
+    <LegalPageLayout title="Privacy Policy" lastUpdated="25 July 2026">
       <p>
         This Privacy Policy explains how the <strong className="text-white">Namibia Sports Platform</strong>{" "}
         at <strong className="text-white">sports.com.na</strong> (“the Platform”, “we”, “us”) collects, uses,
@@ -126,7 +126,37 @@ export default function Privacy() {
         protect rights, safety, or the integrity of the Platform.
       </p>
 
-      <h2>8. Retention</h2>
+      <h2>8. Cookies and similar technologies</h2>
+      <p>
+        We do <strong className="text-white">not</strong> use advertising or third-party analytics cookies
+        by default. Optional analytics (e.g. Umami) is only loaded if we enable it and, where required,
+        after you consent.
+      </p>
+      <p>We use limited first-party storage so the Platform works as you expect:</p>
+      <ul>
+        <li>
+          <strong className="text-white">Theme preference</strong> — stored in{" "}
+          <code className="text-gray-300">localStorage</code> (<code className="text-gray-300">theme</code>)
+          when you use the light/dark toggle.
+        </li>
+        <li>
+          <strong className="text-white">UI preferences</strong> — e.g. dismissing this cookie notice or the
+          install prompt may be remembered in <code className="text-gray-300">localStorage</code>; admin
+          sidebar open/closed may use a first-party <code className="text-gray-300">sidebar_state</code>{" "}
+          cookie.
+        </li>
+        <li>
+          <strong className="text-white">Authentication</strong> — sessions use a Supabase JWT in the
+          Authorization header (and Supabase Auth’s own browser storage), not an application session
+          cookie controlled by this site’s UI.
+        </li>
+      </ul>
+      <p>
+        These essential preferences are required for basic site function and accessibility (e.g. remembering
+        colour scheme). You can clear them via your browser settings.
+      </p>
+
+      <h2>9. Retention</h2>
       <p>
         Account data is kept while your account is active and for a reasonable period afterward for
         security and legal purposes. Subscription data is kept until you unsubscribe or the service ends.
@@ -134,7 +164,7 @@ export default function Privacy() {
         this policy or by the content owner.
       </p>
 
-      <h2>9. Your rights</h2>
+      <h2>10. Your rights</h2>
       <p>Subject to applicable Namibian law (including data-protection legislation as it applies), you may:</p>
       <ul>
         <li>Request access to personal data we hold about you.</li>
@@ -149,14 +179,14 @@ export default function Privacy() {
         below). We may need to verify your identity before acting on a request.
       </p>
 
-      <h2>10. Children</h2>
+      <h2>11. Children</h2>
       <p>
         The Platform is a general sports directory. Profiles of junior athletes should only be published
         by authorised federation/club administrators with appropriate authority. Parents or guardians who
         have concerns about a minor’s data should contact us immediately.
       </p>
 
-      <h2>11. Contact</h2>
+      <h2>12. Contact</h2>
       <ul>
         <li>
           Platform privacy:{" "}

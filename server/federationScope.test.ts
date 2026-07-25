@@ -221,7 +221,11 @@ describe("canIncludeUnpublished / canIncludeInactive / canViewNonPublic (unit)",
   });
 });
 
-/** One representative mutation per federation-scoped router. */
+/**
+ * One representative mutation per input-`federationId` federation-scoped router.
+ * DB-first paths (media.*, coaches.update/delete, hpPrograms.update/delete,
+ * upload ownership resolve) live in `federationScopeDbFirst.test.ts`.
+ */
 function crossTenantCalls(caller: ReturnType<typeof callerFor>) {
   return {
     "athletes.create": () =>

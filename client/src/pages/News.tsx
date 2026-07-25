@@ -139,12 +139,12 @@ export default function News() {
                     background:
                       categoryFilter === cat
                         ? "linear-gradient(135deg, rgba(239,68,68,0.8), rgba(220,38,38,0.8))"
-                        : "rgba(255,255,255,0.05)",
+                        : "var(--chrome-btn-bg)",
                     border:
                       categoryFilter === cat
                         ? "1px solid rgba(239,68,68,0.5)"
-                        : "1px solid rgba(255,255,255,0.1)",
-                    color: "white",
+                        : "1px solid var(--chrome-border)",
+                    color: "var(--chrome-fg)",
                   }}
                 >
                   {cat === "all" ? "All Categories" : cat}
@@ -204,8 +204,8 @@ export default function News() {
               <div
                 className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "var(--chrome-btn-bg)",
+                  border: "1px solid var(--chrome-border)",
                 }}
               >
                 <Newspaper className="w-9 h-9 text-gray-600" />
