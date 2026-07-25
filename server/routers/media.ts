@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { media, clubs, events, athletes, coaches } from "../../drizzle/schema";
+import { media } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { publicProcedure, federationAdminProcedure, router } from "../_core/trpc";
 import { assertSameFederation } from "../_core/federationScope";
+import { resolveEntityFederationId } from "../_core/resolveEntityFederation";
 
 const entityTypeSchema = z.enum(["federation", "club", "event", "athlete", "venue", "coach"]);
 
@@ -15,42 +16,7 @@ async function resolveMediaFederationId(
   entityType: EntityType,
   entityId: number
 ): Promise<number | null | undefined> {
-  const db = await getDb();
-  if (!db) return undefined;
-
-  if (entityType === "federation") return entityId;
-  if (entityType === "venue") return null;
-
-  if (entityType === "club") {
-    const [row] = await db
-      .select({ federationId: clubs.federationId })
-      .from(clubs)
-      .where(eq(clubs.id, entityId))
-      .limit(1);
-    return row?.federationId;
-  }
-  if (entityType === "event") {
-    const [row] = await db
-      .select({ federationId: events.federationId })
-      .from(events)
-      .where(eq(events.id, entityId))
-      .limit(1);
-    return row?.federationId;
-  }
-  if (entityType === "athlete") {
-    const [row] = await db
-      .select({ federationId: athletes.federationId })
-      .from(athletes)
-      .where(eq(athletes.id, entityId))
-      .limit(1);
-    return row?.federationId;
-  }
-  const [row] = await db
-    .select({ federationId: coaches.federationId })
-    .from(coaches)
-    .where(eq(coaches.id, entityId))
-    .limit(1);
-  return row?.federationId;
+  return resolveEntityFederationId(entityType, entityId);
 }
 
 export const mediaRouter = router({

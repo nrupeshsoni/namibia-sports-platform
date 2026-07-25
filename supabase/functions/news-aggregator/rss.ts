@@ -3,6 +3,7 @@
  */
 
 import { unwrapGoogleNewsUrl } from "./googleNews.ts";
+import { isSafeOutboundUrl } from "./safeUrl.ts";
 
 export interface RssItem {
   title: string;
@@ -155,17 +156,62 @@ export function parseRssItems(xml: string, feedUrl = "https://sports.com.na"): R
 
 const FETCH_MS = 12_000;
 const OG_MS = 6_000;
+const MAX_REDIRECTS = 3;
+
+const UA = "NamibiaSportsPlatform/1.0 (+https://sports.com.na)";
+
+/**
+ * Fetch with redirect:manual, re-validating each Location against SSRF rules.
+ * Only https (or http when httpsOnly=false) to public hosts; capped redirects + timeout.
+ */
+async function safeFetch(
+  url: string,
+  init: {
+    headers?: Record<string, string>;
+    signal: AbortSignal;
+    httpsOnly?: boolean;
+  }
+): Promise<Response | null> {
+  const httpsOnly = init.httpsOnly !== false;
+  let current = url;
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    if (!isSafeOutboundUrl(current, httpsOnly)) return null;
+    const res = await fetch(current, {
+      headers: init.headers,
+      signal: init.signal,
+      redirect: "manual",
+    });
+    if (res.status >= 300 && res.status < 400) {
+      const loc = res.headers.get("Location");
+      if (!loc) return null;
+      try {
+        current = new URL(loc, current).href;
+      } catch {
+        return null;
+      }
+      continue;
+    }
+    return res;
+  }
+  return null;
+}
 
 export async function fetchFeed(
   url: string
 ): Promise<{ ok: boolean; status?: number; xml?: string; error?: string }> {
+  if (!isSafeOutboundUrl(url, true) && !isSafeOutboundUrl(url, false)) {
+    return { ok: false, error: "Blocked or invalid feed URL" };
+  }
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), FETCH_MS);
   try {
-    const res = await fetch(url, {
-      headers: { "User-Agent": "NamibiaSportsPlatform/1.0 (+https://sports.com.na)" },
+    // Trusted feed list is https; allow http only if a listed source still uses it.
+    const res = await safeFetch(url, {
+      headers: { "User-Agent": UA },
       signal: ctrl.signal,
+      httpsOnly: url.startsWith("https://"),
     });
+    if (!res) return { ok: false, error: "Blocked or invalid feed URL" };
     if (!res.ok) return { ok: false, status: res.status, error: `HTTP ${res.status}` };
     const xml = await res.text();
     if (!/<rss[\s>]|<feed[\s>]/i.test(xml)) {
@@ -228,6 +274,7 @@ function pickMetaImage(html: string, pageUrl: string): string | null {
 
 /** WordPress oEmbed thumbnail when pages omit og:image. */
 async function fetchWpOembedThumbnail(articleUrl: string): Promise<string | null> {
+  if (!isSafeOutboundUrl(articleUrl, true)) return null;
   let origin: string;
   try {
     origin = new URL(articleUrl).origin;
@@ -235,21 +282,24 @@ async function fetchWpOembedThumbnail(articleUrl: string): Promise<string | null
     return null;
   }
   const oembed = `${origin}/wp-json/oembed/1.0/embed?url=${encodeURIComponent(articleUrl)}`;
+  if (!isSafeOutboundUrl(oembed, true)) return null;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), OG_MS);
   try {
-    const res = await fetch(oembed, {
+    const res = await safeFetch(oembed, {
       headers: {
-        "User-Agent": "NamibiaSportsPlatform/1.0 (+https://sports.com.na)",
+        "User-Agent": UA,
         Accept: "application/json",
       },
       signal: ctrl.signal,
+      httpsOnly: true,
     });
-    if (!res.ok) return null;
+    if (!res?.ok) return null;
     const data = (await res.json()) as { thumbnail_url?: unknown };
     if (typeof data.thumbnail_url !== "string") return null;
     const abs = absolutizeUrl(data.thumbnail_url, articleUrl);
-    return abs && isLikelyArticleImage(abs) ? abs : null;
+    if (!abs || !isSafeOutboundUrl(abs, true) || !isLikelyArticleImage(abs)) return null;
+    return abs;
   } catch {
     return null;
   } finally {
@@ -259,35 +309,54 @@ async function fetchWpOembedThumbnail(articleUrl: string): Promise<string | null
 
 /** Timeout-safe og/twitter/JSON-LD/oEmbed image; unwraps Google News first. */
 export async function fetchOgImage(articleUrl: string): Promise<string | null> {
-  if (!isHttpUrl(articleUrl)) return null;
+  if (!isSafeOutboundUrl(articleUrl, true) && !isSafeOutboundUrl(articleUrl, false)) {
+    return null;
+  }
   let lookupUrl = articleUrl;
   if (/news\.google\.com\//i.test(articleUrl)) {
     const unwrapped = await unwrapGoogleNewsUrl(articleUrl);
     if (!unwrapped || /news\.google\.com\//i.test(unwrapped)) return null;
+    if (!isSafeOutboundUrl(unwrapped, true) && !isSafeOutboundUrl(unwrapped, false)) {
+      return null;
+    }
     lookupUrl = unwrapped;
   }
+  // Prefer https for page fetch; allow http only when the article link is http.
+  const httpsOnly = lookupUrl.startsWith("https://");
+  if (!isSafeOutboundUrl(lookupUrl, httpsOnly)) return null;
+
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), OG_MS);
   try {
-    const res = await fetch(lookupUrl, {
+    const res = await safeFetch(lookupUrl, {
       headers: {
-        "User-Agent": "NamibiaSportsPlatform/1.0 (+https://sports.com.na)",
+        "User-Agent": UA,
         Accept: "text/html,application/xhtml+xml",
       },
       signal: ctrl.signal,
-      redirect: "follow",
+      httpsOnly,
     });
-    if (res.ok) {
+    if (res?.ok) {
       const finalUrl = res.url || lookupUrl;
       const meta = pickMetaImage((await res.text()).slice(0, 100_000), finalUrl);
-      if (meta && isLikelyArticleImage(meta)) return meta;
+      if (
+        meta &&
+        isLikelyArticleImage(meta) &&
+        (isSafeOutboundUrl(meta, true) || isSafeOutboundUrl(meta, false))
+      ) {
+        return meta;
+      }
     }
   } catch {
     /* fall through to oEmbed */
   } finally {
     clearTimeout(timer);
   }
-  return fetchWpOembedThumbnail(lookupUrl);
+  // oEmbed only against https public origins
+  const oembedTarget = lookupUrl.startsWith("https://")
+    ? lookupUrl
+    : lookupUrl.replace(/^http:\/\//i, "https://");
+  return fetchWpOembedThumbnail(oembedTarget);
 }
 
 export async function resolveImage(item: RssItem): Promise<string | null> {

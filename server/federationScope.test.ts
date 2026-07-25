@@ -22,6 +22,7 @@ import {
   canIncludeUnpublished,
   canViewNonPublic,
 } from "./_core/federationScope";
+import { assertEntityBelongsToClaimedFederation } from "./_core/resolveEntityFederation";
 import type { TrpcContext } from "./_core/context";
 import type { Env } from "./_core/env";
 
@@ -134,6 +135,56 @@ describe("assertClaimMatchesOwnedRow (unit)", () => {
       expect(err).toBeInstanceOf(TRPCError);
       expect((err as TRPCError).code).toBe("NOT_FOUND");
       expect((err as TRPCError).message).toBe("Event not found");
+    }
+  });
+});
+
+describe("assertEntityBelongsToClaimedFederation (upload IDOR A1)", () => {
+  const fedAdmin = { role: "federation_admin", federationId: OWN_FEDERATION };
+
+  it("rejects own federationId claim when entity belongs to another federation", () => {
+    // Attack: pass federationId=self (passes input assert) + foreign entityId.
+    try {
+      assertEntityBelongsToClaimedFederation(
+        fedAdmin,
+        OWN_FEDERATION,
+        OTHER_FEDERATION
+      );
+      expect.fail("expected FORBIDDEN for foreign entity ownership");
+    } catch (err) {
+      expect(err).toBeInstanceOf(TRPCError);
+      expect((err as TRPCError).code).toBe("FORBIDDEN");
+      expect((err as TRPCError).message).toBe(NOT_FEDERATION_ADMIN_ERR_MSG);
+    }
+  });
+
+  it("allows matching claim and entity ownership", () => {
+    expect(() =>
+      assertEntityBelongsToClaimedFederation(
+        fedAdmin,
+        OWN_FEDERATION,
+        OWN_FEDERATION
+      )
+    ).not.toThrow();
+  });
+
+  it("rejects venue (platform-scoped) for federation_admin", () => {
+    expect(() =>
+      assertEntityBelongsToClaimedFederation(fedAdmin, OWN_FEDERATION, null)
+    ).toThrow(NOT_FEDERATION_ADMIN_ERR_MSG);
+  });
+
+  it("rejects missing entity", () => {
+    try {
+      assertEntityBelongsToClaimedFederation(
+        fedAdmin,
+        OWN_FEDERATION,
+        undefined
+      );
+      expect.fail("expected NOT_FOUND");
+    } catch (err) {
+      expect(err).toBeInstanceOf(TRPCError);
+      expect((err as TRPCError).code).toBe("NOT_FOUND");
     }
   });
 });
@@ -284,18 +335,26 @@ describe("federation tenancy (same-tenant guard pass-through)", () => {
     ).rejects.toThrow("Database not available");
   });
 
-  it("lets upload.image through the guard", async () => {
-    try {
-      await caller.upload.image({
+  it("lets upload.image through the input federationId guard", async () => {
+    // Without a DB, ownership resolve cannot run — fails after input assert.
+    await expect(
+      caller.upload.image({
         federationId: OWN_FEDERATION,
         entity: "club",
         entityId: 1,
         base64: "aGk=",
-      });
-      expect.fail("expected upload.image to throw after the tenancy guard");
-    } catch (err) {
-      expect(err).toBeInstanceOf(Error);
-      expect((err as Error).message).not.toBe(NOT_FEDERATION_ADMIN_ERR_MSG);
-    }
+      })
+    ).rejects.toThrow("Database not available");
+  });
+
+  it("rejects upload.image with foreign input federationId before ownership", async () => {
+    await expect(
+      caller.upload.image({
+        federationId: OTHER_FEDERATION,
+        entity: "club",
+        entityId: 1,
+        base64: "aGk=",
+      })
+    ).rejects.toThrow(NOT_FEDERATION_ADMIN_ERR_MSG);
   });
 });

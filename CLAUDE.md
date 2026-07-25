@@ -176,12 +176,18 @@ Auth uses **Supabase Auth** with JWT verification in tRPC context.
 
 **Not RLS.** Two facts, both easy to get wrong:
 
-1. The Worker holds the **anon** key, not `service_role`. It is used to verify the
-   caller's bearer token (and, separately, the service-role key is used for storage
-   uploads only).
-2. Every real read and write goes through **Drizzle over Hyperdrive**, whose origin
-   role is `postgres` (`rolbypassrls = true`). RLS is not evaluated on that path at
-   all — not "bypassed by service_role", simply not in the request path.
+1. The Worker holds the **anon** key for verifying the caller's bearer token.
+   `SUPABASE_SERVICE_ROLE_KEY` on the Worker is **not** storage-only: it is also
+   used for **Auth Admin** (`auth.admin.createUser` in `users.inviteOrPromote`).
+   Storage uploads (`supabaseStorage.ts`) share that same key. Do **not** remove
+   Auth Admin usage without a replacement invite path.
+2. The `news-aggregator` Edge Function uses `service_role` for PostgREST
+   select/insert/update on `sportsplatform_news_articles` (bypasses RLS by design
+   for cron ingest). Prefer a narrower DB role long-term; until then treat a
+   leaked Edge secret as full table write on news, not "storage only".
+3. Every real Worker read/write goes through **Drizzle over Hyperdrive**, whose
+   origin role is `postgres` (`rolbypassrls = true`). RLS is not evaluated on that
+   path at all — not "bypassed by service_role", simply not in the request path.
 
 So RLS on `sportsplatform_*` provides **no** defence for application queries, and
 the tRPC middleware + explicit in-procedure checks are the **sole** tenancy
@@ -264,7 +270,7 @@ Dark BG:        #0a0a0a / #111111
 # binding declared in wrangler.jsonc. The committed pooler DATABASE_URL is stale.
 SUPABASE_URL=https://rbibqjgsnrueubrvyqps.supabase.co   # var in wrangler.jsonc, not a secret
 SUPABASE_ANON_KEY=...          # verifies caller JWTs
-SUPABASE_SERVICE_ROLE_KEY=...  # storage uploads ONLY — never for normal reads
+SUPABASE_SERVICE_ROLE_KEY=...  # Worker: storage uploads + Auth Admin createUser; Edge news-aggregator: PostgREST writes. Never ship to the client.
 ANTHROPIC_API_KEY=...          # ai router (currently UNSET — the chat widget 500s)
 WHATSAPP_API_TOKEN=...
 WHATSAPP_PHONE_NUMBER_ID=...
@@ -290,8 +296,8 @@ VITE_TRPC_URL=/api/trpc
   it could not read (gap **A6**). The tRPC layer is the **only** tenancy boundary
   here — see the RLS note below.
 - **Data access** — Drizzle over Hyperdrive for all real reads/writes. The
-  per-request Supabase client exists to verify the caller's JWT (and for storage
-  uploads with the service-role key); it is not the data path.
+  per-request Supabase client verifies the caller's JWT; the service-role key is
+  used for Storage uploads and Auth Admin only on the Worker (see env notes).
 - **Error handling** — Use tRPC `TRPCError` with appropriate HTTP codes
 - **Image uploads** — Always use Supabase Storage, never store binary in DB
 

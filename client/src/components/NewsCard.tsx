@@ -4,6 +4,7 @@
  */
 import { Calendar, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import { safeHttpsHref } from "@/lib/safeHref";
 
 export type NewsCardArticle = {
   title: string;
@@ -68,7 +69,7 @@ export function NewsCard({
   const [imageOk, setImageOk] = useState(Boolean(imageUrl));
   const hasImage = Boolean(imageUrl) && imageOk;
   const sourceLabel = article.sourceName?.trim() || null;
-  const sourceUrl = article.sourceUrl?.trim() || null;
+  const sourceUrl = safeHttpsHref(article.sourceUrl);
 
   return (
     <article

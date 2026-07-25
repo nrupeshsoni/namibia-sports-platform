@@ -15,6 +15,7 @@
 - [x] WhatsApp public API **hard-disabled** for go-live (`WHATSAPP_API_ENABLED=false` in `server/routers/whatsapp.ts`); `consent_at` column ready for future Meta opt-in re-enable
 - [x] Rate limiting on `ai.*`, `upload.image`, `search.global` (`server/_core/rateLimit.ts`) — auth endpoints / global WAF still open if needed later
 - [x] Production security audit 2026-07-23 — `docs/research/PRODUCTION_SECURITY_AUDIT.md` (Critical remaining: credential rotation + Hyperdrive least-privilege)
+- [x] Adversarial A1–A3 (2026-07-25): `upload.image` entity ownership; news `safeHttpsHref` + https `featuredImage`; news-aggregator og:image SSRF guards — `docs/research/gap_wave_20260725/19_adversarial.md`
 - [x] Ensure all list queries have .limit() — news default 50; events/clubs/athletes/coaches/streams/venues/federations/hpPrograms default 50 / max 200 (server/_core/listLimits.ts)
 - [x] Reconcile federation roster to NSC 2026 list (85 entities; migration `20260720000001`)
 - [x] Explain official **61** vs platform **85** — `docs/research/FEDERATION_COUNT_OFFICIAL_VS_PLATFORM.md`; Admin Directory card breaks down sports · bodies · merged (no mass-delete)

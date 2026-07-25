@@ -3,6 +3,7 @@
  */
 import { Calendar, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import { safeHttpsHref } from "@/lib/safeHref";
 import type { NewsCardArticle } from "./NewsCard";
 
 function formatDate(val: string | Date | null | undefined): string {
@@ -25,6 +26,7 @@ export function FeaturedNewsCard({ article, onClick }: FeaturedNewsCardProps) {
   const [imageOk, setImageOk] = useState(Boolean(imageUrl));
   const hasImage = Boolean(imageUrl) && imageOk;
   const sourceLabel = article.sourceName?.trim() || null;
+  const sourceHref = safeHttpsHref(article.sourceUrl);
 
   if (!hasImage) {
     return (
@@ -99,9 +101,9 @@ export function FeaturedNewsCard({ article, onClick }: FeaturedNewsCardProps) {
           <span className="text-sm font-medium" style={{ color: "#EF4444" }}>
             Read More →
           </span>
-          {article.sourceUrl && (
+          {sourceHref && (
             <a
-              href={article.sourceUrl}
+              href={sourceHref}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs"

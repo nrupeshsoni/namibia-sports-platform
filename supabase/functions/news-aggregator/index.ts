@@ -14,6 +14,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Anthropic from "npm:@anthropic-ai/sdk@0.32.1";
 import { fetchFeed, fetchOgImage, parseRssItems, resolveImage, type RssItem } from "./rss.ts";
+import { safeHttpsSourceUrl } from "./safeUrl.ts";
 
 type RssSource = {
   url: string;
@@ -269,7 +270,7 @@ Deno.serve(async () => {
           stats.skippedExisting++;
           const patch: Record<string, unknown> = {};
           if (!existing.featured_image) {
-            const img = await resolveImage(item);
+            const img = safeHttpsSourceUrl(await resolveImage(item));
             if (img) {
               patch.featured_image = img;
               enriched++;
@@ -277,8 +278,11 @@ Deno.serve(async () => {
             }
           }
           if (!existing.source_url) {
-            patch.source_url = item.link;
-            patch.source_name = source.name;
+            const src = safeHttpsSourceUrl(item.link);
+            if (src) {
+              patch.source_url = src;
+              patch.source_name = source.name;
+            }
           }
           if (Object.keys(patch).length > 0) {
             await supabase
@@ -301,7 +305,8 @@ Deno.serve(async () => {
         const autoPublish = source.sportsOnly && (!source.requireNamibia || namibiaOk);
         const federationId = matchFederation(feds, classified.federationHint);
         const tags = [...classified.tags, `source:${source.name}`].slice(0, 8);
-        const featuredImage = await resolveImage(item);
+        const featuredImage = safeHttpsSourceUrl(await resolveImage(item));
+        const sourceUrl = safeHttpsSourceUrl(item.link);
         const publishedAt = autoPublish ? publishedAtFromItem(item) : null;
 
         const { error } = await supabase.from("sportsplatform_news_articles").insert({
@@ -314,7 +319,7 @@ Deno.serve(async () => {
           category: (classified.category || "sports").slice(0, 100),
           tags: tags.length > 0 ? tags : null,
           featured_image: featuredImage,
-          source_url: item.link,
+          source_url: sourceUrl,
           source_name: source.name,
           is_published: autoPublish,
           published_at: publishedAt,
@@ -354,7 +359,7 @@ Deno.serve(async () => {
           .eq("slug", slug)
           .maybeSingle();
         if (!row || row.featured_image) continue;
-        const img = await resolveImage(item);
+        const img = safeHttpsSourceUrl(await resolveImage(item));
         if (!img) continue;
         const { error } = await supabase
           .from("sportsplatform_news_articles")
@@ -379,10 +384,12 @@ Deno.serve(async () => {
     .limit(30);
 
   for (const row of missingRows ?? []) {
-    const url = typeof row.source_url === "string" ? row.source_url : "";
+    const url = safeHttpsSourceUrl(
+      typeof row.source_url === "string" ? row.source_url : ""
+    );
     if (!url) continue;
     try {
-      const img = await fetchOgImage(url);
+      const img = safeHttpsSourceUrl(await fetchOgImage(url));
       if (!img) continue;
       const { error } = await supabase
         .from("sportsplatform_news_articles")

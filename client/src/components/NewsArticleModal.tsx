@@ -4,6 +4,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Calendar, ExternalLink, Tag, X } from "lucide-react";
 import { useState } from "react";
+import { safeHttpsHref } from "@/lib/safeHref";
 
 export type NewsArticleModalItem = {
   id: number;
@@ -52,7 +53,7 @@ export function NewsArticleModal({ article, onClose }: NewsArticleModalProps) {
   const [imageOk, setImageOk] = useState(Boolean(article.featuredImage?.trim()));
   const footer = parseSourceFooter(article.content);
   const sourceName = article.sourceName || footer.name;
-  const sourceUrl = article.sourceUrl || footer.url;
+  const sourceUrl = safeHttpsHref(article.sourceUrl || footer.url);
   const bodyText = article.content
     ? article.content.replace(/\n*---\nSource:[\s\S]*$/i, "").trim()
     : null;

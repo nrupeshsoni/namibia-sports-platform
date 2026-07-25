@@ -13,6 +13,7 @@ import {
   assertSameFederation,
   canIncludeUnpublished,
 } from "../_core/federationScope";
+import { httpsUrlSchema } from "../_core/httpsUrl";
 import { listLimitSchema, resolveListLimit } from "../_core/listLimits";
 
 export const newsRouter = router({
@@ -89,7 +90,7 @@ export const newsRouter = router({
         summary: z.string().optional(),
         category: z.string().optional(),
         tags: z.array(z.string()).optional(),
-        featuredImage: z.string().optional(),
+        featuredImage: httpsUrlSchema.optional(),
         authorId: z.number().optional(),
       })
     )
@@ -120,7 +121,7 @@ export const newsRouter = router({
         summary: z.string().optional(),
         category: z.string().optional(),
         tags: z.array(z.string()).optional(),
-        featuredImage: z.string().optional(),
+        featuredImage: httpsUrlSchema.optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {

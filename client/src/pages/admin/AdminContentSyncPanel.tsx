@@ -4,6 +4,7 @@ import { Brain, Calendar, Loader2, Newspaper, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AdminFederationFilter } from "@/pages/admin/AdminFederationFilter";
+import { safeHttpsHref } from "@/lib/safeHref";
 import { trpc } from "@/lib/trpc";
 
 type SuggestionRow = {
@@ -224,7 +225,9 @@ export function AdminContentSyncPanel() {
             <p className="text-xs text-amber-200/80">{disclaimer}</p>
           )}
           <ul className="space-y-3">
-            {suggestions.map((row, i) => (
+            {suggestions.map((row, i) => {
+              const sourceHref = safeHttpsHref(row.sourceUrl);
+              return (
               <li
                 key={`${row.title}-${i}`}
                 className="rounded-xl p-4 space-y-2"
@@ -243,9 +246,9 @@ export function AdminContentSyncPanel() {
                         <span>Fed hint: {row.federationHint}</span>
                       )}
                       <span>Confidence: {Math.round(row.confidence * 100)}%</span>
-                      {row.sourceUrl && (
+                      {sourceHref && (
                         <a
-                          href={row.sourceUrl}
+                          href={sourceHref}
                           target="_blank"
                           rel="noreferrer"
                           className="text-sky-400 hover:underline truncate max-w-xs"
@@ -265,7 +268,8 @@ export function AdminContentSyncPanel() {
                   </Button>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </div>
       )}
