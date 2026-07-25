@@ -239,3 +239,57 @@ Migration: `20260720000011_federations_contacts_enrichment_pass2.sql`
 10. Softball Namibia  
 
 **Blocked without:** post–Feb 2025 NSC contact PDF including new codes; FIP national member contact sheet; federation Facebook About pages with published email/phone.
+
+---
+
+## Pass 4 — no-email+phone cohort re-research (2026-07-25)
+
+**Trigger:** `FULL_GAP_ANALYSIS_20260725.md` P0 #4 — fill 10 active feds with null email **and** null phone.  
+**Live query (Supabase MCP `rbibqjgsnrueubrvyqps`):** 10 rows confirmed (LN, NBB, NBodF, NFGF, NK, NO, NPet, NPTF, NSB, NWMGF).  
+**Rule:** Verified sources only (official sites, NSC, IF directories, Namibian newspapers). **No fabrication.** Club ≠ federation. Journalist bylines ≠ federation contact.  
+**DB mutations:** **none** (nothing verified to write).
+
+### Applied this pass
+
+| Metric | Count |
+|--------|------:|
+| Emails newly applied | **0** |
+| Phones newly applied | **0** |
+| Rows filled (email **or** phone) | **0** |
+| Still null email **and** null phone | **10** |
+
+### Per-federation research (2026-07-25)
+
+| Abbr | Federation | Sources checked | Verdict |
+|------|------------|-----------------|---------|
+| LN | Lacrosse Namibia | World Lacrosse members; AAL Africa list; prior research | Not a WL/AAL member; no NF email/phone |
+| NBB | Baseball Namibia | WBSC Africa member pages; Wikipedia stub; NSC/NNOC lists | No national email/phone; continental emails rejected |
+| NBodF | Bodybuilding Namibia | New Era / Namibian Sun / Republikein (Gylgrister); WFF.lt (stale 2017 Rabe); NBC NFBB event (no NF contact) | President already set; decoded byline `otis@nsh.com.na` = journalist Otis Daniels — **rejected** |
+| NFGF | Footgolf Namibia | New Era launch + coastal Open Day (HTML `data-cfemail` decoded); Villager 9 Jul 2025; FIFG site; FB About (`Footgolf Namibia`) | Leadership already set; decoded emails = `hnalupe@nepc.com.na` / `hilmanalupe@gmail.com` (journalist). Search hallucinations `footgolfnamibia@gmail.com` / `fgna2025@gmail.com` **not in source HTML** — rejected. FB About has no email/phone |
+| NK | Namibia Korfball | IKF Africa members | Not listed; no contacts |
+| NO | Namibia Orienteering | IOF / Comofed membership | Not listed; no contacts |
+| NPet | Petanque Namibia | FIPJP Africa / petanque-world clubs | No Namibia clubs/contacts |
+| NPTF | Namibia Padel Tennis Federation | New Era federation launch + NPPL article; Republikein/Alexforbes; namibiapadel.com legal notice; FIP site | Leadership already set. `manager@namibiapadel.com` + `+264 81 444 2827` = **Namibia Padel club** (Francois Wahl / Namspire), not NPF — rejected (same rule as Pass 1–3). NPPL is separate commercial league (Padel Addicts / LIV), not NPF |
+| NSB | Softball Namibia | The Namibian 2010 (Beukes); GTP `Beukesf@telecom.na`; WBSC Africa | GTP email unverified/stale; no current NF directory contact — not applied |
+| NWMGF | Western Mounted Games | whatsonnamibia Gobabis event; SAWMGA (SA); NAMEF clubs | No Namibia federation email/phone; SA/NAMEF contacts = wrong entity |
+
+### Explicit rejects this pass
+
+| Claim | Why rejected |
+|-------|----------------|
+| New Era / Sun / Republikein Cloudflare-obfuscated emails | Journalist bylines (`hnalupe@…`, `otis@nsh.com.na`, etc.) |
+| `footgolfnamibia@gmail.com`, `fgna2025@gmail.com` | Not present in New Era / Villager source HTML (search hallucination) |
+| `manager@namibiapadel.com` / `081 444 2827` / `info@namibiapadel.com` | Club legal notice + corporate-league registration — not NPF |
+| `clyde@sportturfnamibia.com` / turf-company phones | Commercial turf supplier, not federation |
+| `Beukesf@telecom.na` | Stale GTP aggregator; 2010 leadership only |
+| `baseball@wbscafrica.org` / SAWMGA / NAMEF / WFF.lt HQ | Wrong entity or wrong country |
+| NSC general `info@namibiasport.org` on each row | Not federation-specific |
+
+### Unblock path (human)
+
+1. Obtain post–Feb 2025 **NSC federation contact sheet** covering Footgolf / Padel / WMG / long-tail codes.  
+2. Ask NF presidents/SGs already on file (Chainda/Kake, Nangombe/Mwiya, Gylgrister) for a **published** federation email or mobile.  
+3. FIP / FIFG / IFBB / WFF continental secretariats for member contact dumps.  
+4. Readable federation Facebook/WhatsApp **About** fields that explicitly label a federation contact.
+
+**Evidence file:** `docs/research/contacts_no_email_phone_pass4_20260725.md`

@@ -177,7 +177,7 @@ Agents **cannot** finish these. Canonical runbook: [`SECURITY_CREDENTIAL_ROTATIO
 | 1 | **P0** | Complete H1–H6 credential rotation + Hyperdrive app role | **Human** |
 | 2 | **P0** | Confirm Builds env: no `VITE_SHOW_LIVE_NAV` / WA / AI / Google | **Human** |
 | 3 | **P0** | Keep marketing honest — no “live streams” / “every federation complete” | **Human** |
-| 4 | **P0** | Fill 10 no-contact federations (email or phone) | **Agent** + Human verify |
+| 4 | **P0** | Fill 10 no-contact federations (email or phone) | **Human** (Agent Pass 4: **0/10** — research ceiling; needs NSC sheet / officers) |
 | 5 | **P0** | Seed ≥1 upcoming event for Big-8 + high-traffic mid-tier with 0 upcoming | **Agent** (verified sources) |
 | 6 | **P0** | Banner `PUBLIC_READY_GAP_ANALYSIS.md` as superseded by this doc + GO_LIVE | **Agent** |
 | 7 | **P1** | Wire or remove homepage SearchAction (`/?q=` unwired) | **Agent** |

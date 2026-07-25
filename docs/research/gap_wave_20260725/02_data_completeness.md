@@ -77,7 +77,7 @@
 
 | Gap | n | Abbreviations |
 |-----|--:|---------------|
-| No email **and** no phone | **10** | LN, NBB, NBodF, NFGF, NK, NO, NPet, NPTF, NSB, NWMGF |
+| No email **and** no phone | **10** | LN, NBB, NBodF, NFGF, NK, NO, NPet, NPTF, NSB, NWMGF — Pass 4 (2026-07-25) re-research: **0/10 filled** (no verified public contacts; see `contacts_no_email_phone_pass4_20260725.md`) |
 | No website | **28** | (see §6 priorities; includes BSN, NBCC, PWFN, TKD, NUFS, TISAN, …) |
 | No primary_color | **36** | ~43% of actives still unbranded |
 

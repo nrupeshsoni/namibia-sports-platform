@@ -4,6 +4,9 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Contacts Pass 4 (no email+phone cohort):** re-researched all **10** active federations with null email **and** null phone (LN, NBB, NBodF, NFGF, NK, NO, NPet, NPTF, NSB, NWMGF). **0 filled** — no verified federation-labelled email/phone on official sites, NSC, IF directories, or newspaper source HTML; club contacts and journalist bylines rejected. Evidence: `docs/research/contacts_no_email_phone_pass4_20260725.md` + `contacts_enrichment_batch.md` Pass 4. DB unchanged.
+
 ### Security
 - **A1 — `upload.image` IDOR:** After `assertSameFederation` on input `federationId`, resolve entity ownership (`resolveEntityFederationId`) and require the row’s federation to match the claim (venues remain platform-admin only). Cross-tenant case in `federationScope.test.ts`.
 - **A2 — News `sourceUrl` hrefs:** Client `safeHttpsHref` on Read original links (`NewsCard`, `FeaturedNewsCard`, `NewsArticleModal`, Admin Content Sync). `news.create`/`update` `featuredImage` uses `httpsUrlSchema`; aggregator stores https-only `source_url` / `featured_image`.
