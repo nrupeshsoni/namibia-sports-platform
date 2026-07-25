@@ -54,7 +54,7 @@ export const federations: Federation[] = [
     name: 'Namibia Sports Commission',
     category: 'commission',
     shortName: 'SPORTS COMMISSION',
-    image: '/logos/athletics-logo.png',
+    image: '/logos/Namibia_Sports_Commission_logo.jpg',
     description: 'National sports commission coordinating all sporting activities',
   },
   {
@@ -76,7 +76,7 @@ export const federations: Federation[] = [
     name: 'Athletics Namibia',
     category: 'federation',
     shortName: 'ATHLETICS',
-    image: '/logos/athletics-logo.png',
+    image: '/logos/marks/athletics.svg',
   },
   {
     id: 17,
