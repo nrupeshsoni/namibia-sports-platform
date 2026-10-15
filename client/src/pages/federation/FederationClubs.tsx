@@ -64,7 +64,11 @@ export default function FederationClubs() {
     federationId: federation?.id,
     limit: 200,
   });
+  const clubsCountQuery = trpc.clubs.count.useQuery({
+    federationId: federation?.id,
+  });
   const clubs = clubsQuery.data ?? [];
+  const clubTotal = clubsCountQuery.data ?? clubs.length;
 
   const filtered = clubs.filter((c) => {
     const matchSearch =
@@ -87,7 +91,7 @@ export default function FederationClubs() {
           className="px-3 py-1 rounded-full text-sm font-medium"
           style={{ background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.4)", color: "#EF4444" }}
         >
-          {clubs.length} {clubs.length === 1 ? "club" : "clubs"}
+          {clubTotal} {clubTotal === 1 ? "club" : "clubs"}
         </span>
       </motion.div>
 

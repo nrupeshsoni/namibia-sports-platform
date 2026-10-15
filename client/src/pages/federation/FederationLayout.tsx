@@ -143,7 +143,7 @@ function FederationLayoutInner({
 
   // Public nav: hide empty Clubs/Athletes/News/Media/Streams. Admins (and auth loading) see all.
   const showAllPublicTabs = Boolean(hasAdminAccess) || meQuery.isLoading;
-  const clubsQuery = trpc.clubs.list.useQuery(
+  const clubsQuery = trpc.clubs.count.useQuery(
     { federationId: federation.id },
     { enabled: !isAdminPathVal }
   );
@@ -164,7 +164,7 @@ function FederationLayoutInner({
     { enabled: !isAdminPathVal }
   );
   const tabInventory = {
-    clubs: clubsQuery.data?.length ?? 0,
+    clubs: clubsQuery.data ?? 0,
     athletes: athletesQuery.data?.length ?? 0,
     news: newsQuery.data?.length ?? 0,
     media: mediaQuery.data?.length ?? 0,

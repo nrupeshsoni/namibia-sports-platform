@@ -79,11 +79,19 @@ export function ClubForm({ mode, initialData, onSuccess, federationIdLock }: Pro
       setForm((p) => ({ ...p, [field]: e.target.value }));
 
   const createMut = trpc.clubs.create.useMutation({
-    onSuccess: () => { utils.clubs.list.invalidate(); onSuccess(); },
+    onSuccess: () => {
+      utils.clubs.list.invalidate();
+      utils.clubs.count.invalidate();
+      onSuccess();
+    },
     onError: (err) => setError(err.message),
   });
   const updateMut = trpc.clubs.update.useMutation({
-    onSuccess: () => { utils.clubs.list.invalidate(); onSuccess(); },
+    onSuccess: () => {
+      utils.clubs.list.invalidate();
+      utils.clubs.count.invalidate();
+      onSuccess();
+    },
     onError: (err) => setError(err.message),
   });
 
