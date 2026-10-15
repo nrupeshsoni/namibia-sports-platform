@@ -12,10 +12,9 @@ export default function FedAdminDashboard({ federationId, federationName }: FedA
     includeUnpublished: true,
     limit: 200,
   });
-  const clubsQuery = trpc.clubs.list.useQuery({
+  const clubsCountQuery = trpc.clubs.count.useQuery({
     federationId,
     includeInactive: true,
-    limit: 200,
   });
   const athletesQuery = trpc.athletes.list.useQuery({
     federationId,
@@ -27,7 +26,7 @@ export default function FedAdminDashboard({ federationId, federationName }: FedA
 
   const stats = [
     { label: "Events", value: eventsQuery.data?.length ?? "—", color: "#3B82F6", icon: Calendar },
-    { label: "Clubs", value: clubsQuery.data?.length ?? "—", color: "#10B981", icon: Users },
+    { label: "Clubs", value: clubsCountQuery.data ?? "—", color: "#10B981", icon: Users },
     { label: "Athletes", value: athletesQuery.data?.length ?? "—", color: "#FBBF24", icon: User },
     { label: "News", value: newsQuery.data?.length ?? "—", color: "#8B5CF6", icon: Newspaper },
     { label: "Streams", value: streamsQuery.data?.length ?? "—", color: "#EF4444", icon: Radio },

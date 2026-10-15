@@ -70,6 +70,7 @@ export default function Admin() {
 
   const [activeTab, setActiveTab] = useState<Tab>("federations");
   const [searchQuery, setSearchQuery] = useState("");
+  const [clubsOffset, setClubsOffset] = useState(0);
   const [scopeFedId, setScopeFedId] = useState<number | null>(null);
   const [fedModal, setFedModal] = useState<{ mode: "create" } | { mode: "edit"; data: FederationFormData } | null>(null);
   const [evtModal, setEvtModal] = useState<{ mode: "create" } | { mode: "edit"; data: EventFormData } | null>(null);
@@ -81,6 +82,11 @@ export default function Admin() {
 
   const utils = trpc.useUtils();
   const fedFilter = scopeFedId ?? undefined;
+  const clubsSearch = searchQuery.trim() || undefined;
+
+  useEffect(() => {
+    setClubsOffset(0);
+  }, [fedFilter, clubsSearch]);
 
   const federationsQuery = trpc.federations.listAll.useQuery(undefined, { enabled: isPlatformAdmin });
   const eventsQuery = trpc.events.list.useQuery(
@@ -88,7 +94,21 @@ export default function Admin() {
     { enabled: isPlatformAdmin }
   );
   const clubsQuery = trpc.clubs.list.useQuery(
-    { includeInactive: true, limit: ADMIN_LIMIT, federationId: fedFilter },
+    {
+      includeInactive: true,
+      limit: ADMIN_LIMIT,
+      offset: clubsOffset,
+      federationId: fedFilter,
+      search: activeTab === "clubs" ? clubsSearch : undefined,
+    },
+    { enabled: isPlatformAdmin }
+  );
+  const clubsCountQuery = trpc.clubs.count.useQuery(
+    {
+      includeInactive: true,
+      federationId: fedFilter,
+      search: activeTab === "clubs" ? clubsSearch : undefined,
+    },
     { enabled: isPlatformAdmin }
   );
   const athletesQuery = trpc.athletes.list.useQuery(
@@ -103,7 +123,12 @@ export default function Admin() {
     onSuccess: () => { utils.events.list.invalidate(); utils.adminStats.counts.invalidate(); setDeleteConfirm(null); },
   });
   const deleteClub = trpc.clubs.delete.useMutation({
-    onSuccess: () => { utils.clubs.list.invalidate(); utils.adminStats.counts.invalidate(); setDeleteConfirm(null); },
+    onSuccess: () => {
+      utils.clubs.list.invalidate();
+      utils.clubs.count.invalidate();
+      utils.adminStats.counts.invalidate();
+      setDeleteConfirm(null);
+    },
   });
   const deleteAth = trpc.athletes.delete.useMutation({
     onSuccess: () => { utils.athletes.list.invalidate(); utils.adminStats.counts.invalidate(); setDeleteConfirm(null); },
@@ -137,6 +162,11 @@ export default function Admin() {
 
   const showSearchAdd = CRUD_TABS.includes(activeTab);
   const createLock = scopeFedId ?? undefined;
+  const clubsTotal = clubsCountQuery.data ?? 0;
+  const clubsPageStart = clubsTotal === 0 ? 0 : clubsOffset + 1;
+  const clubsPageEnd = Math.min(clubsOffset + ADMIN_LIMIT, clubsTotal);
+  const clubsHasPrev = clubsOffset > 0;
+  const clubsHasNext = clubsOffset + ADMIN_LIMIT < clubsTotal;
 
   return (
     <div className="min-h-screen theme-page">
@@ -183,7 +213,7 @@ export default function Admin() {
             return (
               <button
                 key={tab.id}
-                onClick={() => { setActiveTab(tab.id); setSearchQuery(""); }}
+                onClick={() => { setActiveTab(tab.id); setSearchQuery(""); setClubsOffset(0); }}
                 className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium whitespace-nowrap transition-all min-h-[44px]"
                 style={{
                   background: activeTab === tab.id
@@ -232,7 +262,42 @@ export default function Admin() {
           <EventsTable data={eventsQuery.data as EventFormData[] | undefined} isLoading={eventsQuery.isLoading} search={searchQuery} onEdit={(item) => setEvtModal({ mode: "edit", data: item })} onDelete={(item) => setDeleteConfirm({ entity: "events", id: item.id, federationId: item.federationId })} />
         )}
         {activeTab === "clubs" && (
-          <ClubsTable data={clubsQuery.data as ClubFormData[] | undefined} isLoading={clubsQuery.isLoading} search={searchQuery} onEdit={(item) => setClubModal({ mode: "edit", data: item })} onDelete={(item) => setDeleteConfirm({ entity: "clubs", id: item.id, federationId: item.federationId })} />
+          <div className="space-y-4">
+            <ClubsTable
+              data={clubsQuery.data as ClubFormData[] | undefined}
+              isLoading={clubsQuery.isLoading}
+              search=""
+              onEdit={(item) => setClubModal({ mode: "edit", data: item })}
+              onDelete={(item) => setDeleteConfirm({ entity: "clubs", id: item.id, federationId: item.federationId })}
+            />
+            {clubsTotal > 0 && (
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-gray-400">
+                <span>
+                  Showing {clubsPageStart}–{clubsPageEnd} of {clubsTotal}
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="min-h-[44px] border border-white/10"
+                    disabled={!clubsHasPrev || clubsQuery.isFetching}
+                    onClick={() => setClubsOffset((o) => Math.max(0, o - ADMIN_LIMIT))}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="min-h-[44px] border border-white/10"
+                    disabled={!clubsHasNext || clubsQuery.isFetching}
+                    onClick={() => setClubsOffset((o) => o + ADMIN_LIMIT)}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
         )}
         {activeTab === "athletes" && (
           <AthletesTable data={athletesQuery.data as AthleteFormData[] | undefined} isLoading={athletesQuery.isLoading} search={searchQuery} onEdit={(item) => setAthModal({ mode: "edit", data: item })} onDelete={(item) => setDeleteConfirm({ entity: "athletes", id: item.id, federationId: item.federationId ?? null })} />

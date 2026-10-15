@@ -34,7 +34,8 @@ federations.delete({ id })                     // adminProcedure
 
 ### `clubs` / `events` / `athletes` / `coaches`
 ```typescript
-clubs.list({ federationId?, search?, region?, limit? })
+clubs.list({ federationId?, search?, region?, limit?, offset?, includeInactive? })
+clubs.count({ federationId?, search?, region?, includeInactive? })  // same filters/visibility as list
 clubs.getById({ id })
 clubs.create / update / delete                 // federationAdminProcedure + assertSameFederation
 

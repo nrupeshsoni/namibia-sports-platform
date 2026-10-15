@@ -5,6 +5,8 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- **`clubs.count`:** Same filters/visibility as `clubs.list` (`federationId` / `region` / `search` / `includeInactive`); returns a number so UIs can show totals past the list cap.
+- **`clubs.list` `offset`:** Optional offset (default 0) alongside existing `limit`; response remains a plain array (backwards compatible).
 - **Venue geocode backfill:** Nominatim OSM (1 req/sec + User-Agent) + curated pins for **18**/42 active venues; **24** left null when unsure. Map plots blue venue markers when lat/lng present. Admin `venues.create`/`update` accept lat/lng. Evidence: `docs/research/venues_geocode_backfill_20260725.md`; script `scripts/geocode-venues-nominatim.mjs`.
 - **SEO entity pages:** published event and active club slug routes with sitemap discovery.
 - Public **/events/:slug** and **/clubs/:slug** detail pages: getBySlug tRPC, SPA routes, card links, JSON-LD, sitemap entries.
@@ -19,6 +21,7 @@ All notable changes to this project are documented in this file.
 - **SEC-M6 — AI error leak:** `ai.*` and Content Sync use `toClientSafeTrpcError` — production clients get generic messages; details logged server-side only.
 
 ### Fixed
+- **Clubs directory truncation:** Admin clubs tab paginates via `offset`/`count` (past the 200-row cap). FederationHome / FederationLayout / FedAdminDashboard / FederationClubs use `clubs.count` instead of `list.length` for displayed totals.
 - **PERF-CC — Cache-Control wiring:** `cacheControlForRequest` was defined but never applied; Worker now sets hashed `/assets/*` to `immutable` + long `max-age`, API to `private, no-store`, HTML to `no-cache`. Also added `/assets/*` to `run_worker_first` so Assets does not bypass the Worker for Vite bundles.
 - **SeoHead build break:** restore `parseEventSlug` / `parseClubSlug` / `pendingSeo` / `soft404Seo` (missing after slug-hydration commit); loading + missing entity slugs both emit `noindex`.
 - **SearchAction:** homepage `/?q=` opens `SearchCommandPalette` (Cmd/Ctrl+K + `search.global`).

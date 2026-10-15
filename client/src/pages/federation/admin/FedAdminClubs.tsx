@@ -24,6 +24,7 @@ export default function FedAdminClubs({ federationId }: FedAdminClubsProps) {
   const deleteMut = trpc.clubs.delete.useMutation({
     onSuccess: () => {
       utils.clubs.list.invalidate();
+      utils.clubs.count.invalidate();
       setDeleteConfirm(null);
     },
   });

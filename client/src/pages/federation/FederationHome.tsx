@@ -14,13 +14,13 @@ export default function FederationHome() {
   const eventsQuery = trpc.events.list.useQuery({ federationId: federation.id, upcoming: true });
   const newsQuery = trpc.news.list.useQuery({ federationId: federation.id, limit: 3 });
   const streamsQuery = trpc.streams.list.useQuery({ federationId: federation.id, isLive: true });
-  const clubsQuery = trpc.clubs.list.useQuery({ federationId: federation.id });
+  const clubsCountQuery = trpc.clubs.count.useQuery({ federationId: federation.id });
   const athletesQuery = trpc.athletes.list.useQuery({ federationId: federation.id });
 
   const events = eventsQuery.data?.slice(0, 3) ?? [];
   const news = newsQuery.data ?? [];
   const liveStreams = streamsQuery.data ?? [];
-  const clubCount = clubsQuery.data?.length ?? 0;
+  const clubCount = clubsCountQuery.data ?? 0;
   const athleteCount = athletesQuery.data?.length ?? 0;
 
   return (
